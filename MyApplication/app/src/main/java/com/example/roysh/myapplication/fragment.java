@@ -95,16 +95,16 @@ public class fragment extends Fragment {
             super.onBackPressed();
         }
     }
-
+*/
     private void showProgressDialog() {
         if(mLoginProgressDlg == null){
-            mLoginProgressDlg = new ProgressDialog(FirstActivity.this);
+            mLoginProgressDlg = new ProgressDialog(getActivity());
             mLoginProgressDlg.setCanceledOnTouchOutside(false);
             mLoginProgressDlg.setCancelable(false);
             mLoginProgressDlg.setMessage("Logging In...");
         }
         mLoginProgressDlg.show();
-    }*/
+    }
 
     private void sampleWebServices(String sReqBody,String url) throws IOException {
         // We opened the connection using the URL.
@@ -177,7 +177,7 @@ public class fragment extends Fragment {
             mReadMessage = "Reading :\n\n";
             mErrorMessage = "";
 
-          // showProgressDialog();
+           showProgressDialog();
         }
 
         @Override
