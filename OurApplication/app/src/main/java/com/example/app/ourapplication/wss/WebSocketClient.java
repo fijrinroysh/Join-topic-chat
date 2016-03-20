@@ -48,15 +48,19 @@ public class WebSocketClient implements WebSocket.WebSocketConnectionObserver {
                     }
                 }
 
+//                this.mWssUri = new URI(wssUrl);
                 this.mWssUri = new URI(scheme,schemeSpecificPart,null);
-                Log.i(TAG, "Connecting to the URL : "+mWssUri);
+                Log.i(TAG, "Connecting to the URL : " + mWssUri);
             }catch (Exception e) {
                 Log.i(TAG, "Connecting failed.");
                 e.printStackTrace();
             }
             WebSocketOptions webSocketOptions=new WebSocketOptions();
             webSocketOptions.setReconnectInterval(1000);
-            mWebSocketConnection.connect(mWssUri, this, webSocketOptions);
+
+            String echoMsg[] = {"echo-protocol"};
+
+            mWebSocketConnection.connect(mWssUri,echoMsg, this, webSocketOptions);
         } catch (WebSocketException e) {
             String message = e.getLocalizedMessage();
             Log.e(TAG, message);
@@ -74,6 +78,9 @@ public class WebSocketClient implements WebSocket.WebSocketConnectionObserver {
     @Override
     public void onOpen() {
         mWebSocketListener.onOpen();
+//        String echoMsg = "echo-protocol";
+//
+//        mWebSocketConnection.sendTextMessage(echoMsg);
     }
 
     @Override
@@ -91,4 +98,8 @@ public class WebSocketClient implements WebSocket.WebSocketConnectionObserver {
 
     @Override
     public void onBinaryMessage(byte[] payload) {}
+
+    public void sendMessage(String message) {
+        mWebSocketConnection.sendTextMessage(message);
+    }
 }
