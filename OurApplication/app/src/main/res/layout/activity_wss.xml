@@ -45,10 +45,10 @@
         android:textSize="18sp"
         android:id="@+id/status" />
 
-    <TextView
+    <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:textSize="18sp"
+        android:dividerHeight="1dp"
         android:id="@+id/info" />
 </LinearLayout>
