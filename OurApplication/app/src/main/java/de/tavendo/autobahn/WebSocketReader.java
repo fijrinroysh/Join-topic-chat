@@ -31,6 +31,7 @@ import android.util.Log;
 import android.util.Pair;
 import de.tavendo.autobahn.WebSocketMessage.WebSocketCloseCode;
 
+
 /**
  * WebSocket reader, the receiving leg of a WebSockets connection.
  * This runs on it's own background thread and posts messages to master
@@ -530,7 +531,11 @@ public class WebSocketReader extends Thread {
 					if (status.first >= 300) {
 						// Invalid status code for success connection
 						notify(new WebSocketMessage.ServerError(status.first, status.second));
+						//notify(new WebSocketMessage.ServerError(300, status.second));
+						//serverError = false;
 						serverError = true;
+
+
 					}
 				}
 
@@ -580,12 +585,13 @@ public class WebSocketReader extends Thread {
 		for (eol = end; eol < mApplicationBuffer.position(); ++eol) {
 			if (mApplicationBuffer.get(eol) == 0x0d) break;
 		}
-		int statusMessageLength = eol - end;
+		int statusMessageLength = eol - end ;
 		byte[] statusBuf = new byte[statusMessageLength];
 		mApplicationBuffer.position(end);
 		mApplicationBuffer.get(statusBuf, 0, statusMessageLength);
 		String statusMessage = new String(statusBuf, WebSocket.UTF8_ENCODING);
 		Log.w(TAG, String.format("Status: %d (%s)", statusCode, statusMessage));
+
 		return new Pair<Integer, String>(statusCode, statusMessage);
 	}
 

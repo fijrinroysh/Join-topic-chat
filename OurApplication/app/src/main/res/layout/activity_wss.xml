@@ -3,17 +3,29 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Recent Status is : "
+        android:textStyle="bold"
+        android:layout_margin="8dp"
+        android:textSize="18sp"
+        android:id="@+id/status" />
+
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Provide the WSS url to connect..."
         android:textSize="18sp"
-        android:inputType="textEmailAddress"
+        android:inputType="textUri"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="20dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:id="@+id/url_box" />
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -36,19 +48,16 @@
             android:id="@+id/disconnect" />
     </LinearLayout>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Recent Status is : "
-        android:textStyle="bold"
-        android:layout_margin="8dp"
-        android:textSize="18sp"
-        android:id="@+id/status" />
 
     <ListView
+        android:layout_below="@id/status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:dividerHeight="1dp"
-        android:id="@+id/info" />
+        android:divider="@color/common_action_bar_splitter"
+        android:id="@+id/thelistView"
+        />
+
+
 </LinearLayout>

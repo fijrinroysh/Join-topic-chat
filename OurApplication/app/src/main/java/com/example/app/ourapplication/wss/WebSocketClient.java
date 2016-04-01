@@ -8,7 +8,6 @@ import de.tavendo.autobahn.WebSocket;
 import de.tavendo.autobahn.WebSocketConnection;
 import de.tavendo.autobahn.WebSocketException;
 import de.tavendo.autobahn.WebSocketOptions;
-
 /**
  * Created by sarumugam on 20/03/16.
  */
@@ -30,14 +29,14 @@ public class WebSocketClient implements WebSocket.WebSocketConnectionObserver {
 			/*forming the chat-URL.*/
             try{
                 URI chatUrl = new URI(wssUrl);
-                //Log.d(TAG, "url recieved from Token Manager: "+url);
+                Log.d(TAG, "url recieved from Token Manager: "+chatUrl);
 
                 //String path=chatUrl.getPath();
                 String scheme=chatUrl.getScheme();
                 String schemeSpecificPart=chatUrl.getSchemeSpecificPart();
 
                 //Log.d(TAG, "path from the url: "+path);
-                //Log.d(TAG, "scheme specific part: "+schemeSpecificPart);
+                Log.d(TAG, "scheme specific part: "+schemeSpecificPart);
                 Log.d(TAG, "scheme from the url: "+scheme);
 
                 if(scheme!=null){
@@ -48,7 +47,7 @@ public class WebSocketClient implements WebSocket.WebSocketConnectionObserver {
                     }
                 }
 
-//                this.mWssUri = new URI(wssUrl);
+                  //this.mWssUri = new URI(wssUrl);
                 this.mWssUri = new URI(scheme,schemeSpecificPart,null);
                 Log.i(TAG, "Connecting to the URL : " + mWssUri);
             }catch (Exception e) {
@@ -57,14 +56,19 @@ public class WebSocketClient implements WebSocket.WebSocketConnectionObserver {
             }
             WebSocketOptions webSocketOptions=new WebSocketOptions();
             webSocketOptions.setReconnectInterval(1000);
+            webSocketOptions.setReceiveTextMessagesRaw(false);
+            Log.e(TAG, "MaxFramePayloadSize:" + webSocketOptions.getMaxFramePayloadSize());
+
 
             String echoMsg[] = {"echo-protocol"};
-
             mWebSocketConnection.connect(mWssUri,echoMsg, this, webSocketOptions);
+
+
         } catch (WebSocketException e) {
             String message = e.getLocalizedMessage();
             Log.e(TAG, message);
         }
+
     }
 
     /**
@@ -90,6 +94,7 @@ public class WebSocketClient implements WebSocket.WebSocketConnectionObserver {
 
     @Override
     public void onTextMessage(String payload) {
+        Log.d(TAG, "Message is :" + payload);
         mWebSocketListener.onTextMessage(payload);
     }
 

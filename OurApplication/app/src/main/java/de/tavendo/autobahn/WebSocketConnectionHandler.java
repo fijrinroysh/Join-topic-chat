@@ -18,12 +18,16 @@
 
 package de.tavendo.autobahn;
 
+import android.util.Log;
+
+
 /**
  * WebSockets event handler. Users will usually provide an instance of a class
  * derived from this to handle WebSockets received messages and open/close events
  */
 public class WebSocketConnectionHandler implements WebSocket.WebSocketConnectionObserver {
 
+   private final String TAG = WebSocketConnectionHandler.class.getSimpleName();
    /**
     * Fired when the WebSockets connection has been established.
     * After this happened, messages may be sent.
@@ -48,6 +52,7 @@ public class WebSocketConnectionHandler implements WebSocket.WebSocketConnection
     * @param payload    Text message payload or null (empty payload).
     */
    public void onTextMessage(String payload) {
+
    }
 
    /**

@@ -52,18 +52,16 @@ public class fragment extends Fragment {
 
         Bundle args = new Bundle();
         args.putString("name", name);
-
-        fragment fragment = new fragment();
-        fragment.setArguments(args);
-        return fragment;
+        fragment fRagment = new fragment();
+        fRagment.setArguments(args);
+        return fRagment;
     }
-
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
-        TextView txtview = (TextView) view.findViewById(R.id.text);
+        //TextView txtview = (TextView) view.findViewById(R.id.text);
         //txtview.setText(getArguments().getString("name"));
         mUserNameBox = (EditText) view.findViewById(R.id.username_field);
         mPasswordBox = (EditText) view.findViewById(R.id.password_field);

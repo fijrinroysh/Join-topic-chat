@@ -401,18 +401,21 @@ public class WebSocketConnection implements WebSocket {
 			startConnection();
 			if(mSocket!=null){
 				isRunning=mSocket.isConnected();
+				Log.d(TAG, "Is running"+isRunning);
 			}
 
 			synchronized (this) {
 				while (isRunning) {
 					try {
+						Log.d(TAG, "wait"+isRunning);
 						this.wait();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
+						Log.d(TAG, "InterruptedException" );
 					}
 				}
 			}
-			
+			Log.d(TAG, "stopConnection" );
 			stopConnection();
 			Log.d(TAG, "SocketThread exited.");
 		}
@@ -422,7 +425,10 @@ public class WebSocketConnection implements WebSocket {
 		public void startConnection() {	
 			try {
 				String host = mWebSocketURI.getHost();
+
 				int port = mWebSocketURI.getPort();
+				Log.d(TAG, "startConnection host : "+host);
+				Log.d(TAG, "startConnection port : "+port);
 
 				if (port == -1) {
 					if (mWebSocketURI.getScheme().equals(WSS_URI_SCHEME)) {
@@ -456,11 +462,15 @@ public class WebSocketConnection implements WebSocket {
 			} else if (mSocket.isConnected()) {
 				try {
 					createReader();
+					//Log.d(TAG, "Reader done");
 					createWriter();
+					//Log.d(TAG, "Writer done");
 
 					WebSocketMessage.ClientHandshake clientHandshake = new WebSocketMessage.ClientHandshake(mWebSocketURI, null, mWebSocketSubprotocols);
 					mWebSocketWriter.forward(clientHandshake);
+					Log.d(TAG, "Handshake done");
 				} catch (Exception e) {
+					e.printStackTrace();
 					onClose(WebSocketCloseNotification.INTERNAL_ERROR, e.getLocalizedMessage());
 				}
 			} else {
