@@ -1,6 +1,7 @@
 package com.example.app.ourapplication;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -199,7 +200,17 @@ public class LoginActivity extends AppCompatActivity {
                 switch (mRequestType){
                     case LOGIN:
                     case SIGNUP:
-                        setResult(RESULT_OK);
+                        Intent data = new Intent();
+                        String token = null;
+                        try {
+                            JSONObject jsonObject = null;
+                            jsonObject = new JSONObject(response);
+                            token = jsonObject.getString(Keys.KEY_TOKEN);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        data.putExtra(Keys.KEY_TOKEN,token);
+                        setResult(RESULT_OK,data);
                         finish();
                         break;
                 }

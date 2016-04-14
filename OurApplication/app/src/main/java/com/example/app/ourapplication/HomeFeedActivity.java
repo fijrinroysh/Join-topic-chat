@@ -15,6 +15,9 @@ import android.widget.TextView;
 import com.example.app.ourapplication.wss.WebSocketClient;
 import com.example.app.ourapplication.wss.WebSocketListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 /**
@@ -24,6 +27,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
     public static final int REQUEST_LOGIN = 6;
     private final String TAG = HomeFeedActivity.class.getSimpleName();
+    private String mToken;
     private ArrayList<String> mFeeds = new ArrayList<>();
     private ArrayAdapter<String> mFeedListAdapter;
     private WebSocketClient mWebSocketClient;
@@ -40,7 +44,6 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_feed);
 
-        setTitle(getString(R.string.feed_title));
         initializeViews();
         setUpFeedList();
         setListeners();
@@ -52,12 +55,19 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode){
             case REQUEST_LOGIN:
-                if(resultCode == RESULT_OK){
+                if(resultCode == RESULT_OK && data != null){
                     mMsgLayout.setVisibility(View.VISIBLE);
                     mLoginButton.setVisibility(View.GONE);
+                    mToken = data.getStringExtra(Keys.KEY_TOKEN);
                 }
                 break;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        mWebSocketClient.disconnect();
+        super.onDestroy();
     }
 
     @Override
@@ -73,7 +83,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     @Override
     public void onTextMessage(String message) {
         mNoFeedText.setVisibility(View.INVISIBLE);
-        mFeedListAdapter.add(message);
+        mFeedListAdapter.add(parseFeeds(message));
     }
 
     private void initializeViews() {
@@ -96,6 +106,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
             public void onClick(View v) {
                 String msg = mMessageBox.getText().toString();
                 if (!TextUtils.isEmpty(msg)) {
+                    msg = formFeedMessage(msg);
                     mWebSocketClient.sendMessage(msg);
                     mMessageBox.setText(null);
                 }
@@ -105,8 +116,8 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent loginIntent = new Intent(HomeFeedActivity.this,LoginActivity.class);
-                startActivityForResult(loginIntent,REQUEST_LOGIN);
+                Intent loginIntent = new Intent(HomeFeedActivity.this, LoginActivity.class);
+                startActivityForResult(loginIntent, REQUEST_LOGIN);
             }
         });
     }
@@ -114,5 +125,27 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     private void establishConnection(){
         mWebSocketClient = new WebSocketClient(this);
         mWebSocketClient.connectToWSS(AppUrl.WS_URL);
+    }
+
+    private String formFeedMessage(String message){
+        JSONObject msgObject = new JSONObject();
+        try {
+            msgObject.put(Keys.KEY_MESSAGE,message);
+            msgObject.put(Keys.KEY_TOKEN,mToken);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return msgObject.toString();
+    }
+
+    private String parseFeeds(String message){
+        JSONObject msgObject = null;
+        try {
+            msgObject = new JSONObject(message);
+            message = msgObject.optString(Keys.KEY_MESSAGE)+" From : "+msgObject.optString(Keys.KEY_NAME);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return message;
     }
 }
