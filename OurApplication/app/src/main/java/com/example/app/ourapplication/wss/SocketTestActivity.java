@@ -1,6 +1,5 @@
 package com.example.app.ourapplication.wss;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -9,16 +8,10 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.app.ourapplication.R;
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
-
-import org.json.JSONException;
 
 import java.util.ArrayList;
 
@@ -56,8 +49,9 @@ public class SocketTestActivity extends AppCompatActivity implements WebSocketLi
        /* ListAdapter listAdapter = new ArrayAdapter<String>(SocketTestActivity.this,android.R.layout.simple_list_item_1,
                 new ArrayList<String>());*/
         arrayOfmsgs = new ArrayList<String>();
-        ListAdapter listAdapter = new ArrayAdapter<String>(SocketTestActivity.this, android.R.layout.simple_list_item_1,
+        ArrayAdapter listAdapter = new ArrayAdapter<String>(SocketTestActivity.this, android.R.layout.simple_list_item_1,
                 arrayOfmsgs);
+
         ListView listView = (ListView) findViewById(R.id.thelistView);
         listView.setAdapter(listAdapter);
 
