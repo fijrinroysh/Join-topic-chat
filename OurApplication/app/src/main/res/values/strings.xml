@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">OurApplication</string>
-    <string name="feed_title">WHAT IS THE TITLE</string>
 
     <string name="no_feed">No Feeds for you.</string>
     <string name="send">Send</string>
