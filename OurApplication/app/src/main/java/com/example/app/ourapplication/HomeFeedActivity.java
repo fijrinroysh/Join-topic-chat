@@ -2,6 +2,8 @@ package com.example.app.ourapplication;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
@@ -29,7 +31,9 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     private final String TAG = HomeFeedActivity.class.getSimpleName();
     private String mToken;
     private ArrayList<String> mFeeds = new ArrayList<>();
+    private ArrayList<String> mGroups = new ArrayList<>();
     private ArrayAdapter<String> mFeedListAdapter;
+    private ArrayAdapter<String> mGroupListAdapter;
     private WebSocketClient mWebSocketClient;
 
     /*Views*/
@@ -38,6 +42,8 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     private EditText mMessageBox;
     private Button mSendButton;
     private ImageButton mLoginButton;
+    private DrawerLayout mDrawer;
+    private ActionBarDrawerToggle mDrawerToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +52,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
         initializeViews();
         setUpFeedList();
+        setUpDrawerLyt();
         setListeners();
         establishConnection();
     }
@@ -98,6 +105,39 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         ListView feedList = (ListView) findViewById(R.id.feed_list);
         mFeedListAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,mFeeds);
         feedList.setAdapter(mFeedListAdapter);
+        ListView groupList = (ListView) findViewById(R.id.group_list);
+        mGroupListAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,mGroups);
+        groupList.setAdapter(mGroupListAdapter);
+        // TODO : Adding temp group name
+        mGroupListAdapter.add("Group 1");
+        mGroupListAdapter.add("Group 2");
+        mGroupListAdapter.add("Group 3");
+    }
+
+    private void setUpDrawerLyt(){
+        mDrawer = (DrawerLayout) findViewById(R.id.drawer);
+        // enable ActionBar app icon to behave as action to toggle nav drawer
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        getSupportActionBar().setHomeButtonEnabled(true);
+
+        // ActionBarDrawerToggle ties together the the proper interactions
+        // between the sliding drawer and the action bar app icon
+        mDrawerToggle = new ActionBarDrawerToggle(this,/* host Activity */
+                mDrawer,         /* DrawerLayout object */
+                R.string.drawer_open,  /* "open drawer" description for accessibility */
+                R.string.drawer_close  /* "close drawer" description for accessibility */
+        ) {
+            public void onDrawerClosed(View view) {
+//                getSupportActionBar().setTitle(getString(R.string.app_name));
+//                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            public void onDrawerOpened(View drawerView) {
+//                getSupportActionBar().setTitle(getString(R.string.groups));
+//                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+        mDrawer.setDrawerListener(mDrawerToggle);
     }
 
     private void setListeners() {

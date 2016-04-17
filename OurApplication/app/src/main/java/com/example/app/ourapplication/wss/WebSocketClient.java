@@ -99,10 +99,14 @@ public class WebSocketClient implements WebSocket.WebSocketConnectionObserver {
     }
 
     @Override
-    public void onRawTextMessage(byte[] payload) {}
+    public void onRawTextMessage(byte[] payload) {
+        Log.d(TAG,"Raw message : "+payload);
+    }
 
     @Override
-    public void onBinaryMessage(byte[] payload) {}
+    public void onBinaryMessage(byte[] payload) {
+        Log.d(TAG,"Binary message : "+payload);
+    }
 
     public void sendMessage(String message) {
         mWebSocketConnection.sendTextMessage(message);
