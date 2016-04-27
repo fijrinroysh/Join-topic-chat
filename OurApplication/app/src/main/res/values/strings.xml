@@ -14,5 +14,8 @@
     <string name="sign_up_progress">Creating your account&#8230;</string>
     <string name="login_failed">Unable to Login, please try again.</string>
     <string name="sign_up_failed">Unable to create your account, please try again.</string>
+    <string name="drawer_open">Navigation drawer is opened</string>
+    <string name="drawer_close">Navigation drawer is closed</string>
+    <string name="groups">Groups</string>
 
 </resources>
