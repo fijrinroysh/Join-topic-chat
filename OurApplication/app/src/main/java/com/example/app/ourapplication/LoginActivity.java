@@ -194,17 +194,15 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String response) {
             super.onPostExecute(response);
-            mLoginProgressDlg.dismiss();
             Log.d(TAG, "Response : " + response);
             if(response != null){
                 switch (mRequestType){
                     case LOGIN:
-                    case SIGNUP:
+                        mLoginProgressDlg.dismiss();
                         Intent data = new Intent();
                         String token = null;
                         try {
-                            JSONObject jsonObject = null;
-                            jsonObject = new JSONObject(response);
+                            JSONObject jsonObject = new JSONObject(response);
                             token = jsonObject.getString(Keys.KEY_TOKEN);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -213,22 +211,26 @@ public class LoginActivity extends AppCompatActivity {
                         setResult(RESULT_OK,data);
                         finish();
                         break;
+                    case SIGNUP:
+                        String body = getLoginRequestBody();
+                        new ServerTask().execute(body);
                 }
             }else{
+                mLoginProgressDlg.dismiss();
                 Toast.makeText(LoginActivity.this, getString((mRequestType == RequestType.LOGIN)?
                         R.string.login_failed:R.string.sign_up_failed), Toast.LENGTH_SHORT).show();
             }
         }
 
         private String login(String reqBody) throws IOException {
-            HttpURLConnection connection = Util.getHttpConnection(AppUrl.SERVER_URL,"POST");
+            HttpURLConnection connection = Util.getHttpConnection(AppUrl.LOGIN_URL,"POST");
             Util.writeToStream(connection, reqBody);
 
             return Util.readInputStream(connection);
         }
 
         private String signUp(String reqBody) throws IOException {
-            HttpURLConnection connection = Util.getHttpConnection(AppUrl.SERVER_URL,"POST");
+            HttpURLConnection connection = Util.getHttpConnection(AppUrl.SIGN_UP_URL,"POST");
             Util.writeToStream(connection, reqBody);
 
             return Util.readInputStream(connection);

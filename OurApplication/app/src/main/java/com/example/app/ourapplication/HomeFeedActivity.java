@@ -6,6 +6,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -179,6 +180,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     }
 
     private String parseFeeds(String message){
+        Log.d(TAG,"Message : "+message);
         JSONObject msgObject = null;
         try {
             msgObject = new JSONObject(message);
