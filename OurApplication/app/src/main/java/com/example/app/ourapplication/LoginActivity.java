@@ -105,7 +105,9 @@ public class LoginActivity extends AppCompatActivity {
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String body = getLoginRequestBody();
+
+                String body = getLoginRequestBody(mUserNameBox.getText().toString(),
+                        mPasswordBox.getText().toString());
                 new ServerTask().execute(body);
             }
         });
@@ -128,11 +130,11 @@ public class LoginActivity extends AppCompatActivity {
         mLoginProgressDlg.show();
     }
 
-    private String getLoginRequestBody(){
+    private String getLoginRequestBody(String name, String password){
         JSONObject body = new JSONObject();
         try {
-            body.put("name",mUserNameBox.getText());
-            body.put("password",mPasswordBox.getText());
+            body.put("name",name);
+            body.put("password",password);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -212,7 +214,8 @@ public class LoginActivity extends AppCompatActivity {
                         finish();
                         break;
                     case SIGNUP:
-                        String body = getLoginRequestBody();
+                        String body = getLoginRequestBody(mSignUpNameBox.getText().toString(),
+                                mSignUpPasswordBox.getText().toString());
                         new ServerTask().execute(body);
                 }
             }else{
