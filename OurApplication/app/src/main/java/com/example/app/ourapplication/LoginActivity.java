@@ -216,7 +216,8 @@ public class LoginActivity extends AppCompatActivity {
                             JSONArray users = jsonObject.getJSONArray(Keys.KEY_USERS);
                             if (users != null) {
                                 for (int i=0;i<users.length();i++){
-                                    listdata.add(users.get(i).toString());
+                                    JSONObject user = new JSONObject(users.get(i).toString());
+                                    listdata.add(user.getString("username"));
                                 }
                             }
                             Log.d("USERS", listdata.toString());

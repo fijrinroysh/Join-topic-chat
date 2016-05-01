@@ -37,6 +37,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     public static final int REQUEST_LOGIN = 6;
     private final String TAG = HomeFeedActivity.class.getSimpleName();
     private String mToken;
+    private String mRecvr;
     private ArrayList<String> mUsers = new ArrayList<>();
     private ArrayList<String> mFeeds = new ArrayList<>();
 
@@ -80,11 +81,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                     mToken = data.getStringExtra(Keys.KEY_TOKEN);
                     mUsers = data.getStringArrayListExtra(Keys.KEY_USERS);
 
-                    //String enty = data.getStringExtra(Keys.KEY_USERS);
-                    //String[] entries = new String[] enty;
-                   // Log.d(TAG, "Entries array " + entries);
-                    //mUsers = new ArrayList<String>(Arrays.asList(entries));
-                  //  mUsers = new ArrayList<String>(Arrays.asList(a));
+                    mWebSocketClient.sendMessage(connectMessage());
                         mGroupListAdapter.addAll(mUsers);
 
                 }
@@ -148,10 +145,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
     // Swaps fragments in the main content view
     private void selectItem(int position) {
-        ListView groupList = (ListView) findViewById(R.id.group_list);
-        // Highlight the selected item, update the title, and close the drawer
-    groupList.setItemChecked(position, true);
-        //JSONObject (mUsers[position]);
+       mRecvr =  mUsers.get(position);
         mDrawer.closeDrawer(groupList);
     }
 
@@ -214,8 +208,21 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         JSONObject msgObject = new JSONObject();
         try {
             msgObject.put(Keys.KEY_MESSAGE,message);
+            msgObject.put(Keys.KEY_TOKEN,"token");
+            msgObject.put(Keys.KEY_TO,mRecvr);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return msgObject.toString();
+    }
+
+    private String connectMessage(){
+        JSONObject msgObject = new JSONObject();
+        try {
+            msgObject.put(Keys.KEY_MESSAGE,"dummy msg");
             msgObject.put(Keys.KEY_TOKEN,mToken);
-            msgObject.put(Keys.KEY_TO,"Siva");
+            msgObject.put(Keys.KEY_TO,"no receiver");
 
         } catch (JSONException e) {
             e.printStackTrace();
