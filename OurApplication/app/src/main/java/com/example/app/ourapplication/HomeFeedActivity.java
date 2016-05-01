@@ -80,9 +80,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                     mLoginButton.setVisibility(View.GONE);
                     mToken = data.getStringExtra(Keys.KEY_TOKEN);
                     mUsers = data.getStringArrayListExtra(Keys.KEY_USERS);
-
-                    mWebSocketClient.sendMessage(connectMessage());
-                        mGroupListAdapter.addAll(mUsers);
+                    mGroupListAdapter.addAll(mUsers);
 
                 }
                 break;
@@ -128,12 +126,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         mGroupListAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,mUsers);
         groupList.setAdapter(mGroupListAdapter);
         groupList.setOnItemClickListener(new DrawerItemClickListener());
-        // TODO : Adding temp group name
 
-
-      //  mGroupListAdapter.add("Group 1");
-      //  mGroupListAdapter.add("Group 2");
-      //  mGroupListAdapter.add("Group 3");
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -146,7 +139,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     // Swaps fragments in the main content view
     private void selectItem(int position) {
        mRecvr =  mUsers.get(position);
-        mDrawer.closeDrawer(groupList);
+        mDrawer.closeDrawers();
     }
 
 
@@ -208,7 +201,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         JSONObject msgObject = new JSONObject();
         try {
             msgObject.put(Keys.KEY_MESSAGE,message);
-            msgObject.put(Keys.KEY_TOKEN,"token");
+            msgObject.put(Keys.KEY_TOKEN,mToken);
             msgObject.put(Keys.KEY_TO,mRecvr);
 
         } catch (JSONException e) {
@@ -217,18 +210,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         return msgObject.toString();
     }
 
-    private String connectMessage(){
-        JSONObject msgObject = new JSONObject();
-        try {
-            msgObject.put(Keys.KEY_MESSAGE,"dummy msg");
-            msgObject.put(Keys.KEY_TOKEN,mToken);
-            msgObject.put(Keys.KEY_TO,"no receiver");
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return msgObject.toString();
-    }
 
     private String parseFeeds(String message){
         Log.d(TAG,"Message : "+message);
