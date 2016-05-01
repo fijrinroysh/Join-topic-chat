@@ -2,12 +2,15 @@ package com.example.app.ourapplication;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,7 +24,10 @@ import com.example.app.ourapplication.wss.WebSocketListener;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.sql.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by sarumugam on 17/04/16.
@@ -31,8 +37,13 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     public static final int REQUEST_LOGIN = 6;
     private final String TAG = HomeFeedActivity.class.getSimpleName();
     private String mToken;
+    private ArrayList<String> mUsers = new ArrayList<>();
     private ArrayList<String> mFeeds = new ArrayList<>();
-    private ArrayList<String> mGroups = new ArrayList<>();
+
+
+
+
+
     private ArrayAdapter<String> mFeedListAdapter;
     private ArrayAdapter<String> mGroupListAdapter;
     private WebSocketClient mWebSocketClient;
@@ -67,6 +78,15 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                     mMsgLayout.setVisibility(View.VISIBLE);
                     mLoginButton.setVisibility(View.GONE);
                     mToken = data.getStringExtra(Keys.KEY_TOKEN);
+                    mUsers = data.getStringArrayListExtra(Keys.KEY_USERS);
+
+                    //String enty = data.getStringExtra(Keys.KEY_USERS);
+                    //String[] entries = new String[] enty;
+                   // Log.d(TAG, "Entries array " + entries);
+                    //mUsers = new ArrayList<String>(Arrays.asList(entries));
+                  //  mUsers = new ArrayList<String>(Arrays.asList(a));
+                        mGroupListAdapter.addAll(mUsers);
+
                 }
                 break;
         }
@@ -92,6 +112,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     public void onTextMessage(String message) {
         mNoFeedText.setVisibility(View.INVISIBLE);
         mFeedListAdapter.add(parseFeeds(message));
+
     }
 
     private void initializeViews() {
@@ -107,13 +128,34 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         mFeedListAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,mFeeds);
         feedList.setAdapter(mFeedListAdapter);
         ListView groupList = (ListView) findViewById(R.id.group_list);
-        mGroupListAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,mGroups);
+        mGroupListAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,mUsers);
         groupList.setAdapter(mGroupListAdapter);
+        groupList.setOnItemClickListener(new DrawerItemClickListener());
         // TODO : Adding temp group name
-        mGroupListAdapter.add("Group 1");
-        mGroupListAdapter.add("Group 2");
-        mGroupListAdapter.add("Group 3");
+
+
+      //  mGroupListAdapter.add("Group 1");
+      //  mGroupListAdapter.add("Group 2");
+      //  mGroupListAdapter.add("Group 3");
     }
+
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView parent, View view, int position, long id) {
+            selectItem(position);
+        }
+    }
+
+    // Swaps fragments in the main content view
+    private void selectItem(int position) {
+        ListView groupList = (ListView) findViewById(R.id.group_list);
+        // Highlight the selected item, update the title, and close the drawer
+    groupList.setItemChecked(position, true);
+        //JSONObject (mUsers[position]);
+        mDrawer.closeDrawer(groupList);
+    }
+
+
 
     private void setUpDrawerLyt(){
         mDrawer = (DrawerLayout) findViewById(R.id.drawer);
@@ -173,6 +215,8 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         try {
             msgObject.put(Keys.KEY_MESSAGE,message);
             msgObject.put(Keys.KEY_TOKEN,mToken);
+            msgObject.put(Keys.KEY_TO,"Siva");
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -190,4 +234,6 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         }
         return message;
     }
+
+
 }

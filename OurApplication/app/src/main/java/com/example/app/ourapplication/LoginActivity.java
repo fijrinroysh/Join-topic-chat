@@ -13,11 +13,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by sarumugam on 17/04/16.
@@ -203,13 +206,26 @@ public class LoginActivity extends AppCompatActivity {
                         mLoginProgressDlg.dismiss();
                         Intent data = new Intent();
                         String token = null;
+                        ArrayList<String> listdata = new ArrayList<String>();
                         try {
                             JSONObject jsonObject = new JSONObject(response);
                             token = jsonObject.getString(Keys.KEY_TOKEN);
+                           // users= jsonObject.getJSONArray(Keys.KEY_USERS);
+
+
+                            JSONArray users = jsonObject.getJSONArray(Keys.KEY_USERS);
+                            if (users != null) {
+                                for (int i=0;i<users.length();i++){
+                                    listdata.add(users.get(i).toString());
+                                }
+                            }
+                            Log.d("USERS", listdata.toString());
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        data.putExtra(Keys.KEY_TOKEN,token);
+
+                        data.putExtra(Keys.KEY_TOKEN, token);
+                        data.putStringArrayListExtra(Keys.KEY_USERS, listdata);
                         setResult(RESULT_OK,data);
                         finish();
                         break;
