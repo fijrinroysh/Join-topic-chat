@@ -1,5 +1,8 @@
 package com.example.app.ourapplication;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
@@ -67,7 +70,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         setUpFeedList();
         setUpDrawerLyt();
         setListeners();
-        establishConnection();
+
     }
 
     @Override
@@ -81,6 +84,8 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                     mToken = data.getStringExtra(Keys.KEY_TOKEN);
                     mUsers = data.getStringArrayListExtra(Keys.KEY_USERS);
                     mGroupListAdapter.addAll(mUsers);
+
+                    establishConnection();
 
                 }
                 break;
@@ -107,6 +112,14 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     public void onTextMessage(String message) {
         mNoFeedText.setVisibility(View.INVISIBLE);
         mFeedListAdapter.add(parseFeeds(message));
+        JSONObject msgObject = null;
+        try {
+            msgObject = new JSONObject(message);
+            Notify(msgObject.optString(Keys.KEY_NAME), msgObject.optString(Keys.KEY_MESSAGE));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -194,7 +207,8 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
     private void establishConnection(){
         mWebSocketClient = new WebSocketClient(this);
-        mWebSocketClient.connectToWSS(AppUrl.WS_URL);
+        mWebSocketClient.connectToWSS(AppUrl.WS_URL + "/" + mToken);
+
     }
 
     private String formFeedMessage(String message){
@@ -223,6 +237,30 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         }
         return message;
     }
+
+    private void Notify(String notificationTitle, String notificationMessage){
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        @SuppressWarnings("deprecation")
+        Intent notificationIntent = new Intent(this,NotificationView.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
+        //Notification notification = new Notification(R.mipmap.ic_launcher,"New Message", System.currentTimeMillis());
+
+        Notification notification = new Notification.Builder(this)
+                .setContentTitle(notificationTitle)
+                .setContentText(notificationMessage)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentIntent(pendingIntent).build();
+
+// hide the notification after its selected
+        notification.flags |= Notification.FLAG_AUTO_CANCEL;
+
+        // notification.setLatestEventInfo(MainActivity.this, notificationTitle,notificationMessage, pendingIntent);
+        // notification.setLatestEventInfo(getApplicationContext(), notificationTitle, notificationMessage, pendingIntent);
+        notificationManager.notify(0, notification);
+    }
+
+
 
 
 }
