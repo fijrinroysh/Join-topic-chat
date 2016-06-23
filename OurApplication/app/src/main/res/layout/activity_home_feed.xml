@@ -8,14 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ListView
-            android:id="@+id/feed_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_above="@+id/msg_send_lyt"
-            android:background="@drawable/bg_msg_send_lyt"
-            android:dividerHeight="1dp"/>
+        <include layout="@layout/card_item"/>
 
         <TextView
             android:id="@+id/no_feed_msg"

@@ -3,26 +3,43 @@ package com.example.app.ourapplication;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.app.ourapplication.pref.PrefKeys;
+import com.example.app.ourapplication.pref.PreferenceEditor;
 import com.example.app.ourapplication.wss.WebSocketClient;
 import com.example.app.ourapplication.wss.WebSocketListener;
+import com.example.app.ourapplication.DBHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,15 +59,14 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     private String mToken;
     private String mRecvr;
     private ArrayList<String> mUsers = new ArrayList<>();
-    private ArrayList<String> mFeeds = new ArrayList<>();
 
 
 
 
-
-    private ArrayAdapter<String> mFeedListAdapter;
     private ArrayAdapter<String> mGroupListAdapter;
     private WebSocketClient mWebSocketClient;
+    private DBHelper mDBHelper = new DBHelper(this);
+    private RVAdapter mFeedListAdapter;
 
     /*Views*/
     private View mMsgLayout;
@@ -61,15 +77,31 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     private DrawerLayout mDrawer;
     private ActionBarDrawerToggle mDrawerToggle;
 
+
+
+    List<Person> mFeeds = new ArrayList<>();
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_feed);
 
+
         initializeViews();
         setUpFeedList();
         setUpDrawerLyt();
         setListeners();
+
+
+
+        RecyclerView rv = (RecyclerView) findViewById(R.id.rv);
+        mFeedListAdapter = new RVAdapter(mFeeds);
+        LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
+        rv.setLayoutManager(llm);
+        rv.setItemAnimator(new DefaultItemAnimator());
+        rv.setAdapter(mFeedListAdapter);
 
     }
 
@@ -84,7 +116,9 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                     mToken = data.getStringExtra(Keys.KEY_TOKEN);
                     mUsers = data.getStringArrayListExtra(Keys.KEY_USERS);
                     mGroupListAdapter.addAll(mUsers);
-
+                    PreferenceEditor preferenceEditor = new PreferenceEditor(this);
+                    mFeeds.addAll(mDBHelper.getData(preferenceEditor.getLoggedInUserName()));
+                    mNoFeedText.setVisibility(View.INVISIBLE);
                     establishConnection();
 
                 }
@@ -109,9 +143,12 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     }
 
     @Override
-    public void onTextMessage(String message) {
+    public void onTextMessage(String message)  {
         mNoFeedText.setVisibility(View.INVISIBLE);
-        mFeedListAdapter.add(parseFeeds(message));
+        mFeeds.add(parseFeeds(message));
+        mFeedListAdapter.notifyDataSetChanged();
+
+        mDBHelper.insertData(message);
         JSONObject msgObject = null;
         try {
             msgObject = new JSONObject(message);
@@ -119,7 +156,6 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
 
     }
 
@@ -129,12 +165,12 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         mMessageBox = (EditText) findViewById(R.id.msg_box);
         mSendButton = (Button) findViewById(R.id.send_button);
         mLoginButton = (ImageButton) findViewById(R.id.login_floater);
+
+
     }
 
     private void setUpFeedList(){
-        ListView feedList = (ListView) findViewById(R.id.feed_list);
-        mFeedListAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,mFeeds);
-        feedList.setAdapter(mFeedListAdapter);
+
         ListView groupList = (ListView) findViewById(R.id.group_list);
         mGroupListAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,mUsers);
         groupList.setAdapter(mGroupListAdapter);
@@ -173,6 +209,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
             public void onDrawerClosed(View view) {
 //                getSupportActionBar().setTitle(getString(R.string.app_name));
 //                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+
             }
 
             public void onDrawerOpened(View drawerView) {
@@ -225,23 +262,28 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     }
 
 
-
-    private String parseFeeds(String message){
+    private Person parseFeeds(String message){
         Log.d(TAG,"Message : "+message);
         JSONObject msgObject = null;
+        Person message_return = null;
         try {
             msgObject = new JSONObject(message);
-            message = msgObject.optString(Keys.KEY_MESSAGE)+" From : "+msgObject.optString(Keys.KEY_NAME);
+            message_return = new Person("Message from "+msgObject.optString(Keys.KEY_NAME) +" to "+ msgObject.optString(Keys.KEY_TO) , msgObject.optString(Keys.KEY_MESSAGE), R.drawable.mickey);
+           // message = "Message from "+msgObject.optString(Keys.KEY_NAME) +" to "+ msgObject.optString(Keys.KEY_TO) +" : "+ msgObject.optString(Keys.KEY_MESSAGE);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return message;
+        return message_return;
     }
 
     private void Notify(String notificationTitle, String notificationMessage){
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         @SuppressWarnings("deprecation")
-        Intent notificationIntent = new Intent(this,NotificationView.class);
+      //  Intent notificationIntent = new Intent(this,NotificationView.class);
+        Intent notificationIntent = new Intent(this,HomeFeedActivity.class);
+        notificationIntent.setAction(Intent.ACTION_MAIN);
+        notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
         //Notification notification = new Notification(R.mipmap.ic_launcher,"New Message", System.currentTimeMillis());
@@ -259,7 +301,6 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         // notification.setLatestEventInfo(getApplicationContext(), notificationTitle, notificationMessage, pendingIntent);
         notificationManager.notify(0, notification);
     }
-
 
 
 

@@ -13,6 +13,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.example.app.ourapplication.pref.PreferenceEditor;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,6 +55,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextView mNewUserText;
     private ViewFlipper mScreenFlipper;
     private ProgressDialog mLoginProgressDlg;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,7 +141,8 @@ public class LoginActivity extends AppCompatActivity {
         try {
             body.put("name",name);
             body.put("password",password);
-
+            PreferenceEditor preferenceEditor = new PreferenceEditor(this);
+            preferenceEditor.setLoggedInUserName(name);
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -19,7 +19,7 @@ public class PreferenceEditor {
         return mEditor;
     }
 
-    private PreferenceEditor(Context context){
+    public PreferenceEditor(Context context){
         mSharedPrefs = context.getSharedPreferences(PrefKeys.SHARED_PREF_NAME, Context.MODE_PRIVATE);
     }
 
