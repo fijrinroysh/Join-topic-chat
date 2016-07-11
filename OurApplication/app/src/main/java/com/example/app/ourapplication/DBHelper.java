@@ -5,6 +5,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+import android.widget.ImageView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,6 +25,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String MESSAGE_COLUMN_NAME = "MESSAGE";
     public static final String MESSAGE_FROM_COLUMN_NAME = "MESSAGE_FROM";
     public static final String MESSAGE_TO_COLUMN_NAME = "MESSAGE_TO";
+    public static final String MESSAGE_IMAGE_COLUMN_NAME = "MESSAGE_IMAGE";
 
 
     SQLiteDatabase mydatabase;
@@ -34,7 +39,8 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase mydatabase) {
         // TODO Auto-generated method stub
         mydatabase.execSQL(
-                "create table DATA ("+MESSAGE_FROM_COLUMN_NAME+" VARCHAR,"+MESSAGE_TO_COLUMN_NAME+" VARCHAR,"+MESSAGE_TO_COLUMN_NAME+" VARCHAR)"
+                "create table MESSAGE_DATA ("+MESSAGE_FROM_COLUMN_NAME+" VARCHAR,"+MESSAGE_TO_COLUMN_NAME+" VARCHAR,"
+                        +MESSAGE_COLUMN_NAME+" VARCHAR,"+MESSAGE_IMAGE_COLUMN_NAME+" VARCHAR)"
                 //"CREATE TABLE IF NOT EXISTS DATA(FROM VARCHAR,TO VARCHAR,MESSAGE VARCHAR );"
         );
     }
@@ -42,7 +48,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase mydatabase, int oldVersion, int newVersion) {
         // TODO Auto-generated method stub
-        mydatabase.execSQL("DROP TABLE IF EXISTS DATA");
+        mydatabase.execSQL("DROP TABLE IF EXISTS MESSAGE_DATA");
         onCreate(mydatabase);
     }
 
@@ -58,8 +64,8 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(MESSAGE_FROM_COLUMN_NAME, msgObject.optString(Keys.KEY_NAME));
         contentValues.put(MESSAGE_TO_COLUMN_NAME, msgObject.optString(Keys.KEY_TO));
         contentValues.put(MESSAGE_COLUMN_NAME, msgObject.optString(Keys.KEY_MESSAGE));
-
-        mydatabase.insert("DATA", null, contentValues);
+        contentValues.put(MESSAGE_IMAGE_COLUMN_NAME, msgObject.optString(Keys.KEY_IMAGE));
+        mydatabase.insert("MESSAGE_DATA", null, contentValues);
         return true;
     }
 
@@ -70,16 +76,23 @@ public class DBHelper extends SQLiteOpenHelper {
 
         //hp = new HashMap();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery( "select * from DATA where " +MESSAGE_FROM_COLUMN_NAME+ " = \"" + id + "\" or " +MESSAGE_TO_COLUMN_NAME+ " = \""+id+"\"", null );
+        Cursor res =  db.rawQuery( "select * from MESSAGE_DATA where " +MESSAGE_FROM_COLUMN_NAME+ " = \"" + id + "\" or " +MESSAGE_TO_COLUMN_NAME+ " = \""+id+"\"", null );
         res.moveToFirst();
 
         while(res.isAfterLast() == false){
             String column1 = res.getString(0);
             String column2 = res.getString(1);
             String column3 = res.getString(2);
-            String message = "Message from "+column1 +" to "+ column2 +" : "+ column3;
+            String column4 = res.getString(3);
 
-            array_list.add(new Person("Message from "+column1 +" to "+ column2 , column3, R.drawable.mickey));
+             String msg = column4.substring(0, column4.length() - 1);
+              byte[] decodedString = Base64.decode(msg, Base64.NO_PADDING);
+              Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+//            String message = "Message from "+column1 +" to "+ column2 +" : "+ column3;
+           // private ImageView img;
+          //  img  = (ImageView) findViewById(R.id.img);
+
+            array_list.add(new Person("Message from "+column1 +" to "+ column2 , column3, R.drawable.mickey,  decodedByte));
             res.moveToNext();
         }
         return array_list;

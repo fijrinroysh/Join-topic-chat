@@ -1,69 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/drawer"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-
-    <RelativeLayout
+    <android.support.v4.widget.DrawerLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <include layout="@layout/card_item"/>
-
-        <TextView
-            android:id="@+id/no_feed_msg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="@string/no_feed"/>
-
-        <LinearLayout
-            android:id="@+id/msg_send_lyt"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_msg_send_lyt"
-            android:visibility="gone"
-            android:layout_alignParentBottom="true">
-
-            <EditText
-                android:id="@+id/msg_box"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:paddingLeft="10dp"
-                android:background="@android:color/transparent"
-                android:hint="@string/msg_hint"/>
-
-            <Button
-                android:id="@+id/send_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/send"/>
-
-        </LinearLayout>
-
-        <ImageButton
-            android:id="@+id/login_floater"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_margin="16dp"
-            android:src="@drawable/action_login"
-            android:background="@drawable/floater_bg"/>
-    </RelativeLayout>
-
-    <FrameLayout
-        android:layout_width="300dp"
         android:layout_height="match_parent"
-        android:background="@android:color/white"
-        android:layout_gravity="start">
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/drawer">
 
-        <ListView
-            android:id="@+id/group_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:dividerHeight="1dp"/>
+        <include layout="@layout/tool_bar"/>
 
-    </FrameLayout>
-</android.support.v4.widget.DrawerLayout>
+        <FrameLayout
+            android:layout_width="200dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/white"
+            android:layout_gravity="start"
+            android:layout_below="@+id/toolbar">
+
+            <ListView
+
+                android:id="@+id/group_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:dividerHeight="1dp"/>
+
+        </FrameLayout>
+
+    </android.support.v4.widget.DrawerLayout>
+

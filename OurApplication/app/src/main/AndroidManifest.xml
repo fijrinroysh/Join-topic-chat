@@ -13,7 +13,7 @@
 
         <activity android:name=".HomeFeedActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/FeedTheme">
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

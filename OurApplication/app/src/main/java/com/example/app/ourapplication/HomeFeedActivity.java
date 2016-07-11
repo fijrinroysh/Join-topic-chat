@@ -3,35 +3,34 @@ package com.example.app.ourapplication;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ContentValues;
-import android.content.Context;
+
 import android.content.Intent;
 
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
+
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.v4.view.GravityCompat;
+
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
+
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
-import android.view.LayoutInflater;
+
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -39,14 +38,12 @@ import com.example.app.ourapplication.pref.PrefKeys;
 import com.example.app.ourapplication.pref.PreferenceEditor;
 import com.example.app.ourapplication.wss.WebSocketClient;
 import com.example.app.ourapplication.wss.WebSocketListener;
-import com.example.app.ourapplication.DBHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.sql.Array;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -93,6 +90,8 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         setUpFeedList();
         setUpDrawerLyt();
         setListeners();
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
 
 
@@ -104,6 +103,29 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         rv.setAdapter(mFeedListAdapter);
 
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -145,7 +167,8 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     @Override
     public void onTextMessage(String message)  {
         mNoFeedText.setVisibility(View.INVISIBLE);
-        mFeeds.add(parseFeeds(message));
+        mFeedListAdapter.mFeeds.add(parseFeeds(message));
+        //add(parseFeeds(message));
         mFeedListAdapter.notifyDataSetChanged();
 
         mDBHelper.insertData(message);
@@ -244,7 +267,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
     private void establishConnection(){
         mWebSocketClient = new WebSocketClient(this);
-        mWebSocketClient.connectToWSS(AppUrl.WS_URL + "/" + mToken);
+        mWebSocketClient.connectToWSS(AppUrl.WS_TEST_URL + "/" + mToken);
 
     }
 
@@ -254,6 +277,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
             msgObject.put(Keys.KEY_MESSAGE,message);
             msgObject.put(Keys.KEY_TOKEN,mToken);
             msgObject.put(Keys.KEY_TO,mRecvr);
+            msgObject.put(Keys.KEY_IMAGE,"kllk");
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -268,7 +292,11 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         Person message_return = null;
         try {
             msgObject = new JSONObject(message);
-            message_return = new Person("Message from "+msgObject.optString(Keys.KEY_NAME) +" to "+ msgObject.optString(Keys.KEY_TO) , msgObject.optString(Keys.KEY_MESSAGE), R.drawable.mickey);
+            String rimgmessage = msgObject.optString(Keys.KEY_IMAGE);
+            String msg = rimgmessage.substring(0, rimgmessage.length() - 1);
+            byte[] decodedString = Base64.decode(msg, Base64.NO_PADDING);
+            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            message_return = new Person("Message from "+msgObject.optString(Keys.KEY_NAME) +" to "+ msgObject.optString(Keys.KEY_TO) , msgObject.optString(Keys.KEY_MESSAGE), R.drawable.mickey, decodedByte );
            // message = "Message from "+msgObject.optString(Keys.KEY_NAME) +" to "+ msgObject.optString(Keys.KEY_TO) +" : "+ msgObject.optString(Keys.KEY_MESSAGE);
 
         } catch (JSONException e) {

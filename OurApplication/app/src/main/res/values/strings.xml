@@ -17,5 +17,6 @@
     <string name="drawer_open">Navigation drawer is opened</string>
     <string name="drawer_close">Navigation drawer is closed</string>
     <string name="groups">Groups</string>
+    <string name="action_settings">Settings</string>
 
 </resources>
