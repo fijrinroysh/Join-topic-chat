@@ -1,6 +1,5 @@
 package com.example.app.ourapplication;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,15 +13,15 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.example.app.ourapplication.pref.PreferenceEditor;
+import com.example.app.ourapplication.util.Helper;
+import com.example.app.ourapplication.util.UI;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by sarumugam on 17/04/16.
@@ -54,8 +53,6 @@ public class LoginActivity extends AppCompatActivity {
     private Button mSignUpButton;
     private TextView mNewUserText;
     private ViewFlipper mScreenFlipper;
-    private ProgressDialog mLoginProgressDlg;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,8 +108,7 @@ public class LoginActivity extends AppCompatActivity {
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                String body = getLoginRequestBody(mUserNameBox.getText().toString(),
+                String body = Helper.getLoginRequestBody(mUserNameBox.getText().toString(),
                         mPasswordBox.getText().toString());
                 new ServerTask().execute(body);
             }
@@ -120,45 +116,11 @@ public class LoginActivity extends AppCompatActivity {
         mSignUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String body = getSignUpRequestBody();
+                String body = Helper.getSignUpRequestBody(mSignUpNameBox.getText().toString(),
+                        mSignUpPasswordBox.getText().toString());
                 new ServerTask(RequestType.SIGNUP).execute(body);
             }
         });
-    }
-
-    private void showProgressDialog(String message) {
-        if(mLoginProgressDlg == null){
-            mLoginProgressDlg = new ProgressDialog(LoginActivity.this);
-            mLoginProgressDlg.setCanceledOnTouchOutside(false);
-            mLoginProgressDlg.setCancelable(false);
-        }
-        mLoginProgressDlg.setMessage(message);
-        mLoginProgressDlg.show();
-    }
-
-    private String getLoginRequestBody(String name, String password){
-        JSONObject body = new JSONObject();
-        try {
-            body.put("name",name);
-            body.put("password",password);
-            PreferenceEditor preferenceEditor = new PreferenceEditor(this);
-            preferenceEditor.setLoggedInUserName(name);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return body.toString();
-    }
-
-    private String getSignUpRequestBody(){
-        JSONObject body = new JSONObject();
-        try {
-            body.put("name",mSignUpNameBox.getText());
-            body.put("password",mSignUpPasswordBox.getText());
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return body.toString();
     }
 
     private class ServerTask extends AsyncTask<String, Void, String> {
@@ -176,7 +138,7 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            showProgressDialog(getString((mRequestType == RequestType.LOGIN)?
+            UI.showProgressDialog(LoginActivity.this,getString((mRequestType == RequestType.LOGIN)?
                     R.string.login_progress:R.string.sign_up_progress));
         }
 
@@ -188,10 +150,10 @@ public class LoginActivity extends AppCompatActivity {
             try {
                 switch (mRequestType){
                     case LOGIN:
-                        response = login(body);
+                        response = Helper.login(body);
                         break;
                     case SIGNUP:
-                        response = signUp(body);
+                        response = Helper.signUp(body);
                         break;
                 }
             } catch (IOException e) {
@@ -207,57 +169,50 @@ public class LoginActivity extends AppCompatActivity {
             if(response != null){
                 switch (mRequestType){
                     case LOGIN:
-                        mLoginProgressDlg.dismiss();
-                        Intent data = new Intent();
-                        String token = null;
-                        ArrayList<String> listdata = new ArrayList<String>();
+                        UI.dismissProgress();
                         try {
                             JSONObject jsonObject = new JSONObject(response);
-                            token = jsonObject.getString(Keys.KEY_TOKEN);
-                           // users= jsonObject.getJSONArray(Keys.KEY_USERS);
+                            boolean isSuccess = jsonObject.getBoolean(Keys.KEY_SUCCESS);
 
+                            if(isSuccess) {
+                                PreferenceEditor.getInstance(LoginActivity.this)
+                                        .setLoggedInUserName(mUserNameBox.getText().toString(),
+                                        mPasswordBox.getText().toString());
+                                Intent data = new Intent();
+                                String token = null;
+                                ArrayList<String> listdata = new ArrayList<String>();
 
-                            JSONArray users = jsonObject.getJSONArray(Keys.KEY_USERS);
-                            if (users != null) {
-                                for (int i=0;i<users.length();i++){
-                                    JSONObject user = new JSONObject(users.get(i).toString());
-                                    listdata.add(user.getString("username"));
+                                token = jsonObject.getString(Keys.KEY_TOKEN);
+                                // users= jsonObject.getJSONArray(Keys.KEY_USERS);
+
+                                JSONArray users = jsonObject.getJSONArray(Keys.KEY_USERS);
+                                if (users != null) {
+                                    for (int i = 0; i < users.length(); i++) {
+                                        JSONObject user = new JSONObject(users.get(i).toString());
+                                        listdata.add(user.getString("username"));
+                                    }
                                 }
+                                Log.d("USERS", listdata.toString());
+                                data.putExtra(Keys.KEY_TOKEN, token);
+                                data.putStringArrayListExtra(Keys.KEY_USERS, listdata);
+                                setResult(RESULT_OK,data);
+                                finish();
+                                return;
                             }
-                            Log.d("USERS", listdata.toString());
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-
-                        data.putExtra(Keys.KEY_TOKEN, token);
-                        data.putStringArrayListExtra(Keys.KEY_USERS, listdata);
-                        setResult(RESULT_OK,data);
-                        finish();
                         break;
                     case SIGNUP:
-                        String body = getLoginRequestBody(mSignUpNameBox.getText().toString(),
+                        String body = Helper.getLoginRequestBody(mSignUpNameBox.getText().toString(),
                                 mSignUpPasswordBox.getText().toString());
                         new ServerTask().execute(body);
+                        return;
                 }
-            }else{
-                mLoginProgressDlg.dismiss();
-                Toast.makeText(LoginActivity.this, getString((mRequestType == RequestType.LOGIN)?
-                        R.string.login_failed:R.string.sign_up_failed), Toast.LENGTH_SHORT).show();
             }
-        }
-
-        private String login(String reqBody) throws IOException {
-            HttpURLConnection connection = Util.getHttpConnection(AppUrl.LOGIN_URL,"POST");
-            Util.writeToStream(connection, reqBody);
-
-            return Util.readInputStream(connection);
-        }
-
-        private String signUp(String reqBody) throws IOException {
-            HttpURLConnection connection = Util.getHttpConnection(AppUrl.SIGN_UP_URL,"POST");
-            Util.writeToStream(connection, reqBody);
-
-            return Util.readInputStream(connection);
+            UI.dismissProgress();
+            Toast.makeText(LoginActivity.this, getString((mRequestType == RequestType.LOGIN)?
+                    R.string.login_failed:R.string.sign_up_failed), Toast.LENGTH_SHORT).show();
         }
     }
 }

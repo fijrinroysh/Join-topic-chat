@@ -5,6 +5,7 @@ package com.example.app.ourapplication;
  */
 public class Keys {
     public static final String KEY_TOKEN = "token";
+    public static final String KEY_SUCCESS = "success";
     public static final String KEY_MESSAGE = "message";
     public static final String KEY_NAME = "name";
     public static final String KEY_USERS = "users";

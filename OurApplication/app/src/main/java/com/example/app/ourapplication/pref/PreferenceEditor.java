@@ -27,9 +27,14 @@ public class PreferenceEditor {
         return mSharedPrefs.getString(PrefKeys.LOGGED_IN_USER_NAME, null);
     }
 
-    public void setLoggedInUserName(String loginId) {
+    public String getLoggedInPassword() {
+        return mSharedPrefs.getString(PrefKeys.LOGGED_IN_PASSWORD, null);
+    }
+
+    public void setLoggedInUserName(String loginId,String password) {
         SharedPreferences.Editor editor = mSharedPrefs.edit();
         editor.putString(PrefKeys.LOGGED_IN_USER_NAME, loginId);
+        editor.putString(PrefKeys.LOGGED_IN_PASSWORD, password);
         editor.apply();
     }
 }

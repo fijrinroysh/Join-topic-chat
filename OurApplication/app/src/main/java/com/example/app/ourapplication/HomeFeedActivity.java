@@ -3,26 +3,18 @@ package com.example.app.ourapplication;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-
 import android.content.Intent;
-
-
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
-
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.util.Log;
-
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,15 +26,17 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.example.app.ourapplication.pref.PrefKeys;
 import com.example.app.ourapplication.pref.PreferenceEditor;
+import com.example.app.ourapplication.util.Helper;
+import com.example.app.ourapplication.util.UI;
 import com.example.app.ourapplication.wss.WebSocketClient;
 import com.example.app.ourapplication.wss.WebSocketListener;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,10 +50,6 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     private String mToken;
     private String mRecvr;
     private ArrayList<String> mUsers = new ArrayList<>();
-
-
-
-
     private ArrayAdapter<String> mGroupListAdapter;
     private WebSocketClient mWebSocketClient;
     private DBHelper mDBHelper = new DBHelper(this);
@@ -73,18 +63,12 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     private ImageButton mLoginButton;
     private DrawerLayout mDrawer;
     private ActionBarDrawerToggle mDrawerToggle;
-
-
-
-    List<Person> mFeeds = new ArrayList<>();
-
-
+    private List<Person> mFeeds = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_feed);
-
 
         initializeViews();
         setUpFeedList();
@@ -93,8 +77,6 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
-
         RecyclerView rv = (RecyclerView) findViewById(R.id.rv);
         mFeedListAdapter = new RVAdapter(mFeeds);
         LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
@@ -102,6 +84,13 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         rv.setItemAnimator(new DefaultItemAnimator());
         rv.setAdapter(mFeedListAdapter);
 
+        String name = PreferenceEditor.getInstance(this).getLoggedInUserName();
+        String password = PreferenceEditor.getInstance(this).getLoggedInPassword();
+
+        if(!TextUtils.isEmpty(name)){
+            String body = Helper.getLoginRequestBody(name,password);
+            new AutoLoginTask().execute(body);
+        }
     }
 
     @Override
@@ -122,10 +111,8 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -133,16 +120,9 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         switch (requestCode){
             case REQUEST_LOGIN:
                 if(resultCode == RESULT_OK && data != null){
-                    mMsgLayout.setVisibility(View.VISIBLE);
-                    mLoginButton.setVisibility(View.GONE);
                     mToken = data.getStringExtra(Keys.KEY_TOKEN);
                     mUsers = data.getStringArrayListExtra(Keys.KEY_USERS);
-                    mGroupListAdapter.addAll(mUsers);
-                    PreferenceEditor preferenceEditor = new PreferenceEditor(this);
-                    mFeeds.addAll(mDBHelper.getData(preferenceEditor.getLoggedInUserName()));
-                    mNoFeedText.setVisibility(View.INVISIBLE);
-                    establishConnection();
-
+                    onLoginSuccess();
                 }
                 break;
         }
@@ -167,7 +147,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     @Override
     public void onTextMessage(String message)  {
         mNoFeedText.setVisibility(View.INVISIBLE);
-        mFeedListAdapter.mFeeds.add(parseFeeds(message));
+        mFeedListAdapter.mFeeds.add(Helper.parseFeeds(message));
         //add(parseFeeds(message));
         mFeedListAdapter.notifyDataSetChanged();
 
@@ -179,7 +159,6 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
     }
 
     private void initializeViews() {
@@ -188,17 +167,13 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         mMessageBox = (EditText) findViewById(R.id.msg_box);
         mSendButton = (Button) findViewById(R.id.send_button);
         mLoginButton = (ImageButton) findViewById(R.id.login_floater);
-
-
     }
 
     private void setUpFeedList(){
-
         ListView groupList = (ListView) findViewById(R.id.group_list);
         mGroupListAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,mUsers);
         groupList.setAdapter(mGroupListAdapter);
         groupList.setOnItemClickListener(new DrawerItemClickListener());
-
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -214,7 +189,15 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         mDrawer.closeDrawers();
     }
 
-
+    private void onLoginSuccess(){
+        mMsgLayout.setVisibility(View.VISIBLE);
+        mLoginButton.setVisibility(View.GONE);
+        mGroupListAdapter.addAll(mUsers);
+        PreferenceEditor preferenceEditor = PreferenceEditor.getInstance(HomeFeedActivity.this);
+        mFeeds.addAll(mDBHelper.getData(preferenceEditor.getLoggedInUserName()));
+        mNoFeedText.setVisibility(View.INVISIBLE);
+        establishConnection();
+    }
 
     private void setUpDrawerLyt(){
         mDrawer = (DrawerLayout) findViewById(R.id.drawer);
@@ -249,7 +232,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
             public void onClick(View v) {
                 String msg = mMessageBox.getText().toString();
                 if (!TextUtils.isEmpty(msg)) {
-                    msg = formFeedMessage(msg);
+                    msg = Helper.formFeedMessage(msg,mToken,mRecvr);
                     mWebSocketClient.sendMessage(msg);
                     mMessageBox.setText(null);
                 }
@@ -269,40 +252,6 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         mWebSocketClient = new WebSocketClient(this);
         mWebSocketClient.connectToWSS(AppUrl.WS_TEST_URL + "/" + mToken);
 
-    }
-
-    private String formFeedMessage(String message){
-        JSONObject msgObject = new JSONObject();
-        try {
-            msgObject.put(Keys.KEY_MESSAGE,message);
-            msgObject.put(Keys.KEY_TOKEN,mToken);
-            msgObject.put(Keys.KEY_TO,mRecvr);
-            msgObject.put(Keys.KEY_IMAGE,"kllk");
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return msgObject.toString();
-    }
-
-
-    private Person parseFeeds(String message){
-        Log.d(TAG,"Message : "+message);
-        JSONObject msgObject = null;
-        Person message_return = null;
-        try {
-            msgObject = new JSONObject(message);
-            String rimgmessage = msgObject.optString(Keys.KEY_IMAGE);
-            String msg = rimgmessage.substring(0, rimgmessage.length() - 1);
-            byte[] decodedString = Base64.decode(msg, Base64.NO_PADDING);
-            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-            message_return = new Person("Message from "+msgObject.optString(Keys.KEY_NAME) +" to "+ msgObject.optString(Keys.KEY_TO) , msgObject.optString(Keys.KEY_MESSAGE), R.drawable.mickey, decodedByte );
-           // message = "Message from "+msgObject.optString(Keys.KEY_NAME) +" to "+ msgObject.optString(Keys.KEY_TO) +" : "+ msgObject.optString(Keys.KEY_MESSAGE);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return message_return;
     }
 
     private void Notify(String notificationTitle, String notificationMessage){
@@ -330,6 +279,63 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         notificationManager.notify(0, notification);
     }
 
+    private class AutoLoginTask extends AsyncTask<String,Void,String>{
 
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            UI.showProgressDialog(HomeFeedActivity.this,getString(R.string.login_progress));
+        }
 
+        @Override
+        protected String doInBackground(String... params) {
+            String body = params[0];
+            String response = null;
+            try {
+                response = Helper.login(body);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String response) {
+            super.onPostExecute(response);
+            Log.d(TAG, "Response : " + response);
+            if(response != null){
+                UI.dismissProgress();
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    boolean isSuccess = jsonObject.getBoolean(Keys.KEY_SUCCESS);
+
+                    if(isSuccess) {
+                        String token = null;
+                        ArrayList<String> listdata = new ArrayList<String>();
+
+                        mToken = jsonObject.getString(Keys.KEY_TOKEN);
+                        // users= jsonObject.getJSONArray(Keys.KEY_USERS);
+                        JSONArray users = jsonObject.getJSONArray(Keys.KEY_USERS);
+                        if (users != null) {
+                            for (int i = 0; i < users.length(); i++) {
+                                JSONObject user = new JSONObject(users.get(i).toString());
+                                listdata.add(user.getString("username"));
+                            }
+                        }
+                        Log.d("USERS", listdata.toString());
+                        mToken = token;
+                        mUsers = listdata;
+                        onLoginSuccess();
+                    }else{
+                        PreferenceEditor.getInstance(HomeFeedActivity.this).setLoggedInUserName(null,null);
+                    }
+                } catch (JSONException e) {
+                    PreferenceEditor.getInstance(HomeFeedActivity.this).setLoggedInUserName(null,null);
+                    e.printStackTrace();
+                }
+            }else{
+                PreferenceEditor.getInstance(HomeFeedActivity.this).setLoggedInUserName(null,null);
+            }
+        }
+    }
 }
