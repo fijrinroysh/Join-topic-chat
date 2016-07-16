@@ -310,7 +310,6 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                     boolean isSuccess = jsonObject.getBoolean(Keys.KEY_SUCCESS);
 
                     if(isSuccess) {
-                        String token = null;
                         ArrayList<String> listdata = new ArrayList<String>();
 
                         mToken = jsonObject.getString(Keys.KEY_TOKEN);
@@ -323,7 +322,6 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                             }
                         }
                         Log.d("USERS", listdata.toString());
-                        mToken = token;
                         mUsers = listdata;
                         onLoginSuccess();
                     }else{
