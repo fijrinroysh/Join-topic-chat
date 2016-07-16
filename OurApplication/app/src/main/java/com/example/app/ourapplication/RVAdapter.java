@@ -64,8 +64,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.PersonViewHolder> 
         personViewHolder.senderMessage.setText(mFeeds.get(i).age);
        // personViewHolder.senderMessage.setText("");
         personViewHolder.senderPhoto.setImageResource(mFeeds.get(i).photoId);
-        personViewHolder.messagePhoto.setImageResource(mFeeds.get(i).photoId);
-//        personViewHolder.messagePhoto.setImageBitmap(mFeeds.get(i).photoMsg);
+        personViewHolder.messagePhoto.setImageBitmap(mFeeds.get(i).photoMsg);
         Log.d(TAG, "onBindViewHolder :" + i );
     }
 
