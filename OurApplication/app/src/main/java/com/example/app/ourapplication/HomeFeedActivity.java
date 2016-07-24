@@ -6,6 +6,9 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +17,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,6 +27,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -31,11 +36,13 @@ import com.example.app.ourapplication.util.Helper;
 import com.example.app.ourapplication.util.UI;
 import com.example.app.ourapplication.wss.WebSocketClient;
 import com.example.app.ourapplication.wss.WebSocketListener;
-
+import com.roughike.bottombar.BottomBar;
+import com.roughike.bottombar.OnMenuTabSelectedListener;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,19 +54,18 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
     public static final int REQUEST_LOGIN = 6;
     private final String TAG = HomeFeedActivity.class.getSimpleName();
-    private String mToken;
-    private String mRecvr;
+    public static String mToken;
+    public static String mRecvr;
     private ArrayList<String> mUsers = new ArrayList<>();
     private ArrayAdapter<String> mGroupListAdapter;
-    private WebSocketClient mWebSocketClient;
+    public static WebSocketClient mWebSocketClient;
     private DBHelper mDBHelper = new DBHelper(this);
     private RVAdapter mFeedListAdapter;
+
 
     /*Views*/
     private View mMsgLayout;
     private TextView mNoFeedText;
-    private EditText mMessageBox;
-    private Button mSendButton;
     private ImageButton mLoginButton;
     private DrawerLayout mDrawer;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -75,6 +81,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         setUpDrawerLyt();
         setListeners();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
         setSupportActionBar(toolbar);
 
         RecyclerView rv = (RecyclerView) findViewById(R.id.rv);
@@ -91,6 +98,37 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
             String body = Helper.getLoginRequestBody(name,password);
             new AutoLoginTask().execute(body);
         }
+
+
+        final Intent messageIntent = new Intent(HomeFeedActivity.this, ComposeActivity.class);
+        BottomBar bottomBar = BottomBar.attach(this, savedInstanceState);
+
+        bottomBar.setItemsFromMenu(R.menu.bottom_bar_menu, new OnMenuTabSelectedListener() {
+            @Override
+            public void onMenuItemSelected(int itemId) {
+                switch (itemId) {
+                    case R.id.add_location:
+                        //Snackbar.make(tool_bar, "Add Location Item Selected", Snackbar.LENGTH_LONG).show();
+                        break;
+                    case R.id.add_image:
+                        //Snackbar.make(coordinatorLayout, " Add Image Item Selected", Snackbar.LENGTH_LONG).show();
+                        //showFileChooser();
+                        messageIntent.putExtra("ITEM","add_image");
+                        startActivity(messageIntent);
+
+                        break;
+                    case R.id.add_message:
+                        // Snackbar.make(coordinatorLayout, "Add Message Item Selected", Snackbar.LENGTH_LONG).show();
+                        messageIntent.putExtra("ITEM","add_message");
+                        startActivity(messageIntent);
+                        break;
+                }
+            }
+
+
+        });
+
+
     }
 
     @Override
@@ -125,8 +163,10 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                     onLoginSuccess();
                 }
                 break;
+
+            }
         }
-    }
+
 
     @Override
     protected void onDestroy() {
@@ -136,19 +176,18 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
     @Override
     public void onOpen() {
-        mSendButton.setEnabled(true);
+       // ComposeActivity.mSendButton.setEnabled(true);
     }
 
     @Override
     public void onClose() {
-        mSendButton.setEnabled(false);
+      //  ComposeActivity.mSendButton.setEnabled(false);
     }
 
     @Override
     public void onTextMessage(String message)  {
         mNoFeedText.setVisibility(View.INVISIBLE);
         mFeedListAdapter.mFeeds.add(Helper.parseFeeds(message));
-        //add(parseFeeds(message));
         mFeedListAdapter.notifyDataSetChanged();
 
         mDBHelper.insertData(message);
@@ -164,8 +203,6 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     private void initializeViews() {
         mMsgLayout = findViewById(R.id.msg_send_lyt);
         mNoFeedText = (TextView) findViewById(R.id.no_feed_msg);
-        mMessageBox = (EditText) findViewById(R.id.msg_box);
-        mSendButton = (Button) findViewById(R.id.send_button);
         mLoginButton = (ImageButton) findViewById(R.id.login_floater);
     }
 
@@ -190,11 +227,12 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     }
 
     private void onLoginSuccess(){
-        mMsgLayout.setVisibility(View.VISIBLE);
+//        mMsgLayout.setVisibility(View.VISIBLE);
         mLoginButton.setVisibility(View.GONE);
         mGroupListAdapter.addAll(mUsers);
         PreferenceEditor preferenceEditor = PreferenceEditor.getInstance(HomeFeedActivity.this);
         mFeeds.addAll(mDBHelper.getData(preferenceEditor.getLoggedInUserName()));
+        mFeedListAdapter.notifyDataSetChanged();
         mNoFeedText.setVisibility(View.INVISIBLE);
         establishConnection();
     }
@@ -227,17 +265,6 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     }
 
     private void setListeners() {
-        mSendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String msg = mMessageBox.getText().toString();
-                if (!TextUtils.isEmpty(msg)) {
-                    msg = Helper.formFeedMessage(msg,mToken,mRecvr);
-                    mWebSocketClient.sendMessage(msg);
-                    mMessageBox.setText(null);
-                }
-            }
-        });
 
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -336,4 +363,9 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
             }
         }
     }
+
+
+
+
+
 }

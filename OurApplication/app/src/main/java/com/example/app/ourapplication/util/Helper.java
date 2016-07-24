@@ -1,10 +1,13 @@
 package com.example.app.ourapplication.util;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.provider.MediaStore;
 import android.util.Base64;
 
 import com.example.app.ourapplication.AppUrl;
+import com.example.app.ourapplication.HomeFeedActivity;
 import com.example.app.ourapplication.Keys;
 import com.example.app.ourapplication.Person;
 import com.example.app.ourapplication.R;
@@ -13,6 +16,7 @@ import com.example.app.ourapplication.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
@@ -43,13 +47,21 @@ public class Helper {
         return body.toString();
     }
 
-    public static String formFeedMessage(String message,String token,String receiver){
+    public static String formFeedMessage(String message,String token,String receiver,Bitmap bitmap){
+
+        String image_string;
+        if (bitmap == null) {
+            image_string="NA";
+        }
+        else {
+            image_string= getStringImage(bitmap);
+        }
         JSONObject msgObject = new JSONObject();
         try {
             msgObject.put(Keys.KEY_MESSAGE,message);
             msgObject.put(Keys.KEY_TOKEN,token);
             msgObject.put(Keys.KEY_TO,receiver);
-            msgObject.put(Keys.KEY_IMAGE,"kllk");
+            msgObject.put(Keys.KEY_IMAGE,image_string);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -68,11 +80,19 @@ public class Helper {
             Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
             message_return = new Person("Message from "+msgObject.optString(Keys.KEY_NAME) +" to "
                     + msgObject.optString(Keys.KEY_TO) , msgObject.optString(Keys.KEY_MESSAGE), R.drawable.mickey, decodedByte );
-            // message = "Message from "+msgObject.optString(Keys.KEY_NAME) +" to "+ msgObject.optString(Keys.KEY_TO) +" : "+ msgObject.optString(Keys.KEY_MESSAGE);
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return message_return;
+    }
+
+
+    public static String getStringImage(Bitmap bmp) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bmp.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] imageBytes = baos.toByteArray();
+        String encodedImage = Base64.encodeToString(imageBytes, Base64.DEFAULT);
+        return encodedImage;
     }
 
     public static String login(String reqBody) throws IOException {

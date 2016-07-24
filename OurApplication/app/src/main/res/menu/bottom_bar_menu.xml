@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    >
+    <item
+        android:id="@+id/add_location"
+        android:icon="@mipmap/add_location"
+        android:title=""
+        />
+
+    <item
+        android:id="@+id/add_image"
+        android:icon="@mipmap/add_camera"
+        android:title=""
+        />
+
+    <item
+        android:id="@+id/add_message"
+        android:icon="@mipmap/add_message"
+        android:title=""
+        />
+</menu>

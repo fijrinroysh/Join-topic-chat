@@ -41,30 +41,6 @@
             android:layout_centerInParent="true"
             android:text="@string/no_feed"/>
 
-        <LinearLayout
-            android:id="@+id/msg_send_lyt"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:background="@drawable/bg_msg_send_lyt"
-            android:visibility="gone">
-
-            <EditText
-                android:id="@+id/msg_box"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@android:color/transparent"
-                android:hint="@string/msg_hint"
-                android:paddingLeft="10dp"/>
-
-            <Button
-                android:id="@+id/send_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/send"/>
-
-        </LinearLayout>
 
         <ImageButton
             android:id="@+id/login_floater"
