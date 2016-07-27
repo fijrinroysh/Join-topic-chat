@@ -3,6 +3,7 @@ package com.example.app.ourapplication;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -19,8 +20,10 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -30,6 +33,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.app.ourapplication.pref.PreferenceEditor;
 import com.example.app.ourapplication.util.Helper;
@@ -61,6 +65,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     public static WebSocketClient mWebSocketClient;
     private DBHelper mDBHelper = new DBHelper(this);
     private RVAdapter mFeedListAdapter;
+    RecyclerView recyclerView;
 
 
     /*Views*/
@@ -84,12 +89,25 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
         setSupportActionBar(toolbar);
 
-        RecyclerView rv = (RecyclerView) findViewById(R.id.rv);
+        recyclerView = (RecyclerView) findViewById(R.id.rv);
         mFeedListAdapter = new RVAdapter(mFeeds);
         LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
-        rv.setLayoutManager(llm);
-        rv.setItemAnimator(new DefaultItemAnimator());
-        rv.setAdapter(mFeedListAdapter);
+        recyclerView.setLayoutManager(llm);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(mFeedListAdapter);
+
+        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), recyclerView , new ClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+                Person item = mFeeds.get(position);
+                Toast.makeText(getApplicationContext(), item.age + " is selected!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+
+            }
+        }));
 
         String name = PreferenceEditor.getInstance(this).getLoggedInUserName();
         String password = PreferenceEditor.getInstance(this).getLoggedInPassword();
@@ -364,8 +382,12 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         }
     }
 
+    public interface ClickListener {
+        void onClick(View view, int position);
 
-
+        void onLongClick(View view, int position);
+    }
 
 
 }
+

@@ -1,5 +1,6 @@
 package com.example.app.ourapplication;
 
+import android.content.DialogInterface;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -18,6 +20,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.PersonViewHolder> 
 
 
     private final String TAG = RVAdapter.class.getSimpleName();
+
     List<Person> mFeeds;
 
     RVAdapter(List<Person> mFeeds) {
@@ -45,6 +48,8 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.PersonViewHolder> 
         }
     }
 
+
+
     @Override
     public int getItemCount() {
         return mFeeds.size();
@@ -65,12 +70,13 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.PersonViewHolder> 
        // personViewHolder.senderMessage.setText("");
         personViewHolder.senderPhoto.setImageResource(mFeeds.get(i).photoId);
         personViewHolder.messagePhoto.setImageBitmap(mFeeds.get(i).photoMsg);
-        Log.d(TAG, "onBindViewHolder :" + i );
+        Log.d(TAG, "onBindViewHolder :" + i);
     }
 
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
     }
+
 
 }

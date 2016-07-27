@@ -19,6 +19,9 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by sarumugam on 16/07/16.
@@ -47,11 +50,27 @@ public class Helper {
         return body.toString();
     }
 
+
+    public static String getCurrentTimeStamp(){
+        try {
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String currentTimeStamp = dateFormat.format(new Date()); // Find todays date
+
+            return currentTimeStamp;
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            return null;
+        }
+    }
+
+
     public static String formFeedMessage(String message,String token,String receiver,Bitmap bitmap){
 
         String image_string;
         if (bitmap == null) {
-            image_string="NA";
+            image_string="noimage";
         }
         else {
             image_string= getStringImage(bitmap);
@@ -62,6 +81,7 @@ public class Helper {
             msgObject.put(Keys.KEY_TOKEN,token);
             msgObject.put(Keys.KEY_TO,receiver);
             msgObject.put(Keys.KEY_IMAGE,image_string);
+            msgObject.put(Keys.KEY_TIME,getCurrentTimeStamp());
 
         } catch (JSONException e) {
             e.printStackTrace();

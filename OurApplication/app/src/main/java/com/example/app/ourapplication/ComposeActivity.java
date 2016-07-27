@@ -1,5 +1,6 @@
 package com.example.app.ourapplication;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -9,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -40,6 +42,8 @@ public class ComposeActivity extends AppCompatActivity {
         img = (ImageView) findViewById(R.id.img);
         mSendButton = (Button) findViewById(R.id.send_button);
         mMessageBox = (EditText) findViewById(R.id.msg_box);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(mMessageBox, InputMethodManager.SHOW_IMPLICIT);
 
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
