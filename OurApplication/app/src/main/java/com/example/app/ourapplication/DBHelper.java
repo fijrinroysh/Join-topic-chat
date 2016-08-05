@@ -86,13 +86,12 @@ public class DBHelper extends SQLiteOpenHelper {
             String column4 = res.getString(3);
 
              String msg = column4.substring(0, column4.length() - 1);
-              byte[] decodedString = Base64.decode(msg, Base64.NO_PADDING);
-              Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+
 //            String message = "Message from "+column1 +" to "+ column2 +" : "+ column3;
            // private ImageView img;
           //  img  = (ImageView) findViewById(R.id.img);
 
-            array_list.add(new Person("Message from "+column1 +" to "+ column2 , column3, R.drawable.mickey,  decodedByte));
+            array_list.add(new Person("Message from "+column1 +" to "+ column2 , column3, R.drawable.mickey,  msg));
             res.moveToNext();
         }
         return array_list;

@@ -100,6 +100,11 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
             @Override
             public void onClick(View view, int position) {
                 Person item = mFeeds.get(position);
+                final Intent discussionIntent = new Intent(HomeFeedActivity.this, DiscussionActivity.class);
+                discussionIntent.putExtra(Keys.KEY_MESSAGE,item.age );
+                discussionIntent.putExtra(Keys.KEY_NAME,item.name );
+                discussionIntent.putExtra(Keys.KEY_IMAGE, item.photoMsg );
+                startActivity(discussionIntent);
                 Toast.makeText(getApplicationContext(), item.age + " is selected!", Toast.LENGTH_SHORT).show();
             }
 
@@ -118,27 +123,34 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         }
 
 
-        final Intent messageIntent = new Intent(HomeFeedActivity.this, ComposeActivity.class);
+        final Intent composeIntent = new Intent(HomeFeedActivity.this, ComposeActivity.class);
+
         BottomBar bottomBar = BottomBar.attach(this, savedInstanceState);
 
         bottomBar.setItemsFromMenu(R.menu.bottom_bar_menu, new OnMenuTabSelectedListener() {
             @Override
             public void onMenuItemSelected(int itemId) {
                 switch (itemId) {
+                    case R.id.add_home:
+
+                        break;
                     case R.id.add_location:
                         //Snackbar.make(tool_bar, "Add Location Item Selected", Snackbar.LENGTH_LONG).show();
                         break;
                     case R.id.add_image:
                         //Snackbar.make(coordinatorLayout, " Add Image Item Selected", Snackbar.LENGTH_LONG).show();
                         //showFileChooser();
-                        messageIntent.putExtra("ITEM","add_image");
-                        startActivity(messageIntent);
+                        composeIntent.putExtra("ITEM","add_image");
+                        startActivity(composeIntent);
 
                         break;
                     case R.id.add_message:
                         // Snackbar.make(coordinatorLayout, "Add Message Item Selected", Snackbar.LENGTH_LONG).show();
-                        messageIntent.putExtra("ITEM","add_message");
-                        startActivity(messageIntent);
+                        composeIntent.putExtra("ITEM","add_message");
+                        startActivity(composeIntent);
+                        break;
+                    case R.id.add_profile:
+
                         break;
                 }
             }

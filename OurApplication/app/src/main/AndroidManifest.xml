@@ -28,6 +28,10 @@
             android:screenOrientation="portrait"
             android:theme="@style/FeedTheme"/>
 
+        <activity android:name=".DiscussionActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/FeedTheme"/>
+
     </application>
 
 </manifest>

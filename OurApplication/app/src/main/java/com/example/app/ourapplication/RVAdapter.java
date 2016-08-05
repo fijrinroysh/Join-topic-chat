@@ -1,8 +1,11 @@
 package com.example.app.ourapplication;
 
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,7 +72,10 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.PersonViewHolder> 
         personViewHolder.senderMessage.setText(mFeeds.get(i).age);
        // personViewHolder.senderMessage.setText("");
         personViewHolder.senderPhoto.setImageResource(mFeeds.get(i).photoId);
-        personViewHolder.messagePhoto.setImageBitmap(mFeeds.get(i).photoMsg);
+
+        byte[] decodedString = Base64.decode(mFeeds.get(i).photoMsg, Base64.NO_PADDING);
+        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        personViewHolder.messagePhoto.setImageBitmap(decodedByte);
         Log.d(TAG, "onBindViewHolder :" + i);
     }
 

@@ -3,21 +3,33 @@
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
     >
+
+    <item
+        android:id="@+id/add_home"
+        android:icon="@drawable/home"
+        android:title=""
+        />
     <item
         android:id="@+id/add_location"
-        android:icon="@mipmap/add_location"
+        android:icon="@drawable/add_location"
         android:title=""
         />
 
     <item
         android:id="@+id/add_image"
-        android:icon="@mipmap/add_camera"
+        android:icon="@drawable/add_camera"
         android:title=""
+
         />
 
     <item
         android:id="@+id/add_message"
-        android:icon="@mipmap/add_message"
+        android:icon="@drawable/add_message"
+        android:title=""
+        />
+    <item
+        android:id="@+id/add_profile"
+        android:icon="@drawable/profile"
         android:title=""
         />
 </menu>

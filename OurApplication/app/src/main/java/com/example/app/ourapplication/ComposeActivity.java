@@ -42,9 +42,7 @@ public class ComposeActivity extends AppCompatActivity {
         img = (ImageView) findViewById(R.id.img);
         mSendButton = (Button) findViewById(R.id.send_button);
         mMessageBox = (EditText) findViewById(R.id.msg_box);
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(mMessageBox, InputMethodManager.SHOW_IMPLICIT);
-
+       
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

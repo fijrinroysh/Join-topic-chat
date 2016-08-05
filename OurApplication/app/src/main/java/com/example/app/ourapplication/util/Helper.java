@@ -95,11 +95,9 @@ public class Helper {
         try {
             msgObject = new JSONObject(message);
             String rimgmessage = msgObject.optString(Keys.KEY_IMAGE);
-            String msg = rimgmessage.substring(0, rimgmessage.length() - 1);
-            byte[] decodedString = Base64.decode(msg, Base64.NO_PADDING);
-            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            String imgmessage = rimgmessage.substring(0, rimgmessage.length() - 1);
             message_return = new Person("Message from "+msgObject.optString(Keys.KEY_NAME) +" to "
-                    + msgObject.optString(Keys.KEY_TO) , msgObject.optString(Keys.KEY_MESSAGE), R.drawable.mickey, decodedByte );
+                    + msgObject.optString(Keys.KEY_TO) , msgObject.optString(Keys.KEY_MESSAGE), R.drawable.mickey, imgmessage );
         } catch (JSONException e) {
             e.printStackTrace();
         }
