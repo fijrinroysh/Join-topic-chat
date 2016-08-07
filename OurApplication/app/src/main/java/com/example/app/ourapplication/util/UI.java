@@ -23,6 +23,7 @@ public class UI {
     public static void dismissProgress(){
         if(mProgressDialog != null && mProgressDialog.isShowing()){
             mProgressDialog.dismiss();
+            mProgressDialog = null;
         }
     }
 }
