@@ -10,6 +10,8 @@ import android.graphics.BitmapFactory;
 import android.util.Base64;
 import android.widget.ImageView;
 
+import com.example.app.ourapplication.pref.PreferenceEditor;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,6 +31,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
     SQLiteDatabase mydatabase;
+
 
     public DBHelper(Context context)
     {
@@ -70,13 +73,14 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
-    public ArrayList<Person> getData(String id)
+    public ArrayList<Person> getData()
     {
         ArrayList<Person> array_list = new ArrayList<Person>();
 
         //hp = new HashMap();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery( "select * from MESSAGE_DATA where " +MESSAGE_FROM_COLUMN_NAME+ " = \"" + id + "\" or " +MESSAGE_TO_COLUMN_NAME+ " = \""+id+"\"", null );
+        //Cursor res =  db.rawQuery( "select * from MESSAGE_DATA where " +MESSAGE_FROM_COLUMN_NAME+ " = \"" + id + "\" or " +MESSAGE_TO_COLUMN_NAME+ " = \""+id+"\"", null );
+        Cursor res =  db.rawQuery( "select * from MESSAGE_DATA" , null );
         res.moveToFirst();
 
         while(res.isAfterLast() == false){

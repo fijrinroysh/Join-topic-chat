@@ -26,7 +26,8 @@
 
         <activity android:name=".ComposeActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/FeedTheme"/>
+            android:theme="@style/FeedTheme"
+            android:windowSoftInputMode="stateAlwaysVisible|adjustResize"/>
 
         <activity android:name=".DiscussionActivity"
             android:screenOrientation="portrait"

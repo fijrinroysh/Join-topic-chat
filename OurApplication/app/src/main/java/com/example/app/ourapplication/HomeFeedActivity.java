@@ -77,7 +77,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     private List<Person> mFeeds = new ArrayList<>();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState ) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_feed);
 
@@ -93,7 +93,9 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         mFeedListAdapter = new RVAdapter(mFeeds);
         LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(llm);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
+        itemAnimator.setAddDuration(1000);
+        recyclerView.setItemAnimator(itemAnimator);
         recyclerView.setAdapter(mFeedListAdapter);
 
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), recyclerView , new ClickListener() {
@@ -215,9 +217,9 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     }
 
     @Override
-    public void onTextMessage(String message)  {
+    public void onTextMessage(String message  )  {
         mNoFeedText.setVisibility(View.INVISIBLE);
-        mFeedListAdapter.mFeeds.add(Helper.parseFeeds(message));
+        mFeeds.add(Helper.parseFeeds(message));
         mFeedListAdapter.notifyDataSetChanged();
 
         mDBHelper.insertData(message);
@@ -260,8 +262,8 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 //        mMsgLayout.setVisibility(View.VISIBLE);
         mLoginButton.setVisibility(View.GONE);
         mGroupListAdapter.addAll(mUsers);
-        PreferenceEditor preferenceEditor = PreferenceEditor.getInstance(HomeFeedActivity.this);
-        mFeeds.addAll(mDBHelper.getData(preferenceEditor.getLoggedInUserName()));
+        //PreferenceEditor preferenceEditor = PreferenceEditor.getInstance(HomeFeedActivity.this);
+        mFeeds.addAll(mDBHelper.getData());
         mFeedListAdapter.notifyDataSetChanged();
         mNoFeedText.setVisibility(View.INVISIBLE);
         establishConnection();

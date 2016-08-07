@@ -57,6 +57,9 @@ public class ComposeActivity extends AppCompatActivity {
                     Log.d(TAG, "Formfeedmessage" + msg);
                     HomeFeedActivity.mWebSocketClient.sendMessage(msg);
                     mMessageBox.setText(null);
+                    Intent homeIntent = new Intent(ComposeActivity.this,HomeFeedActivity.class);
+                    startActivity(homeIntent);
+                    //finish();
                 }
             }
         });
