@@ -262,10 +262,8 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
 
     private void onLoginSuccess(){
-//        mMsgLayout.setVisibility(View.VISIBLE);
         mLoginButton.setVisibility(View.GONE);
         mGroupListAdapter.addAll(mUsers);
-        //PreferenceEditor preferenceEditor = PreferenceEditor.getInstance(HomeFeedActivity.this);
         mFeeds.addAll(mDBHelper.getData(PreferenceEditor.getInstance(this).getLoggedInUserName()));
         mFeedListAdapter.notifyDataSetChanged();
         mNoFeedText.setVisibility(View.INVISIBLE);
@@ -312,6 +310,11 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
             public void onDrawerOpened(View drawerView) {
 //                getSupportActionBar().setTitle(getString(R.string.groups));
 //                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                /*ArrayList<String> listdata = new ArrayList<String>();
+                listdata.add(user.getString("username"));
+                Log.d("USERS", listdata.toString());
+                mUsers = listdata;
+                mGroupListAdapter.addAll(mUsers);*/
             }
         };
         mDrawer.setDrawerListener(mDrawerToggle);

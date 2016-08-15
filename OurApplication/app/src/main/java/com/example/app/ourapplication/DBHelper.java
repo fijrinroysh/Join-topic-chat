@@ -30,7 +30,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String MESSAGE_FROM_COLUMN_NAME = "MESSAGE_FROM";
     public static final String MESSAGE_TO_COLUMN_NAME = "MESSAGE_TO";
     public static final String MESSAGE_IMAGE_COLUMN_NAME = "MESSAGE_IMAGE";
-    public static final String PROFILE_IMAGE_COLUMN_NAME = "PROFILE_IMAGE";
+    public static final String PROFILE_IMAGE_COLUMN_NAME = "PROFILEIMAGE";
     public static final String PROFILE_USER_COLUMN_NAME = "PROFILEUSER";
 
 
@@ -112,7 +112,7 @@ public class DBHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         //contentValues.put(PROFILE_USER_COLUMN_NAME, msgObject.optString(Keys.KEY_NAME));
         contentValues.put(msgObject.optString("columnname"), msgObject.optString("columndata"));
-        mydatabase.update("PROFILE_DATA", contentValues, PROFILE_USER_COLUMN_NAME + "=" + msgObject.optString(Keys.KEY_NAME), null);
+        mydatabase.update("PROFILE_DATA", contentValues, PROFILE_USER_COLUMN_NAME + "= \"" + msgObject.optString(Keys.KEY_NAME)+"\" ", null);
 
         return true;
     }
@@ -146,17 +146,21 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public String getProfileInfo(String id) {
-        String profileImage="noimage";
+        String profileImage;
         SQLiteDatabase db = this.getReadableDatabase();
 
         //String Query = "SELECT * FROM PROFILE_DATA WHERE PROFILE_USER = 'Fiji' ";
         Cursor prof_res = db.rawQuery("SELECT * FROM PROFILE_DATA WHERE " + PROFILE_USER_COLUMN_NAME + " = \"" + id + "\"", null);
         Log.d(TAG, "ProfileinfoCount: " + prof_res.getCount());
-        Log.d(TAG, "ProfileinfoID: " +id);
+        Log.d(TAG, "ProfileinfoID: " + id);
 
+        if (prof_res.getCount() != 0){
             prof_res.moveToFirst();
             profileImage = prof_res.getString(1);
-            Log.d(TAG, "Profileinfo: " + profileImage);
+            Log.d(TAG, "Profileinfo: " + profileImage);}
+        else{
+            profileImage="noimage";
+        }
 
         return profileImage;
     }
