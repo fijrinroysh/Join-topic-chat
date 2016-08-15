@@ -6,10 +6,10 @@ package com.example.app.ourapplication;
 public class Person  {
     String name;
     String age;
-    int photoId;
+    String photoId;
     String photoMsg;
 
-    public Person(String name, String age, int photoId, String photoMsg) {
+    public Person(String name, String age, String photoId, String photoMsg) {
         this.name = name;
         this.age = age;
         this.photoId = photoId;

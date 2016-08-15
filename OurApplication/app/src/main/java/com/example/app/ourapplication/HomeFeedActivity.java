@@ -152,7 +152,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                         startActivity(composeIntent);
                         break;
                     case R.id.add_profile:
-
+                        startActivity(new Intent(HomeFeedActivity.this, ProfileActivity.class));
                         break;
                 }
             }
@@ -219,7 +219,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     @Override
     public void onTextMessage(String message  )  {
         mNoFeedText.setVisibility(View.INVISIBLE);
-        mFeeds.add(Helper.parseFeeds(message));
+        mFeeds.add(parseFeeds(message));
         mFeedListAdapter.notifyDataSetChanged();
 
         mDBHelper.insertData(message);
@@ -230,6 +230,21 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+
+    public Person parseFeeds(String message){
+        JSONObject msgObject = null;
+        Person message_return = null;
+        try {
+            msgObject = new JSONObject(message);
+
+            message_return = new Person("Message from "+msgObject.optString(Keys.KEY_NAME) +" to "
+                    + msgObject.optString(Keys.KEY_TO) , msgObject.optString(Keys.KEY_MESSAGE), mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME)), msgObject.optString(Keys.KEY_IMAGE) );
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return message_return;
     }
 
     private void initializeViews() {
@@ -245,6 +260,19 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         groupList.setOnItemClickListener(new DrawerItemClickListener());
     }
 
+
+    private void onLoginSuccess(){
+//        mMsgLayout.setVisibility(View.VISIBLE);
+        mLoginButton.setVisibility(View.GONE);
+        mGroupListAdapter.addAll(mUsers);
+        //PreferenceEditor preferenceEditor = PreferenceEditor.getInstance(HomeFeedActivity.this);
+        mFeeds.addAll(mDBHelper.getData(PreferenceEditor.getInstance(this).getLoggedInUserName()));
+        mFeedListAdapter.notifyDataSetChanged();
+        mNoFeedText.setVisibility(View.INVISIBLE);
+        establishConnection();
+    }
+
+
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView parent, View view, int position, long id) {
@@ -258,16 +286,6 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         mDrawer.closeDrawers();
     }
 
-    private void onLoginSuccess(){
-//        mMsgLayout.setVisibility(View.VISIBLE);
-        mLoginButton.setVisibility(View.GONE);
-        mGroupListAdapter.addAll(mUsers);
-        //PreferenceEditor preferenceEditor = PreferenceEditor.getInstance(HomeFeedActivity.this);
-        mFeeds.addAll(mDBHelper.getData());
-        mFeedListAdapter.notifyDataSetChanged();
-        mNoFeedText.setVisibility(View.INVISIBLE);
-        establishConnection();
-    }
 
     private void setUpDrawerLyt(){
         mDrawer = (DrawerLayout) findViewById(R.id.drawer);
@@ -283,8 +301,11 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                 R.string.drawer_close  /* "close drawer" description for accessibility */
         ) {
             public void onDrawerClosed(View view) {
-//                getSupportActionBar().setTitle(getString(R.string.app_name));
+                 getSupportActionBar().setTitle(mRecvr);
 //                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                mFeeds.clear();
+                mFeeds.addAll(mDBHelper.getData(mRecvr));
+                mFeedListAdapter.notifyDataSetChanged();
 
             }
 
@@ -378,6 +399,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                             for (int i = 0; i < users.length(); i++) {
                                 JSONObject user = new JSONObject(users.get(i).toString());
                                 listdata.add(user.getString("username"));
+                                mDBHelper.insertProfile(users.get(i).toString());
                             }
                         }
                         Log.d("USERS", listdata.toString());

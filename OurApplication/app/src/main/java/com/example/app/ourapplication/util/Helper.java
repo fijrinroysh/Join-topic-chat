@@ -4,12 +4,15 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.provider.MediaStore;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 
 import com.example.app.ourapplication.AppUrl;
+import com.example.app.ourapplication.DBHelper;
 import com.example.app.ourapplication.HomeFeedActivity;
 import com.example.app.ourapplication.Keys;
 import com.example.app.ourapplication.Person;
+import com.example.app.ourapplication.ProfileActivity;
 import com.example.app.ourapplication.R;
 import com.example.app.ourapplication.Util;
 
@@ -26,7 +29,10 @@ import java.util.Date;
 /**
  * Created by sarumugam on 16/07/16.
  */
-public class Helper {
+public class Helper extends AppCompatActivity{
+
+
+
 
     public static String getLoginRequestBody(String name, String password){
         JSONObject body = new JSONObject();
@@ -50,6 +56,17 @@ public class Helper {
         return body.toString();
     }
 
+    public static String getUpdateProfileBody(String name, String strColumnname, String strColumndata){
+        JSONObject body = new JSONObject();
+        try {
+            body.put(Keys.KEY_NAME,name);
+            body.put("columnname",strColumnname);
+            body.put("columndata",strColumndata);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return body.toString();
+    }
 
     public static String getCurrentTimeStamp(){
         try {
@@ -89,21 +106,18 @@ public class Helper {
         return msgObject.toString();
     }
 
-    public static Person parseFeeds(String message){
-        JSONObject msgObject = null;
-        Person message_return = null;
-        try {
-            msgObject = new JSONObject(message);
-            String rimgmessage = msgObject.optString(Keys.KEY_IMAGE);
-            String imgmessage = rimgmessage.substring(0, rimgmessage.length() - 1);
-            message_return = new Person("Message from "+msgObject.optString(Keys.KEY_NAME) +" to "
-                    + msgObject.optString(Keys.KEY_TO) , msgObject.optString(Keys.KEY_MESSAGE), R.drawable.mickey, imgmessage );
-        } catch (JSONException e) {
-            e.printStackTrace();
+    public static Bitmap decodeImageString(String rimgmessage) {
+        String imgString;
+        if (rimgmessage.length() != 0){
+            imgString = rimgmessage.substring(0, rimgmessage.length() - 1);
+        }else {
+            imgString = "noimage";
         }
-        return message_return;
-    }
 
+        byte[] decodedString = Base64.decode(imgString, Base64.NO_PADDING);
+        Bitmap decodedImage = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        return decodedImage;
+    }
 
     public static String getStringImage(Bitmap bmp) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -111,6 +125,13 @@ public class Helper {
         byte[] imageBytes = baos.toByteArray();
         String encodedImage = Base64.encodeToString(imageBytes, Base64.DEFAULT);
         return encodedImage;
+    }
+
+    public static String updateProfile(String reqBody) throws IOException {
+        HttpURLConnection connection = Util.getHttpConnection(AppUrl.UPDATE_URL, "POST");
+        Util.writeToStream(connection, reqBody);
+
+        return Util.readInputStream(connection);
     }
 
     public static String login(String reqBody) throws IOException {

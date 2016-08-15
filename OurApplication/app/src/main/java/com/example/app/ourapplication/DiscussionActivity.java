@@ -35,7 +35,7 @@ public class DiscussionActivity extends AppCompatActivity{
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            Person msg_type = new Person(extras.getString(Keys.KEY_NAME),extras.getString(Keys.KEY_MESSAGE),R.drawable.mickey,extras.getString(Keys.KEY_IMAGE));
+            Person msg_type = new Person(extras.getString(Keys.KEY_NAME),extras.getString(Keys.KEY_MESSAGE),extras.getString(Keys.KEY_PROFIMG),extras.getString(Keys.KEY_IMAGE));
             mFeedListAdapter.mFeeds.add(msg_type);
         }
 

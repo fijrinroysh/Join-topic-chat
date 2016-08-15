@@ -14,6 +14,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.app.ourapplication.util.Helper;
+
 import java.util.List;
 
 /**
@@ -66,16 +68,19 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.PersonViewHolder> 
         return pvh;
     }
 
+
+
     @Override
     public void onBindViewHolder(PersonViewHolder personViewHolder, int i) {
-        personViewHolder.senderName.setText(mFeeds.get(i).name);
-        personViewHolder.senderMessage.setText(mFeeds.get(i).age);
-       // personViewHolder.senderMessage.setText("");
-        personViewHolder.senderPhoto.setImageResource(mFeeds.get(i).photoId);
 
-        byte[] decodedString = Base64.decode(mFeeds.get(i).photoMsg, Base64.NO_PADDING);
-        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-        personViewHolder.messagePhoto.setImageBitmap(decodedByte);
+        personViewHolder.senderName.setText(mFeeds.get(i).name);
+
+        personViewHolder.senderMessage.setText(mFeeds.get(i).age);
+
+        personViewHolder.messagePhoto.setImageBitmap(Helper.decodeImageString(mFeeds.get(i).photoMsg));
+
+        personViewHolder.senderPhoto.setImageBitmap(Helper.decodeImageString(mFeeds.get(i).photoId));
+
         Log.d(TAG, "onBindViewHolder :" + i);
     }
 
