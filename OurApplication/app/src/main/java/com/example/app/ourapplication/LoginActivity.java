@@ -43,11 +43,13 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private final String TAG = FirstActivity.class.getSimpleName();
+    private final String TAG = LoginActivity.class.getSimpleName();
 
-    private EditText mUserNameBox;
+    //private EditText mUserNameBox;
+    private EditText mUserIdBox;
     private EditText mPasswordBox;
     private Button mLoginButton;
+    private EditText mSignUpUserIdBox;
     private EditText mSignUpNameBox;
     private EditText mSignUpPasswordBox;
     private Button mSignUpButton;
@@ -87,9 +89,11 @@ public class LoginActivity extends AppCompatActivity {
 //    }
 
     private void initializeViews() {
-        mUserNameBox = (EditText) findViewById(R.id.username_field);
+        mUserIdBox = (EditText) findViewById(R.id.userid_field);
+        //mUserNameBox = (EditText) findViewById(R.id.username_field);
         mPasswordBox = (EditText) findViewById(R.id.password_field);
         mLoginButton = (Button) findViewById(R.id.login_button);
+        mSignUpUserIdBox = (EditText) findViewById(R.id.sign_up_userid_field);
         mSignUpNameBox = (EditText) findViewById(R.id.sign_up_username_field);
         mSignUpPasswordBox = (EditText) findViewById(R.id.sign_up_password_field);
         mSignUpButton = (Button) findViewById(R.id.sign_up_button);
@@ -108,7 +112,7 @@ public class LoginActivity extends AppCompatActivity {
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String body = Helper.getLoginRequestBody(mUserNameBox.getText().toString(),
+                String body = Helper.getLoginRequestBody(mUserIdBox.getText().toString(),
                         mPasswordBox.getText().toString());
                 new ServerTask().execute(body);
             }
@@ -116,8 +120,10 @@ public class LoginActivity extends AppCompatActivity {
         mSignUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String body = Helper.getSignUpRequestBody(mSignUpNameBox.getText().toString(),
+                String body = Helper.getSignUpRequestBody(mSignUpUserIdBox.getText().toString(),
+                        mSignUpNameBox.getText().toString(),
                         mSignUpPasswordBox.getText().toString());
+                Log.d(TAG, "Sign Up Body : " + body);
                 new ServerTask(RequestType.SIGNUP).execute(body);
             }
         });
@@ -176,7 +182,7 @@ public class LoginActivity extends AppCompatActivity {
 
                             if(isSuccess) {
                                 PreferenceEditor.getInstance(LoginActivity.this)
-                                        .setLoggedInUserName(mUserNameBox.getText().toString(),
+                                        .setLoggedInUserName(mUserIdBox.getText().toString(),
                                         mPasswordBox.getText().toString());
                                 Intent data = new Intent();
                                 String token = null;
@@ -204,7 +210,7 @@ public class LoginActivity extends AppCompatActivity {
                         }
                         break;
                     case SIGNUP:
-                        String body = Helper.getLoginRequestBody(mSignUpNameBox.getText().toString(),
+                        String body = Helper.getLoginRequestBody(mSignUpUserIdBox.getText().toString(),
                                 mSignUpPasswordBox.getText().toString());
                         new ServerTask().execute(body);
                         return;

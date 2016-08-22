@@ -14,14 +14,16 @@
         android:gravity="center_horizontal"
         android:orientation="vertical">
 
+
         <EditText
-            android:id="@+id/username_field"
+            android:id="@+id/userid_field"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
             android:paddingLeft="10dp"
-            android:hint="@string/username"
-            android:inputType="textPersonName" />
+            android:hint="@string/number"
+            android:inputType="phone" />
+
 
         <EditText
             android:id="@+id/password_field"
@@ -56,6 +58,16 @@
         android:layout_height="match_parent"
         android:gravity="center_horizontal"
         android:orientation="vertical">
+
+
+        <EditText
+            android:id="@+id/sign_up_userid_field"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:paddingLeft="10dp"
+            android:hint="@string/number"
+            android:inputType="phone" />
 
         <EditText
             android:id="@+id/sign_up_username_field"

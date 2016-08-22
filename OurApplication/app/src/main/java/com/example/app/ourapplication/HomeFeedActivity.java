@@ -60,6 +60,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     private final String TAG = HomeFeedActivity.class.getSimpleName();
     public static String mToken;
     public static String mRecvr;
+    public static String mTitle;
     private ArrayList<String> mUsers = new ArrayList<>();
     private ArrayAdapter<String> mGroupListAdapter;
     public static WebSocketClient mWebSocketClient;
@@ -105,6 +106,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                 final Intent discussionIntent = new Intent(HomeFeedActivity.this, DiscussionActivity.class);
                 discussionIntent.putExtra(Keys.KEY_MESSAGE,item.age );
                 discussionIntent.putExtra(Keys.KEY_NAME,item.name );
+                discussionIntent.putExtra(Keys.KEY_PROFIMG,item.photoId );
                 discussionIntent.putExtra(Keys.KEY_IMAGE, item.photoMsg );
                 startActivity(discussionIntent);
                 Toast.makeText(getApplicationContext(), item.age + " is selected!", Toast.LENGTH_SHORT).show();
@@ -219,14 +221,14 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     @Override
     public void onTextMessage(String message  )  {
         mNoFeedText.setVisibility(View.INVISIBLE);
-        mFeeds.add(parseFeeds(message));
+        mFeeds.add(0, parseFeeds(message));
         mFeedListAdapter.notifyDataSetChanged();
 
         mDBHelper.insertData(message);
         JSONObject msgObject = null;
         try {
             msgObject = new JSONObject(message);
-            Notify(msgObject.optString(Keys.KEY_NAME), msgObject.optString(Keys.KEY_MESSAGE));
+            Notify(mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 1), msgObject.optString(Keys.KEY_MESSAGE));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -239,8 +241,8 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         try {
             msgObject = new JSONObject(message);
 
-            message_return = new Person("Message from "+msgObject.optString(Keys.KEY_NAME) +" to "
-                    + msgObject.optString(Keys.KEY_TO) , msgObject.optString(Keys.KEY_MESSAGE), mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME)), msgObject.optString(Keys.KEY_IMAGE) );
+            message_return = new Person("Message from "+mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME),1) +" to "
+                    + mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_TO),1) , msgObject.optString(Keys.KEY_MESSAGE), mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME),2), msgObject.optString(Keys.KEY_IMAGE) );
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -264,7 +266,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     private void onLoginSuccess(){
         mLoginButton.setVisibility(View.GONE);
         mGroupListAdapter.addAll(mUsers);
-        mFeeds.addAll(mDBHelper.getData(PreferenceEditor.getInstance(this).getLoggedInUserName()));
+        mFeeds.addAll(0,mDBHelper.getData(PreferenceEditor.getInstance(this).getLoggedInUserName()));
         mFeedListAdapter.notifyDataSetChanged();
         mNoFeedText.setVisibility(View.INVISIBLE);
         establishConnection();
@@ -280,7 +282,8 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
     // Swaps fragments in the main content view
     private void selectItem(int position) {
-       mRecvr =  mUsers.get(position);
+       mRecvr =  mDBHelper.getProfileId(mUsers.get(position));
+        mTitle = mUsers.get(position);
         mDrawer.closeDrawers();
     }
 
@@ -299,10 +302,10 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                 R.string.drawer_close  /* "close drawer" description for accessibility */
         ) {
             public void onDrawerClosed(View view) {
-                 getSupportActionBar().setTitle(mRecvr);
+                 getSupportActionBar().setTitle(mTitle);
 //                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
                 mFeeds.clear();
-                mFeeds.addAll(mDBHelper.getData(mRecvr));
+                mFeeds.addAll(0,mDBHelper.getData(mRecvr));
                 mFeedListAdapter.notifyDataSetChanged();
 
             }

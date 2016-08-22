@@ -5,7 +5,8 @@
     <string name="send">Send</string>
     <string name="msg_hint">Enter your message</string>
 
-    <string name="username">Username</string>
+    <string name="number">Mobile Number</string>
+    <string name="username">Display Name</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
     <string name="sign_up">Sign Up</string>

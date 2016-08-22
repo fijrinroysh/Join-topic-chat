@@ -37,7 +37,7 @@ public class ProfileActivity extends AppCompatActivity{
     ImageView profileImgView;
     public static final int UPDATE_PIC = 1;
     public DBHelper mDBHelper = new DBHelper(this);
-    String name = PreferenceEditor.getInstance(this).getLoggedInUserName();
+    String userid = PreferenceEditor.getInstance(this).getLoggedInUserName();
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +46,8 @@ public class ProfileActivity extends AppCompatActivity{
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_profile);
             setSupportActionBar(toolbar);
             profileImgView = (ImageView) findViewById(R.id.image_profile);
-            profileImgView.setImageBitmap(Helper.decodeImageString(mDBHelper.getProfileInfo(name)));
+            Log.d(TAG, "Image data : " + mDBHelper.getProfileInfo(userid,2));
+            profileImgView.setImageBitmap(Helper.decodeImageString(mDBHelper.getProfileInfo(userid,2)));
 
             FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
             fab.setOnClickListener(new View.OnClickListener() {
@@ -87,8 +88,8 @@ public class ProfileActivity extends AppCompatActivity{
                 Log.d(TAG, "Image message value length : " + imageprofilestring.length());
                 Log.d(TAG, "Image message value is : " + imageprofilestring);
 
-                if(!TextUtils.isEmpty(name)) {
-                    String body = Helper.getUpdateProfileBody(name, Keys.KEY_PROFIMG, imageprofilestring);
+                if(!TextUtils.isEmpty(userid)) {
+                    String body = Helper.getUpdateProfileBody(userid, Keys.KEY_PROFIMG, imageprofilestring);
                     new ProfileUpdateTask().execute(body);
                     mDBHelper.updateProfile(body);
                 }

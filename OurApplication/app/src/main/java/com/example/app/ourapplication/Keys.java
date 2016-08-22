@@ -9,6 +9,7 @@ public class Keys {
     public static final String KEY_MESSAGE = "message";
     public static final String KEY_NAME = "name";
     public static final String KEY_USERS = "users";
+    public static final String KEY_ID = "postid";
     public static final String KEY_TO = "to";
     public static final String KEY_IMAGE = "image";
     public static final String KEY_TIME = "time";

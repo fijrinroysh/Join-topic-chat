@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
+import android.util.Log;
 
 import com.example.app.ourapplication.AppUrl;
 import com.example.app.ourapplication.DBHelper;
@@ -31,12 +32,24 @@ import java.util.Date;
  */
 public class Helper extends AppCompatActivity{
 
+    private final String TAG = Helper.class.getSimpleName();
 
 
-
-    public static String getLoginRequestBody(String name, String password){
+    public static String getLoginRequestBody(String number, String password){
         JSONObject body = new JSONObject();
         try {
+            body.put("userid",number);
+            body.put("password",password);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return body.toString();
+    }
+
+    public static String getSignUpRequestBody(String number, String name, String password){
+        JSONObject body = new JSONObject();
+        try {
+            body.put("userid",number);
             body.put("name",name);
             body.put("password",password);
         } catch (JSONException e) {
@@ -45,21 +58,10 @@ public class Helper extends AppCompatActivity{
         return body.toString();
     }
 
-    public static String getSignUpRequestBody(String name, String password){
+    public static String getUpdateProfileBody(String userid, String strColumnname, String strColumndata){
         JSONObject body = new JSONObject();
         try {
-            body.put("name",name);
-            body.put("password",password);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return body.toString();
-    }
-
-    public static String getUpdateProfileBody(String name, String strColumnname, String strColumndata){
-        JSONObject body = new JSONObject();
-        try {
-            body.put(Keys.KEY_NAME,name);
+            body.put("userid",userid);
             body.put("columnname",strColumnname);
             body.put("columndata",strColumndata);
         } catch (JSONException e) {
