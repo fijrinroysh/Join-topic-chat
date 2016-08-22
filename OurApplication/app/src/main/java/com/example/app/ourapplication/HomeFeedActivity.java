@@ -4,33 +4,30 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.support.design.widget.CoordinatorLayout;
+import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,11 +39,11 @@ import com.example.app.ourapplication.wss.WebSocketClient;
 import com.example.app.ourapplication.wss.WebSocketListener;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnMenuTabSelectedListener;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +54,7 @@ import java.util.List;
 public class HomeFeedActivity extends AppCompatActivity implements WebSocketListener {
 
     public static final int REQUEST_LOGIN = 6;
+    public static final int REQ_LOCATION = 7;
     private final String TAG = HomeFeedActivity.class.getSimpleName();
     public static String mToken;
     public static String mRecvr;
@@ -67,7 +65,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     private DBHelper mDBHelper = new DBHelper(this);
     private RVAdapter mFeedListAdapter;
     RecyclerView recyclerView;
-
+    private LocationManager locationManager;
 
     /*Views*/
     private View mMsgLayout;
@@ -98,6 +96,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         itemAnimator.setAddDuration(1000);
         recyclerView.setItemAnimator(itemAnimator);
         recyclerView.setAdapter(mFeedListAdapter);
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), recyclerView , new ClickListener() {
             @Override
@@ -140,6 +139,11 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                         break;
                     case R.id.add_location:
                         //Snackbar.make(tool_bar, "Add Location Item Selected", Snackbar.LENGTH_LONG).show();
+                        if(isLocationEnabled()){
+                            checkInLocation();
+                        }else{
+                            showAlert();
+                        }
                         break;
                     case R.id.add_image:
                         //Snackbar.make(coordinatorLayout, " Add Image Item Selected", Snackbar.LENGTH_LONG).show();
@@ -197,7 +201,12 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                     onLoginSuccess();
                 }
                 break;
-
+            case REQ_LOCATION:
+                if(isLocationEnabled()){
+                    checkInLocation();
+                }else{
+                    Snackbar.make(mDrawer, "Location is not enabled", Snackbar.LENGTH_LONG).show();
+                }
             }
         }
 
@@ -426,10 +435,57 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
     public interface ClickListener {
         void onClick(View view, int position);
-
         void onLongClick(View view, int position);
     }
 
+    private void showAlert() {
+        final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Enable Location")
+                .setMessage("Your Locations Settings is set to 'Off'.\nPlease Enable Location to " +
+                        "use this app")
+                .setPositiveButton("Location Settings", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                        Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        startActivityForResult(myIntent,REQ_LOCATION);
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                        Snackbar.make(mDrawer, "Location permission is denied", Snackbar.LENGTH_LONG).show();
+                    }
+                });
+        dialog.show();
+    }
 
+    private boolean isLocationEnabled() {
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+    }
+
+    private Location getCurrentLocation() {
+        Location currLoc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        Log.d(TAG,"Current GPS location : "+currLoc);
+        if (currLoc == null) {
+            currLoc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            Log.d(TAG,"Current Network location : "+currLoc.toString());
+        }
+        return currLoc;
+    }
+
+    private void checkInLocation(){
+        Location location = getCurrentLocation();
+        JSONObject checkInObj = new JSONObject();
+        JSONObject locationObj = new JSONObject();
+        try {
+            locationObj.put("longitude",location.getLongitude());
+            locationObj.put("latitude",location.getLatitude());
+            checkInObj.put("check_in",locationObj);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        mWebSocketClient.sendMessage(checkInObj.toString());
+    }
 }
 
