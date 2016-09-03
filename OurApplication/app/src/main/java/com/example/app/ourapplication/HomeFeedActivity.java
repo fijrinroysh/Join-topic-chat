@@ -11,6 +11,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.annotation.IdRes;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -38,7 +39,9 @@ import com.example.app.ourapplication.util.UI;
 import com.example.app.ourapplication.wss.WebSocketClient;
 import com.example.app.ourapplication.wss.WebSocketListener;
 import com.roughike.bottombar.BottomBar;
-import com.roughike.bottombar.OnMenuTabSelectedListener;
+import com.roughike.bottombar.OnTabReselectListener;
+import com.roughike.bottombar.OnTabSelectListener;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -124,16 +127,45 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
             String body = Helper.getLoginRequestBody(name,password);
             new AutoLoginTask().execute(body);
         }
+        bottomBar();
+
+       // BottomBar bottomBar = BottomBar.attach(this, savedInstanceState);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
 
-        final Intent composeIntent = new Intent(HomeFeedActivity.this, ComposeActivity.class);
+    public void bottomBar() {
 
-        BottomBar bottomBar = BottomBar.attach(this, savedInstanceState);
+        final Intent composeIntent = new Intent(this, ComposeActivity.class);
+        final Intent profileIntent = new Intent(this, ProfileActivity.class);
 
-        bottomBar.setItemsFromMenu(R.menu.bottom_bar_menu, new OnMenuTabSelectedListener() {
+
+        BottomBar bottomBar = (BottomBar) findViewById(R.id.bottomBar);
+        bottomBar.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
-            public void onMenuItemSelected(int itemId) {
-                switch (itemId) {
+            public void onTabSelected(@IdRes int tabId) {
+
+                switch (tabId) {
                     case R.id.add_home:
 
                         break;
@@ -158,36 +190,20 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                         startActivity(composeIntent);
                         break;
                     case R.id.add_profile:
-                        startActivity(new Intent(HomeFeedActivity.this, ProfileActivity.class));
+                        startActivity(profileIntent);
                         break;
                 }
+
             }
-
-
         });
 
+        bottomBar.setOnTabReselectListener(new OnTabReselectListener() {
+            @Override
+            public void onTabReSelected(@IdRes int tabId) {
+                // Toast.makeText(getApplicationContext(), TabMessage.get(tabId, true), Toast.LENGTH_LONG).show();
+            }
+        });
 
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -229,8 +245,10 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
     @Override
     public void onTextMessage(String message  )  {
+        List<Person> mComments = new ArrayList<>(DiscussionActivity.mComments);
         mNoFeedText.setVisibility(View.INVISIBLE);
         mFeeds.add(0, parseFeeds(message));
+        mComments.add(0, parseFeeds(message));
         mFeedListAdapter.notifyDataSetChanged();
 
         mDBHelper.insertData(message);

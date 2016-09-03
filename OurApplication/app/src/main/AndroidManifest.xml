@@ -33,7 +33,7 @@
 
         <activity android:name=".DiscussionActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/FeedTheme"/>
+            android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity android:name=".ProfileActivity"
             android:screenOrientation="portrait"
