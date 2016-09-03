@@ -156,6 +156,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
     public void bottomBar() {
 
+        
         final Intent composeIntent = new Intent(this, ComposeActivity.class);
         final Intent profileIntent = new Intent(this, ProfileActivity.class);
 
