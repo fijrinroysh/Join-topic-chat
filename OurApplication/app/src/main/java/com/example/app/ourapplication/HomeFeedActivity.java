@@ -107,7 +107,8 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                 Person item = mFeeds.get(position);
                 final Intent discussionIntent = new Intent(HomeFeedActivity.this, DiscussionActivity.class);
                 discussionIntent.putExtra(Keys.KEY_MESSAGE,item.msg );
-                discussionIntent.putExtra(Keys.KEY_NAME,item.name );
+                discussionIntent.putExtra(Keys.KEY_NAME,item.sendername );
+                discussionIntent.putExtra(Keys.KEY_TO,item.receivername );
                 discussionIntent.putExtra(Keys.KEY_PROFIMG,item.photoId );
                 discussionIntent.putExtra(Keys.KEY_IMAGE, item.photoMsg );
                 startActivity(discussionIntent);
@@ -269,8 +270,10 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         try {
             msgObject = new JSONObject(message);
 
-            message_return = new Person("Message from "+mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME),1) +" to " + mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_TO),1) ,
-                    msgObject.optString(Keys.KEY_MESSAGE), mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME),2),
+            message_return = new Person(mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME),1) ,
+                    mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_TO),1) ,
+                    msgObject.optString(Keys.KEY_MESSAGE),
+                    mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME),2),
                     msgObject.optString(Keys.KEY_IMAGE), msgObject.optString(Keys.KEY_TIME));
         } catch (JSONException e) {
             e.printStackTrace();

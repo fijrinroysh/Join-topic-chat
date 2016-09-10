@@ -149,7 +149,7 @@ public class DBHelper extends SQLiteOpenHelper {
              // Private ImageView img;
              //  img  = (ImageView) findViewById(R.id.img);
 
-            array_list.add(new Person("Message from "+column1 +" to "+ column2 , column3, column5, column4, column6  ));
+            array_list.add(new Person(column1 , column2 , column3, column5, column4, column6  ));
             msg_res.moveToNext();
         }
         return array_list;

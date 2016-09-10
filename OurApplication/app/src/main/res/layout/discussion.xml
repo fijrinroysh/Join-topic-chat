@@ -32,6 +32,7 @@
                 app:layout_scrollFlags="scroll|exitUntilCollapsed"
                 app:popupTheme="@style/AppTheme.PopupOverlay" />
 
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
@@ -54,11 +55,41 @@
                     android:textSize="10sp"
                     android:textStyle="bold" />
 
+                <ImageView
+                    android:id="@+id/arrow_icon"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginRight="2dp"
+                    android:layout_marginLeft="2dp"
+                    android:layout_toRightOf="@+id/sender_name"
+                    android:layout_alignParentTop="true"
+                    android:src="@drawable/arrow_icon"
+                    android:scaleType="fitXY" />
+
+                <TextView
+                    android:id="@+id/receiver_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_toRightOf="@+id/arrow_icon"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/message_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/sender_name"
+                    android:layout_toRightOf="@+id/sender_photo"
+                    android:textSize="10sp"
+                    />
+
                 <TextView
                     android:id="@+id/sender_message"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/sender_name"
+                    android:layout_below="@+id/message_time"
                     android:layout_toRightOf="@+id/sender_photo" />
 
                 <ImageView
@@ -68,7 +99,6 @@
                     android:layout_below="@+id/sender_message"
                     android:layout_toRightOf="@+id/sender_photo"
                     android:layout_margin="8dp"
-                    android:scaleType="fitXY"
                     />
 
             </RelativeLayout>

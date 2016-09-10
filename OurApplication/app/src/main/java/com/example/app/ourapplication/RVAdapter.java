@@ -38,6 +38,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.PersonViewHolder> 
     public class PersonViewHolder extends RecyclerView.ViewHolder {
         CardView cv;
         TextView senderName;
+        TextView receiverName;
         TextView senderMessage;
         ImageView senderPhoto;
         ImageView messagePhoto;
@@ -47,6 +48,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.PersonViewHolder> 
             super(itemView);
             cv = (CardView) itemView.findViewById(R.id.cv);
             senderName = (TextView) itemView.findViewById(R.id.sender_name);
+            receiverName = (TextView) itemView.findViewById(R.id.receiver_name);
             senderMessage = (TextView) itemView.findViewById(R.id.sender_message);
             senderPhoto = (ImageView) itemView.findViewById(R.id.sender_photo);
             messageTime = (TextView) itemView.findViewById(R.id.message_time);
@@ -66,7 +68,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.PersonViewHolder> 
     public PersonViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.card_item, viewGroup, false);
         PersonViewHolder pvh = new PersonViewHolder(v);
-        Log.d(TAG, "PersoniewHolder");
+        Log.d(TAG, "PersonViewHolder");
         return pvh;
     }
 
@@ -75,7 +77,9 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.PersonViewHolder> 
     @Override
     public void onBindViewHolder(PersonViewHolder personViewHolder, int i) {
 
-        personViewHolder.senderName.setText(mFeeds.get(i).name);
+        personViewHolder.senderName.setText(mFeeds.get(i).sendername);
+
+        personViewHolder.receiverName.setText(mFeeds.get(i).receivername);
 
         personViewHolder.senderMessage.setText(mFeeds.get(i).msg);
 

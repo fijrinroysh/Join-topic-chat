@@ -37,6 +37,7 @@ public class DiscussionActivity extends AppCompatActivity{
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_discussion);
         setSupportActionBar(toolbar);
         TextView senderName = (TextView) findViewById(R.id.sender_name);
+        TextView receiverName = (TextView) findViewById(R.id.receiver_name);
         TextView senderMessage = (TextView) findViewById(R.id.sender_message);
         ImageView senderPhoto = (ImageView) findViewById(R.id.sender_photo);
         ImageView messagePhoto = (ImageView) findViewById(R.id.message_photo);
@@ -79,8 +80,10 @@ public class DiscussionActivity extends AppCompatActivity{
 
             senderName.setText(extras.getString(Keys.KEY_NAME));
 
-            senderMessage.setText(extras.getString(Keys.KEY_MESSAGE));
+            receiverName.setText(extras.getString(Keys.KEY_TO));
 
+            senderMessage.setText(extras.getString(Keys.KEY_MESSAGE));
+            
             messagePhoto.setImageBitmap(Helper.decodeImageString(extras.getString(Keys.KEY_IMAGE)));
 
             senderPhoto.setImageBitmap(Helper.decodeImageString(extras.getString(Keys.KEY_PROFIMG)));
