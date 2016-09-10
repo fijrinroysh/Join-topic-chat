@@ -31,6 +31,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String MESSAGE_FROM_COLUMN_NAME = "MESSAGE_FROM";
     public static final String MESSAGE_TO_COLUMN_NAME = "MESSAGE_TO";
     public static final String MESSAGE_IMAGE_COLUMN_NAME = "MESSAGE_IMAGE";
+    public static final String MESSAGE_TIME_COLUMN_NAME = "MESSAGETIME";
     public static final String PROFILE_IMAGE_COLUMN_NAME = "PROFILEIMAGE";
     public static final String PROFILE_USER_COLUMN_NAME = "PROFILEUSER";
     public static final String PROFILE_ID_COLUMN_NAME = "PROFILEID";
@@ -52,7 +53,8 @@ public class DBHelper extends SQLiteOpenHelper {
                         MESSAGE_FROM_COLUMN_NAME+" VARCHAR,"+
                         MESSAGE_TO_COLUMN_NAME+" VARCHAR,"+
                         MESSAGE_COLUMN_NAME+" VARCHAR,"+
-                        MESSAGE_IMAGE_COLUMN_NAME+" VARCHAR)"
+                        MESSAGE_IMAGE_COLUMN_NAME+" VARCHAR,"+
+                        MESSAGE_TIME_COLUMN_NAME+" VARCHAR)"
 
         );
 
@@ -86,6 +88,7 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(MESSAGE_TO_COLUMN_NAME, msgObject.optString(Keys.KEY_TO));
         contentValues.put(MESSAGE_COLUMN_NAME, msgObject.optString(Keys.KEY_MESSAGE));
         contentValues.put(MESSAGE_IMAGE_COLUMN_NAME, msgObject.optString(Keys.KEY_IMAGE));
+        contentValues.put(MESSAGE_TIME_COLUMN_NAME, msgObject.optString(Keys.KEY_TIME));
         mydatabase.insert("MESSAGE_DATA", null, contentValues);
         return true;
     }
@@ -129,7 +132,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         //hp = new HashMap();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " +MESSAGE_FROM_COLUMN_NAME+ " = \"" + id + "\" or " +MESSAGE_TO_COLUMN_NAME+ " = \""+id+"\" ", null );
+        Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " +MESSAGE_FROM_COLUMN_NAME+ " = \"" + id + "\" or " +MESSAGE_TO_COLUMN_NAME+ " = \""+id+"\" ORDER BY "+ MESSAGE_TIME_COLUMN_NAME+" DESC", null );
         //Cursor res =  db.rawQuery( "select * from MESSAGE_DATA" , null );
         msg_res.moveToFirst();
 
@@ -139,13 +142,14 @@ public class DBHelper extends SQLiteOpenHelper {
             String column2 = getProfileInfo(msg_res.getString(2),1);
             String column3 = msg_res.getString(3);
             String column4 = msg_res.getString(4);
-            String column5 = getProfileInfo(msg_res.getString(1),2);
+            String column5 = getProfileInfo(msg_res.getString(1), 2);
+            String column6 = msg_res.getString(5);
              //String msg = column4.substring(0, column4.length() - 1);
              // String message = "Message from "+column1 +" to "+ column2 +" : "+ column3;
              // Private ImageView img;
              //  img  = (ImageView) findViewById(R.id.img);
 
-            array_list.add(new Person("Message from "+column1 +" to "+ column2 , column3, column5, column4  ));
+            array_list.add(new Person("Message from "+column1 +" to "+ column2 , column3, column5, column4, column6  ));
             msg_res.moveToNext();
         }
         return array_list;

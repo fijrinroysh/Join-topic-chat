@@ -5,15 +5,17 @@ package com.example.app.ourapplication;
  */
 public class Person  {
     String name;
-    String age;
+    String msg;
     String photoId;
     String photoMsg;
+    String timeMsg;
 
-    public Person(String name, String age, String photoId, String photoMsg) {
+    public Person(String name, String msg, String photoId, String photoMsg, String timeMsg) {
         this.name = name;
-        this.age = age;
+        this.msg = msg;
         this.photoId = photoId;
         this.photoMsg = photoMsg;
+        this.timeMsg = timeMsg;
     }
 
 

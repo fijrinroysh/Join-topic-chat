@@ -41,6 +41,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.PersonViewHolder> 
         TextView senderMessage;
         ImageView senderPhoto;
         ImageView messagePhoto;
+        TextView messageTime;
 
         PersonViewHolder(View itemView) {
             super(itemView);
@@ -48,6 +49,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.PersonViewHolder> 
             senderName = (TextView) itemView.findViewById(R.id.sender_name);
             senderMessage = (TextView) itemView.findViewById(R.id.sender_message);
             senderPhoto = (ImageView) itemView.findViewById(R.id.sender_photo);
+            messageTime = (TextView) itemView.findViewById(R.id.message_time);
             messagePhoto = (ImageView) itemView.findViewById(R.id.message_photo);
 
         }
@@ -75,7 +77,9 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.PersonViewHolder> 
 
         personViewHolder.senderName.setText(mFeeds.get(i).name);
 
-        personViewHolder.senderMessage.setText(mFeeds.get(i).age);
+        personViewHolder.senderMessage.setText(mFeeds.get(i).msg);
+
+        personViewHolder.messageTime.setText(mFeeds.get(i).timeMsg);
 
         personViewHolder.messagePhoto.setImageBitmap(Helper.decodeImageString(mFeeds.get(i).photoMsg));
 
