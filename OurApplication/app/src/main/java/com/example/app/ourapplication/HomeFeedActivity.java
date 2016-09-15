@@ -41,6 +41,8 @@ import com.example.app.ourapplication.wss.WebSocketListener;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabReselectListener;
 import com.roughike.bottombar.OnTabSelectListener;
+import com.ncapdevi.fragnav.FragNavController;
+import com.roughike.bottombar.BottomBar;
 
 
 import org.json.JSONArray;
@@ -77,6 +79,15 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     private DrawerLayout mDrawer;
     private ActionBarDrawerToggle mDrawerToggle;
     private List<Person> mFeeds = new ArrayList<>();
+
+    private BottomBar mBottomBar;
+    private FragNavController fragNavController;
+    //indices to fragments
+    private final int TAB_FIRST = FragNavController.TAB1;
+    private final int TAB_SECOND = FragNavController.TAB2;
+    private final int TAB_THIRD = FragNavController.TAB3;
+    private final int TAB_FOURTH = FragNavController.TAB4;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState ) {
@@ -179,16 +190,18 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                             showAlert();
                         }
                         break;
-                    case R.id.add_image:
+                  /*  case R.id.add_image:
                         //Snackbar.make(coordinatorLayout, " Add Image Item Selected", Snackbar.LENGTH_LONG).show();
                         //showFileChooser();
                         composeIntent.putExtra("ITEM","add_image");
                         startActivity(composeIntent);
 
-                        break;
+                        break;*/
                     case R.id.add_message:
                         // Snackbar.make(coordinatorLayout, "Add Message Item Selected", Snackbar.LENGTH_LONG).show();
                         composeIntent.putExtra("ITEM","add_message");
+                        composeIntent.putExtra("PARENT_CLASS", HomeFeedActivity.class);
+                       // startActivityForResult(composeIntent, RETURN);
                         startActivity(composeIntent);
                         break;
                     case R.id.add_profile:

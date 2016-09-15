@@ -14,12 +14,6 @@
         />
 
     <tab
-        id="@+id/add_image"
-        icon="@drawable/add_camera"
-        title=""
-        />
-
-    <tab
         id="@+id/add_message"
         icon="@drawable/add_message"
         title=""

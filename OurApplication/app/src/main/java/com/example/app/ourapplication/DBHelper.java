@@ -132,6 +132,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         //hp = new HashMap();
         SQLiteDatabase db = this.getReadableDatabase();
+       // Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " +MESSAGE_FROM_COLUMN_NAME+ " = \"" + id + "\" or " +MESSAGE_TO_COLUMN_NAME+ " = \""+id+"\" ORDER BY "+ MESSAGE_TIME_COLUMN_NAME+" DESC", null );
         Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " +MESSAGE_FROM_COLUMN_NAME+ " = \"" + id + "\" or " +MESSAGE_TO_COLUMN_NAME+ " = \""+id+"\" ORDER BY "+ MESSAGE_TIME_COLUMN_NAME+" DESC", null );
         //Cursor res =  db.rawQuery( "select * from MESSAGE_DATA" , null );
         msg_res.moveToFirst();
