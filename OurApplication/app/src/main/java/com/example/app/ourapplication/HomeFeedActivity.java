@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -270,7 +271,9 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         JSONObject msgObject = null;
         try {
             msgObject = new JSONObject(message);
-            Notify(mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 1), msgObject.optString(Keys.KEY_MESSAGE));
+            Notify(mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 1),
+                    msgObject.optString(Keys.KEY_MESSAGE),
+                    mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 2));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -287,7 +290,8 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                     mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_TO),1) ,
                     msgObject.optString(Keys.KEY_MESSAGE),
                     mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME),2),
-                    msgObject.optString(Keys.KEY_IMAGE), msgObject.optString(Keys.KEY_TIME));
+                    msgObject.optString(Keys.KEY_IMAGE),
+                    msgObject.optString(Keys.KEY_TIME));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -385,7 +389,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
     }
 
-    private void Notify(String notificationTitle, String notificationMessage){
+    private void Notify(String notificationTitle, String notificationMessage,String notificationIcon){
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         @SuppressWarnings("deprecation")
       //  Intent notificationIntent = new Intent(this,NotificationView.class);
@@ -394,19 +398,20 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
-        //Notification notification = new Notification(R.mipmap.ic_launcher,"New Message", System.currentTimeMillis());
-
         Notification notification = new Notification.Builder(this)
+                .setAutoCancel(true)
                 .setContentTitle(notificationTitle)
                 .setContentText(notificationMessage)
                 .setSmallIcon(R.mipmap.ic_launcher)
+                .setLargeIcon(Helper.decodeImageString(notificationIcon))
+                .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
+                .setStyle(new Notification.BigTextStyle()
+                        .bigText(notificationMessage))
+               // .setSmallIcon(setImageBitmap(Helper.decodeImageString(notificationIcon)))
                 .setContentIntent(pendingIntent).build();
-
 // hide the notification after its selected
-        notification.flags |= Notification.FLAG_AUTO_CANCEL;
+       // notification.flags |= Notification.FLAG_AUTO_CANCEL;
 
-        // notification.setLatestEventInfo(MainActivity.this, notificationTitle,notificationMessage, pendingIntent);
-        // notification.setLatestEventInfo(getApplicationContext(), notificationTitle, notificationMessage, pendingIntent);
         notificationManager.notify(0, notification);
     }
 

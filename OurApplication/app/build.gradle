@@ -29,4 +29,6 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:23.+'
     compile 'com.roughike:bottom-bar:2.+'
     compile 'com.ncapdevi:frag-nav:1.0.3'
+
+
 }

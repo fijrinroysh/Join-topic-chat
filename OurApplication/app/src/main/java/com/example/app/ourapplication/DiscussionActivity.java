@@ -83,7 +83,7 @@ public class DiscussionActivity extends AppCompatActivity{
             receiverName.setText(extras.getString(Keys.KEY_TO));
 
             senderMessage.setText(extras.getString(Keys.KEY_MESSAGE));
-            
+
             messagePhoto.setImageBitmap(Helper.decodeImageString(extras.getString(Keys.KEY_IMAGE)));
 
             senderPhoto.setImageBitmap(Helper.decodeImageString(extras.getString(Keys.KEY_PROFIMG)));
