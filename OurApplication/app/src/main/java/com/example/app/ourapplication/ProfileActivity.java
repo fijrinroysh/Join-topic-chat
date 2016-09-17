@@ -62,8 +62,8 @@ public class ProfileActivity extends AppCompatActivity{
 
 
     private void showFileChooser() {
-        Intent intent = new Intent();
-        //Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        //Intent intent = new Intent();
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         intent.putExtra("crop", "true");
@@ -74,8 +74,8 @@ public class ProfileActivity extends AppCompatActivity{
 
         try {
             intent.putExtra("return-data", true);
-            startActivityForResult(Intent.createChooser(intent,"Complete action using"), UPDATE_PIC);
-            //startActivityForResult(intent, UPDATE_PIC);
+            //startActivityForResult(Intent.createChooser(intent,"Complete action using"), UPDATE_PIC);
+            startActivityForResult(intent, UPDATE_PIC);
         } catch (ActivityNotFoundException e) {
             e.printStackTrace();
             Snackbar.make(profileImgView, "Activity not found", Snackbar.LENGTH_LONG).setAction("Action", null).show();
