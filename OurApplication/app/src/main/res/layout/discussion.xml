@@ -11,7 +11,7 @@
 
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="218dp"
+            android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
             android:theme="@style/AppTheme.AppBarOverlay">
 
@@ -99,6 +99,7 @@
                     android:layout_below="@+id/sender_message"
                     android:layout_toRightOf="@+id/sender_photo"
                     android:layout_margin="8dp"
+                    android:adjustViewBounds="true"
                     />
 
             </RelativeLayout>

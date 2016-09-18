@@ -1,5 +1,6 @@
 package com.example.app.ourapplication;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -11,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -41,7 +43,7 @@ public class ComposeActivity extends AppCompatActivity {
 
     private final String TAG = ComposeActivity.class.getSimpleName();
     public static final int PICK_IMAGE_REQUEST = 3;
-    public static Bitmap mBitmap;
+    private Bitmap mBitmap;
     //private WebSocketClient mWebSocketClient;
     private String imagemessage;
     String msg_type;
@@ -144,8 +146,6 @@ public class ComposeActivity extends AppCompatActivity {
     }
 
 
-
-
     private void showFileChooser() {
 
         Intent intent = new Intent(Intent.ACTION_PICK,
@@ -168,10 +168,13 @@ public class ComposeActivity extends AppCompatActivity {
     }
 
     public Uri getOutputMediaFileUri(int type) {
+
         return Uri.fromFile(getOutputMediaFile(type));
     }
 
-    private static File getOutputMediaFile(int type) {
+    private final File getOutputMediaFile(int type) {
+
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
 
         // External sdcard location
         File mediaStorageDir = new File(
@@ -202,33 +205,18 @@ public class ComposeActivity extends AppCompatActivity {
 
         return mediaFile;
     }
-    //}
+
     private void previewCapturedImage() {
         try {
-            // hide video preview
-//            videoPreview.setVisibility(View.GONE);
 
-//            imgPreview.setVisibility(View.VISIBLE);
-
-            // bimatp factory
-            BitmapFactory.Options options = new BitmapFactory.Options();
-
-            // downsizing image as it throws OutOfMemory Exception for larger
-            // images
-            options.inSampleSize = 8;
-
-
-            final Bitmap bitmap = BitmapFactory.decodeFile(fileUri.getPath(),
-                    options);
+            final Bitmap bitmap = BitmapFactory.decodeFile(fileUri.getPath());
             Log.d(TAG, "Image bitmap value is : " + bitmap);
-
-            // imgPreview.setImageBitmap(bitmap);
             img.setImageBitmap(bitmap);
-            //mBitmap=bitmap;
-            mBitmap=BITMAP_RESIZER(bitmap,200,200);
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            mBitmap.compress(Bitmap.CompressFormat.JPEG, 20, bytes);
 
+            //mBitmap=BITMAP_RESIZER(bitmap,200,200);
+            mBitmap=scaleBitmap(bitmap);
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+           // mBitmap.compress(Bitmap.CompressFormat.JPEG, 20, bytes);
             imagemessage = Helper.getStringImage(mBitmap);
         } catch (NullPointerException e) {
             e.printStackTrace();
@@ -249,22 +237,9 @@ public class ComposeActivity extends AppCompatActivity {
                     try {
                         //Getting the Bitmap from Gallery
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-
-                    /*  mBitmap = Bitmap.createScaledBitmap(bitmap, 100,
-
-                                100, true);/*
-                        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                       mBitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
-                        //img.setImageBitmap(mBitmap);*/
-
-
-                        // mBitmap = Bitmap.createScaledBitmap(bitmap, 150,
-
-                        //       150, false);
-                        mBitmap=BITMAP_RESIZER(bitmap,400,300);
+                        mBitmap=scaleBitmap(bitmap);
                         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                         mBitmap.compress(Bitmap.CompressFormat.JPEG, 50, bytes);
-
                         img.setImageBitmap(mBitmap);
                         imagemessage = Helper.getStringImage(mBitmap);
                         Log.d(TAG, "Image message value length : " + imagemessage.length());
@@ -294,7 +269,7 @@ public class ComposeActivity extends AppCompatActivity {
                             Toast.LENGTH_SHORT)
                             .show();
                 }
-                //  }
+
         }
 
     }
@@ -313,10 +288,38 @@ public class ComposeActivity extends AppCompatActivity {
         Canvas canvas = new Canvas(scaledBitmap);
         canvas.setMatrix(scaleMatrix);
         canvas.drawBitmap(bitmap, middleX - bitmap.getWidth() / 2, middleY - bitmap.getHeight() / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
-        //canvas.drawBitmap(bitmap, 0, 0, new Paint(Paint.FILTER_BITMAP_FLAG));
-
         return scaledBitmap;
 
+    }
+
+
+    private Bitmap scaleBitmap(Bitmap bm) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        int maxWidth = 1024 ;
+        int maxHeight = 1024;
+
+
+        Log.v("Pictures", "Width and height are " + width + "--" + height);
+
+        if (width > height) {
+            // landscape
+            float ratio = (float) width / maxWidth;
+            width = maxWidth;
+            height = (int) (height / ratio);
+        } else if (height > width) {
+            // portrait
+            float ratio = (float) height / maxHeight;
+            height = maxHeight;
+            width = (int) (width / ratio);
+        } else {
+            // square
+            height = maxHeight;
+            width = maxWidth;
+        }
+        Log.v("Pictures", "after scaling Width and height are " + width + "--" + height);
+        bm = Bitmap.createScaledBitmap(bm, width, height, true);
+        return bm;
     }
 
 }

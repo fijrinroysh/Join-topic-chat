@@ -30,6 +30,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -80,7 +81,6 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     private DrawerLayout mDrawer;
     private ActionBarDrawerToggle mDrawerToggle;
     private List<Person> mFeeds = new ArrayList<>();
-
     private BottomBar mBottomBar;
     private FragNavController fragNavController;
     //indices to fragments
@@ -528,5 +528,6 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         }
         mWebSocketClient.sendMessage(checkInObj.toString());
     }
+
 }
 

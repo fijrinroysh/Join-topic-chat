@@ -85,7 +85,12 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.PersonViewHolder> 
 
         personViewHolder.messageTime.setText(mFeeds.get(i).timeMsg);
 
-        personViewHolder.messagePhoto.setImageBitmap(Helper.decodeImageString(mFeeds.get(i).photoMsg));
+        if (mFeeds.get(i).photoMsg.length() != 0) {
+            personViewHolder.messagePhoto.setImageBitmap(Helper.decodeImageString(mFeeds.get(i).photoMsg));
+        }else {
+            Log.d(TAG, "Message Image view is removed");
+            personViewHolder.messagePhoto.setVisibility(View.GONE);
+        }
 
         personViewHolder.senderPhoto.setImageBitmap(Helper.decodeImageString(mFeeds.get(i).photoId));
 

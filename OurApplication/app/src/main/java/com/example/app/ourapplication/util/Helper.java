@@ -89,7 +89,7 @@ public class Helper extends AppCompatActivity{
 
         String image_string;
         if (bitmap == null) {
-            image_string="noimage";
+            image_string="";
         }
         else {
             image_string= getStringImage(bitmap);
@@ -110,14 +110,12 @@ public class Helper extends AppCompatActivity{
 
     public static Bitmap decodeImageString(String rimgmessage) {
         String imgString;
-        if (rimgmessage.length() != 0){
-            imgString = rimgmessage.substring(0, rimgmessage.length() - 1);
-        }else {
-            imgString = "noimage";
-        }
+        Bitmap decodedImage;
 
-        byte[] decodedString = Base64.decode(imgString, Base64.NO_PADDING);
-        Bitmap decodedImage = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            imgString = rimgmessage.substring(0, rimgmessage.length() - 1);
+            byte[] decodedString = Base64.decode(imgString, Base64.NO_PADDING);
+            decodedImage = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+
         return decodedImage;
     }
 
