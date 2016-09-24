@@ -11,6 +11,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.provider.Settings;
 import android.support.annotation.IdRes;
 import android.support.design.widget.Snackbar;
@@ -70,7 +71,6 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     private ArrayAdapter<String> mGroupListAdapter;
     public static WebSocketClient mWebSocketClient;
     private DBHelper mDBHelper = new DBHelper(this);
-    private RVAdapter mFeedListAdapter;
     RecyclerView recyclerView;
     private LocationManager locationManager;
 
@@ -81,6 +81,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     private DrawerLayout mDrawer;
     private ActionBarDrawerToggle mDrawerToggle;
     private List<Person> mFeeds = new ArrayList<>();
+    private RVAdapter mFeedListAdapter = new RVAdapter(mFeeds);
     private BottomBar mBottomBar;
     private FragNavController fragNavController;
     //indices to fragments
@@ -104,7 +105,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         setSupportActionBar(toolbar);
 
         recyclerView = (RecyclerView) findViewById(R.id.rv);
-        mFeedListAdapter = new RVAdapter(mFeeds);
+
         LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(llm);
         RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
@@ -118,6 +119,8 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
             public void onClick(View view, int position) {
                 Person item = mFeeds.get(position);
                 final Intent discussionIntent = new Intent(HomeFeedActivity.this, DiscussionActivity.class);
+                //discussionIntent.putExtra("object", (Parcelable) item );
+                discussionIntent.putExtra(Keys.KEY_ID,item.postid );
                 discussionIntent.putExtra(Keys.KEY_MESSAGE,item.msg );
                 discussionIntent.putExtra(Keys.KEY_NAME,item.sendername );
                 discussionIntent.putExtra(Keys.KEY_TO,item.receivername );
@@ -245,7 +248,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
     @Override
     protected void onDestroy() {
-        mWebSocketClient.disconnect();
+        //mWebSocketClient.disconnect();
         super.onDestroy();
     }
 
@@ -259,24 +262,44 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
       //  ComposeActivity.mSendButton.setEnabled(false);
     }
 
-    @Override
-    public void onTextMessage(String message  )  {
-        List<Person> mComments = new ArrayList<>(DiscussionActivity.mComments);
-        mNoFeedText.setVisibility(View.INVISIBLE);
-        mFeeds.add(0, parseFeeds(message));
-        mComments.add(0, parseFeeds(message));
-        mFeedListAdapter.notifyDataSetChanged();
 
-        mDBHelper.insertData(message);
+        @Override
+    public void onTextMessage(String message  )  {
+        //List<Person> mComments = new ArrayList<>(DiscussionActivity.mComments);
+        mNoFeedText.setVisibility(View.INVISIBLE);
+
         JSONObject msgObject = null;
         try {
+
             msgObject = new JSONObject(message);
+            Log.d(TAG, "TYPE:" + msgObject.optString(Keys.KEY_TYPE) + ":");
+
+            if (msgObject.optString(Keys.KEY_TYPE).equals("F")){
+                Log.d(TAG, "I am message type F:" + mRecvr +":" +msgObject.optString(Keys.KEY_NAME)+ ":" + msgObject.optString(Keys.KEY_TO)+":" );
+
+                if((msgObject.optString(Keys.KEY_TO).equals(mRecvr)) || (msgObject.optString(Keys.KEY_TO).equals(mRecvr))){
+                Log.d(TAG, "I am here" + mRecvr +":" +msgObject.optString(Keys.KEY_NAME)+ ":" + msgObject.optString(Keys.KEY_TO) );
+                mFeeds.add(0, parseFeeds(message));
+                mFeedListAdapter.notifyDataSetChanged();
+            }
+                mDBHelper.insertData(message);
             Notify(mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 1),
                     msgObject.optString(Keys.KEY_MESSAGE),
                     mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 2));
+            }
+            else if  (msgObject.optString(Keys.KEY_TYPE).equals("C")){
+
+                //Add to Comment array if it belongs to same post id and notify dataset changed
+                //Perform actions on comment data
+                //Insert into Database
+                //Notify using Inbox style
+
+            }
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
     }
 
 
@@ -286,7 +309,9 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         try {
             msgObject = new JSONObject(message);
 
-            message_return = new Person(mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME),1) ,
+            message_return = new Person(msgObject.optString(Keys.KEY_TYPE),
+                    msgObject.optString(Keys.KEY_ID),
+                    mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME),1) ,
                     mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_TO),1) ,
                     msgObject.optString(Keys.KEY_MESSAGE),
                     mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME),2),
@@ -409,8 +434,6 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                         .bigText(notificationMessage))
                // .setSmallIcon(setImageBitmap(Helper.decodeImageString(notificationIcon)))
                 .setContentIntent(pendingIntent).build();
-// hide the notification after its selected
-       // notification.flags |= Notification.FLAG_AUTO_CANCEL;
 
         notificationManager.notify(0, notification);
     }

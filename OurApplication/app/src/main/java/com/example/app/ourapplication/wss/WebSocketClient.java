@@ -19,9 +19,12 @@ public class WebSocketClient implements WebSocket.WebSocketConnectionObserver {
     private WebSocketConnection mWebSocketConnection;
     private WebSocketListener mWebSocketListener;
 
+
     public WebSocketClient(WebSocketListener webSocketListener){
         mWebSocketListener = webSocketListener;
     }
+
+
 
     public void connectToWSS(String wssUrl) {
         mWebSocketConnection = new WebSocketConnection();

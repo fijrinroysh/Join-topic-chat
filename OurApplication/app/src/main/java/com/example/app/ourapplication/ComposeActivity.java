@@ -53,6 +53,7 @@ public class ComposeActivity extends AppCompatActivity {
     public static ImageButton camera_button;
     public static ImageButton gallery_button;
     public static final int RETURN=8;
+    public static String feedmessage;
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
     private static final int CAMERA_CAPTURE_VIDEO_REQUEST_CODE = 200;
     public static final int MEDIA_TYPE_IMAGE = 1;
@@ -86,15 +87,12 @@ public class ComposeActivity extends AppCompatActivity {
                 if (!TextUtils.isEmpty(msg)) {
                     Log.d(TAG, "Messaage:" + msg);
                     Log.d(TAG, "Token:" + HomeFeedActivity.mToken);
-                    Log.d(TAG, "Receivere:" + HomeFeedActivity.mRecvr);
+                    Log.d(TAG, "Receiver:" + HomeFeedActivity.mRecvr);
                     Log.d(TAG, "Bitmap:" + mBitmap);
-                    msg = Helper.formFeedMessage(msg, HomeFeedActivity.mToken, HomeFeedActivity.mRecvr, mBitmap);
-
-                    Log.d(TAG, "Formfeedmessage" + msg);
-                    HomeFeedActivity.mWebSocketClient.sendMessage(msg);
+                    feedmessage = Helper.formFeedMessage("F", msg, HomeFeedActivity.mToken, HomeFeedActivity.mRecvr, mBitmap);
+                    Log.d(TAG, "Formfeedmessage:" + feedmessage);
+                    HomeFeedActivity.mWebSocketClient.sendMessage(feedmessage);
                     mMessageBox.setText(null);
-                    //Intent homeIntent = new Intent(ComposeActivity.this,HomeFeedActivity.class);
-                    //startActivity(homeIntent);
                     finish();
                 }
             }
@@ -297,7 +295,7 @@ public class ComposeActivity extends AppCompatActivity {
         int width = bm.getWidth();
         int height = bm.getHeight();
         int maxWidth = 1024 ;
-        int maxHeight = 1024;
+        int maxHeight = 512;
 
 
         Log.v("Pictures", "Width and height are " + width + "--" + height);

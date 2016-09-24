@@ -4,6 +4,7 @@ package com.example.app.ourapplication;
  * Created by sarumugam on 17/04/16.
  */
 public class Keys {
+    public static final String KEY_TYPE = "type";
     public static final String KEY_TOKEN = "token";
     public static final String KEY_SUCCESS = "success";
     public static final String KEY_MESSAGE = "message";

@@ -138,19 +138,15 @@ public class DBHelper extends SQLiteOpenHelper {
         msg_res.moveToFirst();
 
         while(msg_res.isAfterLast() == false){
-            //String column0 = msg_res.getString(0);
+            String column0 = msg_res.getString(0);
             String column1 = getProfileInfo(msg_res.getString(1),1);
             String column2 = getProfileInfo(msg_res.getString(2),1);
             String column3 = msg_res.getString(3);
             String column4 = msg_res.getString(4);
             String column5 = getProfileInfo(msg_res.getString(1), 2);
             String column6 = msg_res.getString(5);
-             //String msg = column4.substring(0, column4.length() - 1);
-             // String message = "Message from "+column1 +" to "+ column2 +" : "+ column3;
-             // Private ImageView img;
-             //  img  = (ImageView) findViewById(R.id.img);
 
-            array_list.add(new Person(column1 , column2 , column3, column5, column4, column6  ));
+            array_list.add(new Person("F",column0, column1 , column2 , column3, column5, column4, column6  ));
             msg_res.moveToNext();
         }
         return array_list;

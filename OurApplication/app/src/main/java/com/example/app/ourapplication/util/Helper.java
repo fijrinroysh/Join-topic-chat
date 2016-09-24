@@ -85,7 +85,7 @@ public class Helper extends AppCompatActivity{
     }
 
 
-    public static String formFeedMessage(String message,String token,String receiver,Bitmap bitmap){
+    public static String formFeedMessage(String type, String message,String token,String receiver,Bitmap bitmap){
 
         String image_string;
         if (bitmap == null) {
@@ -96,6 +96,7 @@ public class Helper extends AppCompatActivity{
         }
         JSONObject msgObject = new JSONObject();
         try {
+            msgObject.put(Keys.KEY_TYPE,type);
             msgObject.put(Keys.KEY_MESSAGE,message);
             msgObject.put(Keys.KEY_TOKEN,token);
             msgObject.put(Keys.KEY_TO,receiver);
@@ -106,6 +107,24 @@ public class Helper extends AppCompatActivity{
             e.printStackTrace();
         }
         return msgObject.toString();
+    }
+
+
+    public static String formCommentMessage(String type, String postid, String token, String receiver, String message){
+        JSONObject msgObject = new JSONObject();
+        try {
+            msgObject.put(Keys.KEY_TYPE,type);
+            msgObject.put(Keys.KEY_ID,postid);
+            msgObject.put(Keys.KEY_TOKEN,token);
+            msgObject.put(Keys.KEY_TO,receiver);
+            msgObject.put(Keys.KEY_MESSAGE,message);
+            msgObject.put(Keys.KEY_TIME,getCurrentTimeStamp());
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return msgObject.toString();
+
     }
 
     public static Bitmap decodeImageString(String rimgmessage) {
