@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,37 +29,13 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final String TAG = RVAdapter.class.getSimpleName();
 
+    private int lastPosition = -1;
 
 
     List<Person> mFeeds;
 
     RVAdapter(List<Person> mFeeds) {
         this.mFeeds = mFeeds;
-    }
-
-
-
-
-    public class PersonViewHolder2 extends RecyclerView.ViewHolder {
-        CardView cv;
-        TextView senderName;
-        TextView receiverName;
-        TextView senderMessage;
-        ImageView senderPhoto;
-        ImageView messagePhoto;
-        TextView messageTime;
-
-        PersonViewHolder2(View itemView) {
-            super(itemView);
-            cv = (CardView) itemView.findViewById(R.id.cv);
-            senderName = (TextView) itemView.findViewById(R.id.sender_name);
-            receiverName = (TextView) itemView.findViewById(R.id.receiver_name);
-            senderMessage = (TextView) itemView.findViewById(R.id.sender_message);
-            senderPhoto = (ImageView) itemView.findViewById(R.id.sender_photo);
-            messageTime = (TextView) itemView.findViewById(R.id.message_time);
-            messagePhoto = (ImageView) itemView.findViewById(R.id.message_photo);
-
-        }
     }
 
     public class PersonViewHolder1 extends RecyclerView.ViewHolder {
@@ -79,6 +56,29 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             senderPhoto = (ImageView) itemView.findViewById(R.id.sender_photo);
             messageTime = (TextView) itemView.findViewById(R.id.message_time);
            // messagePhoto = (ImageView) itemView.findViewById(R.id.message_photo);
+
+        }
+    }
+
+
+    public class PersonViewHolder2 extends RecyclerView.ViewHolder {
+        CardView cv;
+        TextView senderName;
+        TextView receiverName;
+        TextView senderMessage;
+        ImageView senderPhoto;
+        ImageView messagePhoto;
+        TextView messageTime;
+
+        PersonViewHolder2(View itemView) {
+            super(itemView);
+            cv = (CardView) itemView.findViewById(R.id.cv);
+            senderName = (TextView) itemView.findViewById(R.id.sender_name);
+            receiverName = (TextView) itemView.findViewById(R.id.receiver_name);
+            senderMessage = (TextView) itemView.findViewById(R.id.sender_message);
+            senderPhoto = (ImageView) itemView.findViewById(R.id.sender_photo);
+            messageTime = (TextView) itemView.findViewById(R.id.message_time);
+            messagePhoto = (ImageView) itemView.findViewById(R.id.message_photo);
 
         }
     }
@@ -136,6 +136,7 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     vh1.senderMessage.setText(mFeeds.get(i).msg);
                     vh1.messageTime.setText(mFeeds.get(i).timeMsg);
                     vh1.senderPhoto.setImageBitmap(Helper.decodeImageString(mFeeds.get(i).photoId));
+                    setAnimation(vh1.cv, i);
                     break;
                 case 1:
                     PersonViewHolder2 vh2 = (PersonViewHolder2) viewHolder;
@@ -145,10 +146,11 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     vh2.messageTime.setText(mFeeds.get(i).timeMsg);
                     vh2.messagePhoto.setImageBitmap(Helper.decodeImageString(mFeeds.get(i).photoMsg));
                     vh2.senderPhoto.setImageBitmap(Helper.decodeImageString(mFeeds.get(i).photoId));
+                    setAnimation(vh2.cv, i);
                     break;
 
 
-                //setAnimation(viewHolder.container, i);
+
 
             }
 
@@ -163,19 +165,19 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     }
 
-/*
+
     private void setAnimation(View viewToAnimate, int position)
     {
         // If the bound view wasn't previously displayed on screen, it's animated
-        if (position > lastPosition)
-        {
-            Animation animation = AnimationUtils.loadAnimation(context, android.R.anim.slide_in_left);
+        //if (position > lastPosition)
+       /// {
+            Animation animation = AnimationUtils.loadAnimation(viewToAnimate.getContext(), android.R.anim.slide_in_left);
             viewToAnimate.startAnimation(animation);
             lastPosition = position;
-        }
+        //}
     }
 
-
+/*
     @Override
     public void onViewDetachedFromWindow(final RecyclerView.ViewHolder holder)
     {
@@ -187,7 +189,7 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         mRootLayout.clearAnimation();
     }
 
-
 */
+
 
 }

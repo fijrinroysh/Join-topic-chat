@@ -126,6 +126,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                 discussionIntent.putExtra(Keys.KEY_TO,item.receivername );
                 discussionIntent.putExtra(Keys.KEY_PROFIMG,item.photoId );
                 discussionIntent.putExtra(Keys.KEY_IMAGE, item.photoMsg );
+                discussionIntent.putExtra(Keys.KEY_TIME, item.timeMsg );
                 startActivity(discussionIntent);
                 Toast.makeText(getApplicationContext(), item.msg + " is selected!", Toast.LENGTH_SHORT).show();
             }
@@ -289,11 +290,10 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
             }
             else if  (msgObject.optString(Keys.KEY_TYPE).equals("C")){
 
-                //Add to Comment array if it belongs to same post id and notify dataset changed
+                Log.d(TAG, "Add to Comment array if it belongs to same post id and notify dataset changed");
                 //Perform actions on comment data
                 //Insert into Database
                 //Notify using Inbox style
-
             }
 
         } catch (JSONException e) {

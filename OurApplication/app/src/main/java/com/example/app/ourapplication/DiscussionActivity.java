@@ -68,15 +68,15 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         if (extras != null) {
 
         //Person item = extras.getParcelableExtra("object");
-        //Person msg_type = new Person(extras.getString(Keys.KEY_NAME),extras.getString(Keys.KEY_MESSAGE),extras.getString(Keys.KEY_PROFIMG),extras.getString(Keys.KEY_IMAGE));
-        //mComments.add(item);
+        Person msg_type = new Person("F",extras.getString(Keys.KEY_ID),extras.getString(Keys.KEY_NAME),extras.getString(Keys.KEY_TO),extras.getString(Keys.KEY_MESSAGE),extras.getString(Keys.KEY_PROFIMG),extras.getString(Keys.KEY_IMAGE),extras.getString(Keys.KEY_TIME));
+            mComments.add(msg_type);
 
-           senderName.setText(extras.getString(Keys.KEY_NAME));
-           receiverName.setText(extras.getString(Keys.KEY_TO));
-           senderMessage.setText(extras.getString(Keys.KEY_MESSAGE));
+           //senderName.setText(extras.getString(Keys.KEY_NAME));
+           //receiverName.setText(extras.getString(Keys.KEY_TO));
+           //senderMessage.setText(extras.getString(Keys.KEY_MESSAGE));
            //messagePhoto.setImageBitmap(Helper.decodeImageString(extras.getString(Keys.KEY_IMAGE)));
            //messagePhoto.setImageBitmap(null);
-           senderPhoto.setImageBitmap(Helper.decodeImageString(extras.getString(Keys.KEY_PROFIMG)));
+           //senderPhoto.setImageBitmap(Helper.decodeImageString(extras.getString(Keys.KEY_PROFIMG)));
            keyid = extras.getString(Keys.KEY_ID);
            to = extras.getString(Keys.KEY_TO);
            //keyid = item.postid;
