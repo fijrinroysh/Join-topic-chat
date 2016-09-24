@@ -4,12 +4,18 @@ import android.app.Application;
 
 import com.example.app.ourapplication.wss.WebSocketClient;
 
-/**
- * Created by sarumugam on 24/09/16.
- */
 public class OurApp extends Application {
 
+    private static String mToken;
     private static WebSocketClient mClient;
+
+    public static String getUserToken(){
+        return mToken;
+    }
+
+    public static void setUserToken(String token){
+        mToken = token;
+    }
 
     public static WebSocketClient getClient(){
         if(mClient == null){

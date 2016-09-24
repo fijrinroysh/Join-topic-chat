@@ -43,6 +43,8 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    public static final int REQUEST_LOGIN = 1;
+
     private final String TAG = LoginActivity.class.getSimpleName();
 
     //private EditText mUserNameBox;
@@ -74,19 +76,6 @@ public class LoginActivity extends AppCompatActivity {
         }
         super.onBackPressed();
     }
-
-//    TODO
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()){
-//            case android.R.id.home:
-//                if(mScreenFlipper.getDisplayedChild() == 1){
-//                    mScreenFlipper.setDisplayedChild(0);
-//                    return false;
-//                }
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
 
     private void initializeViews() {
         mUserIdBox = (EditText) findViewById(R.id.userid_field);
@@ -181,8 +170,7 @@ public class LoginActivity extends AppCompatActivity {
                             boolean isSuccess = jsonObject.getBoolean(Keys.KEY_SUCCESS);
 
                             if(isSuccess) {
-                                PreferenceEditor.getInstance(LoginActivity.this)
-                                        .setLoggedInUserName(mUserIdBox.getText().toString(),
+                                PreferenceEditor.getInstance(LoginActivity.this).setLoggedInUserName(mUserIdBox.getText().toString(),
                                         mPasswordBox.getText().toString());
                                 Intent data = new Intent();
                                 String token = null;
@@ -199,7 +187,7 @@ public class LoginActivity extends AppCompatActivity {
                                     }
                                 }
                                 Log.d("USERS", listdata.toString());
-                                data.putExtra(Keys.KEY_TOKEN, token);
+                                OurApp.setUserToken(token);
                                 data.putStringArrayListExtra(Keys.KEY_USERS, listdata);
                                 setResult(RESULT_OK,data);
                                 finish();

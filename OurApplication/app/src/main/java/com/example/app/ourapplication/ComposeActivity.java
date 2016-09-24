@@ -1,7 +1,6 @@
 package com.example.app.ourapplication;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -17,13 +16,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
-import com.example.app.ourapplication.wss.WebSocketClient;
+import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.example.app.ourapplication.util.Helper;
+import com.example.app.ourapplication.wss.WebSocketClient;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -31,9 +32,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import android.widget.ImageButton;
-import android.widget.Toast;
-import android.widget.VideoView;
 
 
 /**
@@ -44,10 +42,10 @@ public class ComposeActivity extends AppCompatActivity {
     private final String TAG = ComposeActivity.class.getSimpleName();
     public static final int PICK_IMAGE_REQUEST = 3;
     private Bitmap mBitmap;
-    //private WebSocketClient mWebSocketClient;
     private String imagemessage;
-    String msg_type;
-    ImageView img;
+    private String msg_type;
+    private String mReceiver;
+    private ImageView img;
     private EditText mMessageBox;
     public static Button mSendButton;
     public static ImageButton camera_button;
@@ -67,9 +65,6 @@ public class ComposeActivity extends AppCompatActivity {
 
     private ImageView imgPreview;
     private VideoView videoPreview;
-    private String PARENT_CLASS;
-
-
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,7 +74,7 @@ public class ComposeActivity extends AppCompatActivity {
         mMessageBox = (EditText) findViewById(R.id.msg_box);
         camera_button = (ImageButton) findViewById(R.id.camera_button);
         gallery_button =(ImageButton) findViewById(R.id.gallery);
-
+        mReceiver = getIntent().getStringExtra(Keys.KEY_TITLE);
 
         mWebSocketClient = OurApp.getClient();
         //mWebSocketClient.addWebSocketListener(this);
@@ -89,11 +84,12 @@ public class ComposeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String msg = mMessageBox.getText().toString();
                 if (!TextUtils.isEmpty(msg)) {
+                    String token = OurApp.getUserToken();
                     Log.d(TAG, "Messaage:" + msg);
-                    Log.d(TAG, "Token:" + HomeFeedActivity.mToken);
-                    Log.d(TAG, "Receiver:" + HomeFeedActivity.mRecvr);
+                    Log.d(TAG, "Token:" + token);
+//                    Log.d(TAG, "Receiver:" + HomeFeedActivity.mRecvr);
                     Log.d(TAG, "Bitmap:" + mBitmap);
-                    feedmessage = Helper.formFeedMessage("F", msg, HomeFeedActivity.mToken, HomeFeedActivity.mRecvr, mBitmap);
+                    feedmessage = Helper.formFeedMessage("F", msg, token, mReceiver, mBitmap);
                     Log.d(TAG, "Formfeedmessage:" + feedmessage);
                     mWebSocketClient.sendMessage(feedmessage);
                     mMessageBox.setText(null);
@@ -124,8 +120,6 @@ public class ComposeActivity extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             msg_type = extras.getString("ITEM");
-            PARENT_CLASS = extras.getString("PARENT_CLASS");
-
         }
         switch (msg_type) {
             case "add_image":
@@ -133,20 +127,11 @@ public class ComposeActivity extends AppCompatActivity {
                // showFileChooser();
 
                 break;
-
             case "add_message":
-
-
                 //img.setVisibility(View.INVISIBLE);
-
-
                 break;
-
-
         }
-
     }
-
 
     private void showFileChooser() {
 
@@ -156,7 +141,6 @@ public class ComposeActivity extends AppCompatActivity {
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
-
 
     private void captureImage() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -323,9 +307,4 @@ public class ComposeActivity extends AppCompatActivity {
         bm = Bitmap.createScaledBitmap(bm, width, height, true);
         return bm;
     }
-
 }
-
-
-
-

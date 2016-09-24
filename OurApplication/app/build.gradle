@@ -17,6 +17,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+        exclude 'META-INF/LICENSE.txt'
+    }
 }
 
 dependencies {
@@ -26,9 +32,8 @@ dependencies {
     compile 'com.google.android.gms:play-services-appindexing:8.1.0'
     compile 'com.android.support:design:23.3.0'
     compile 'com.android.support:cardview-v7:21.0.+'
+    compile 'com.squareup.retrofit:converter-jackson:2.0.0-beta2'
     compile 'com.android.support:recyclerview-v7:23.+'
     compile 'com.roughike:bottom-bar:2.+'
     compile 'com.ncapdevi:frag-nav:1.0.3'
-
-
 }

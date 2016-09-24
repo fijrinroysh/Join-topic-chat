@@ -11,8 +11,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.app.ourapplication.util.Helper;
 import com.example.app.ourapplication.wss.WebSocketClient;
@@ -31,11 +29,10 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
 
     static List<Person> mComments = new ArrayList<>();
     private RVAdapter mCommentListAdapter;
-    private RecyclerView recyclerView;
     private WebSocketClient mWebSocketClient;
     private final String TAG = DiscussionActivity.class.getSimpleName();
-    String keyid;
-    String to;
+    private String keyid;
+    private String to;
     private DBHelper mDBHelper = new DBHelper(this);
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +51,7 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         mWebSocketClient = OurApp.getClient();
         mWebSocketClient.addWebSocketListener(this);
 
-        recyclerView = (RecyclerView) findViewById(R.id.rv);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv);
         mCommentListAdapter = new RVAdapter(mComments);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(llm);
@@ -65,9 +62,8 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         //Intent extras = getIntent();
         if (extras != null) {
 
-        //Person item = extras.getParcelableExtra("object");
-        Person msg_type = new Person("F",extras.getString(Keys.KEY_ID),extras.getString(Keys.KEY_NAME),extras.getString(Keys.KEY_TO),extras.getString(Keys.KEY_MESSAGE),extras.getString(Keys.KEY_PROFIMG),extras.getString(Keys.KEY_IMAGE),extras.getString(Keys.KEY_TIME));
-            mComments.add(msg_type);
+        Person item = extras.getParcelable(Keys.KEY_PERSON);
+        mComments.add(item);
 
            //senderName.setText(extras.getString(Keys.KEY_NAME));
            //receiverName.setText(extras.getString(Keys.KEY_TO));
@@ -75,9 +71,8 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
            //messagePhoto.setImageBitmap(Helper.decodeImageString(extras.getString(Keys.KEY_IMAGE)));
            //messagePhoto.setImageBitmap(null);
            //senderPhoto.setImageBitmap(Helper.decodeImageString(extras.getString(Keys.KEY_PROFIMG)));
-           keyid = extras.getString(Keys.KEY_ID);
-           to = extras.getString(Keys.KEY_TO);
-           //keyid = item.postid;
+           keyid = item.getPostId();
+           to = item.getReceiverName();
         }
 
         mSendButton.setOnClickListener(new View.OnClickListener() {
@@ -85,10 +80,11 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
             public void onClick(View v) {
                 String msg = mMessageBox.getText().toString();
                 if (!TextUtils.isEmpty(msg)) {
+                    String token = OurApp.getUserToken();
                     Log.d(TAG, "Messaage:" + msg);
-                    Log.d(TAG, "Token:" + HomeFeedActivity.mToken);
-                    Log.d(TAG, "Receivere:" + HomeFeedActivity.mRecvr);
-                    msg = Helper.formCommentMessage("C",keyid, HomeFeedActivity.mToken,HomeFeedActivity.mRecvr, msg);
+                    Log.d(TAG, "Token:" + token);
+//                    Log.d(TAG, "Receivere:" + HomeFeedActivity.mRecvr);
+                    msg = Helper.formCommentMessage("C",keyid, token, to, msg);
 
                     Log.d(TAG, "Formfeedmessage" + msg);
                     mWebSocketClient.sendMessage(msg);
@@ -122,12 +118,12 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
             Log.d(TAG, "TYPEE:" + commentObject.optString(Keys.KEY_TYPE) + ":");
 
             if (commentObject.optString(Keys.KEY_TYPE).equals("C")){
-                Log.d(TAG, "I am message type C:" + HomeFeedActivity.mRecvr +":" +commentObject.optString(Keys.KEY_NAME)+ ":" + commentObject.optString(Keys.KEY_TO)+":" );
+//                Log.d(TAG, "I am message type C:" + HomeFeedActivity.mRecvr +":" +commentObject.optString(Keys.KEY_NAME)+ ":" + commentObject.optString(Keys.KEY_TO)+":" );
 
                 if(commentObject.optString(Keys.KEY_ID).equals(keyid)) {
 
                     //Add to Comment array if it belongs to same post id and notify dataset changed
-                    Log.d(TAG, "I am here" + HomeFeedActivity.mRecvr +":" +commentObject.optString(Keys.KEY_NAME)+ ":" + commentObject.optString(Keys.KEY_TO) );
+//                    Log.d(TAG, "I am here" + HomeFeedActivity.mRecvr +":" +commentObject.optString(Keys.KEY_NAME)+ ":" + commentObject.optString(Keys.KEY_TO) );
                     mComments.add(parseFeeds(message));
                     mCommentListAdapter.notifyDataSetChanged();
                 }

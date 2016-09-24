@@ -24,8 +24,6 @@ public class WebSocketClient implements WebSocket.WebSocketConnectionObserver {
         mWebSocketListeners.add(webSocketListener);
     }
 
-
-
     public void connectToWSS(String wssUrl) {
         mWebSocketConnection = new WebSocketConnection();
         try {

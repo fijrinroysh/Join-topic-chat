@@ -1,21 +1,15 @@
 package com.example.app.ourapplication;
 
-import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.app.ourapplication.util.Helper;
 
@@ -32,7 +26,7 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private int lastPosition = -1;
 
 
-    List<Person> mFeeds;
+    private List<Person> mFeeds;
 
     RVAdapter(List<Person> mFeeds) {
         this.mFeeds = mFeeds;
@@ -91,7 +85,7 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int i) {
-        if (mFeeds.get(i).photoMsg.length() == 0) {
+        if (mFeeds.get(i).getPhotoMsg().length() == 0) {
             return 0;
         } else  {
             return 1;
@@ -128,43 +122,36 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i) {
-            switch (viewHolder.getItemViewType()) {
+        Person item = mFeeds.get(i);
+        switch (viewHolder.getItemViewType()) {
                 case 0:
                     PersonViewHolder1 vh1 = (PersonViewHolder1) viewHolder;
-                    vh1.senderName.setText(mFeeds.get(i).sendername);
-                    vh1.receiverName.setText(mFeeds.get(i).receivername);
-                    vh1.senderMessage.setText(mFeeds.get(i).msg);
-                    vh1.messageTime.setText(mFeeds.get(i).timeMsg);
-                    vh1.senderPhoto.setImageBitmap(Helper.decodeImageString(mFeeds.get(i).photoId));
+                    vh1.senderName.setText(item.getSenderName());
+                    vh1.receiverName.setText(item.getReceiverName());
+                    vh1.senderMessage.setText(item.getMessage());
+                    vh1.messageTime.setText(item.getTimeMsg());
+                    vh1.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
                     setAnimation(vh1.cv, i);
                     break;
                 case 1:
                     PersonViewHolder2 vh2 = (PersonViewHolder2) viewHolder;
-                    vh2.senderName.setText(mFeeds.get(i).sendername);
-                    vh2.receiverName.setText(mFeeds.get(i).receivername);
-                    vh2.senderMessage.setText(mFeeds.get(i).msg);
-                    vh2.messageTime.setText(mFeeds.get(i).timeMsg);
-                    vh2.messagePhoto.setImageBitmap(Helper.decodeImageString(mFeeds.get(i).photoMsg));
-                    vh2.senderPhoto.setImageBitmap(Helper.decodeImageString(mFeeds.get(i).photoId));
+                    vh2.senderName.setText(item.getSenderName());
+                    vh2.receiverName.setText(item.getReceiverName());
+                    vh2.senderMessage.setText(item.getMessage());
+                    vh2.messageTime.setText(item.getTimeMsg());
+                    vh2.messagePhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoMsg()));
+                    vh2.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
                     setAnimation(vh2.cv, i);
                     break;
-
-
-
-
             }
 
         Log.d(TAG, "onBindViewHolder :" + i);
     }
 
-
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
-
-
     }
-
 
     private void setAnimation(View viewToAnimate, int position)
     {
@@ -190,6 +177,5 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
 */
-
 
 }

@@ -15,4 +15,7 @@ public class Keys {
     public static final String KEY_IMAGE = "image";
     public static final String KEY_TIME = "time";
     public static final String KEY_PROFIMG = "profileimage";
+    public static final String KEY_PERSON = "person";
+    public static final String PERSON_LIST = "person_list";
+    public static final String KEY_TITLE = "title";
 }
