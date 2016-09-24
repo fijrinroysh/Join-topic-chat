@@ -3,6 +3,7 @@ package com.example.app.ourapplication.wss;
 import android.util.Log;
 
 import java.net.URI;
+import java.util.ArrayList;
 
 import de.tavendo.autobahn.WebSocket;
 import de.tavendo.autobahn.WebSocketConnection;
@@ -17,11 +18,10 @@ public class WebSocketClient implements WebSocket.WebSocketConnectionObserver {
     private URI mWssUri;
 
     private WebSocketConnection mWebSocketConnection;
-    private WebSocketListener mWebSocketListener;
+    private ArrayList<WebSocketListener> mWebSocketListeners = new ArrayList<>();
 
-
-    public WebSocketClient(WebSocketListener webSocketListener){
-        mWebSocketListener = webSocketListener;
+    public void addWebSocketListener(WebSocketListener webSocketListener){
+        mWebSocketListeners.add(webSocketListener);
     }
 
 
@@ -84,7 +84,9 @@ public class WebSocketClient implements WebSocket.WebSocketConnectionObserver {
 
     @Override
     public void onOpen() {
-        mWebSocketListener.onOpen();
+        for (WebSocketListener listener : mWebSocketListeners) {
+            listener.onOpen();
+        }
 //        String echoMsg = "echo-protocol";
 //
 //        mWebSocketConnection.sendTextMessage(echoMsg);
@@ -92,13 +94,17 @@ public class WebSocketClient implements WebSocket.WebSocketConnectionObserver {
 
     @Override
     public void onClose(WebSocketCloseNotification code, String reason) {
-        mWebSocketListener.onClose();
+        for (WebSocketListener listener : mWebSocketListeners) {
+            listener.onClose();
+        }
     }
 
     @Override
     public void onTextMessage(String payload) {
         Log.d(TAG, "Message is :" + payload);
-        mWebSocketListener.onTextMessage(payload);
+        for (WebSocketListener listener : mWebSocketListeners) {
+            listener.onTextMessage(payload);
+        }
     }
 
     @Override

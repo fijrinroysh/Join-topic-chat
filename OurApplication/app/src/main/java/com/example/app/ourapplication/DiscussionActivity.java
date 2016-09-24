@@ -1,10 +1,7 @@
 package com.example.app.ourapplication;
 
-import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,7 +18,6 @@ import com.example.app.ourapplication.util.Helper;
 import com.example.app.ourapplication.wss.WebSocketClient;
 import com.example.app.ourapplication.wss.WebSocketListener;
 
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -35,12 +31,13 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
 
     static List<Person> mComments = new ArrayList<>();
     private RVAdapter mCommentListAdapter;
-    RecyclerView recyclerView;
+    private RVAdapter mFeedListAdapter;
+    private RecyclerView recyclerView;
+    private WebSocketClient mWebSocketClient;
     private final String TAG = DiscussionActivity.class.getSimpleName();
     String keyid;
     String to;
     private DBHelper mDBHelper = new DBHelper(this);
-    public static WebSocketClient mWebSocketClient ;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,9 +49,11 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         TextView senderMessage = (TextView) findViewById(R.id.sender_message);
         ImageView senderPhoto = (ImageView) findViewById(R.id.sender_photo);
         ImageView messagePhoto = (ImageView) findViewById(R.id.message_photo);
-        mWebSocketClient = new WebSocketClient(this);
         Button  mSendButton = (Button) findViewById(R.id.send_button);
         final EditText  mMessageBox = (EditText) findViewById(R.id.msg_box);
+
+        mWebSocketClient = OurApp.getClient();
+        mWebSocketClient.addWebSocketListener(this);
 
         recyclerView = (RecyclerView) findViewById(R.id.rv);
         mCommentListAdapter = new RVAdapter(mComments);
@@ -93,7 +92,7 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
                     msg = Helper.formCommentMessage("C",keyid, HomeFeedActivity.mToken, to, msg);
 
                     Log.d(TAG, "Formfeedmessage" + msg);
-                    HomeFeedActivity.mWebSocketClient.sendMessage(msg);
+                    mWebSocketClient.sendMessage(msg);
                     mMessageBox.setText(null);
 
                 }
@@ -169,5 +168,4 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         }
         return message_return;
     }
-
 }

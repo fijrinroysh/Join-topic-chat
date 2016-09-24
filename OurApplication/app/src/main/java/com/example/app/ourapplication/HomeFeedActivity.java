@@ -69,7 +69,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     public static String mTitle;
     private ArrayList<String> mUsers = new ArrayList<>();
     private ArrayAdapter<String> mGroupListAdapter;
-    public static WebSocketClient mWebSocketClient;
+    private WebSocketClient mWebSocketClient;
     private DBHelper mDBHelper = new DBHelper(this);
     RecyclerView recyclerView;
     private LocationManager locationManager;
@@ -173,7 +173,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
     public void bottomBar() {
 
-        
+
         final Intent composeIntent = new Intent(this, ComposeActivity.class);
         final Intent profileIntent = new Intent(this, ProfileActivity.class);
 
@@ -409,9 +409,9 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     }
 
     private void establishConnection(){
-        mWebSocketClient = new WebSocketClient(this);
+        mWebSocketClient = OurApp.getClient();
+        mWebSocketClient.addWebSocketListener(this);
         mWebSocketClient.connectToWSS(AppUrl.WS_TEST_URL + "/" + mToken);
-
     }
 
     private void Notify(String notificationTitle, String notificationMessage,String notificationIcon){
@@ -434,6 +434,8 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                         .bigText(notificationMessage))
                // .setSmallIcon(setImageBitmap(Helper.decodeImageString(notificationIcon)))
                 .setContentIntent(pendingIntent).build();
+        // hide the notification after its selected
+       // notification.flags |= Notification.FLAG_AUTO_CANCEL;
 
         notificationManager.notify(0, notification);
     }
