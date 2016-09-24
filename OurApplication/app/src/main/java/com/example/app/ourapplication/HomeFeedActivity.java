@@ -266,7 +266,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
         @Override
     public void onTextMessage(String message  )  {
-        //List<Person> mComments = new ArrayList<>(DiscussionActivity.mComments);
+
         mNoFeedText.setVisibility(View.INVISIBLE);
 
         JSONObject msgObject = null;
@@ -287,13 +287,6 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
             Notify(mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 1),
                     msgObject.optString(Keys.KEY_MESSAGE),
                     mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 2));
-            }
-            else if  (msgObject.optString(Keys.KEY_TYPE).equals("C")){
-
-                Log.d(TAG, "Add to Comment array if it belongs to same post id and notify dataset changed");
-                //Perform actions on comment data
-                //Insert into Database
-                //Notify using Inbox style
             }
 
         } catch (JSONException e) {

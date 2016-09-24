@@ -171,7 +171,7 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         // If the bound view wasn't previously displayed on screen, it's animated
         //if (position > lastPosition)
        /// {
-            Animation animation = AnimationUtils.loadAnimation(viewToAnimate.getContext(), android.R.anim.slide_in_left);
+            Animation animation = AnimationUtils.loadAnimation(viewToAnimate.getContext(), android.R.anim.fade_out);
             viewToAnimate.startAnimation(animation);
             lastPosition = position;
         //}

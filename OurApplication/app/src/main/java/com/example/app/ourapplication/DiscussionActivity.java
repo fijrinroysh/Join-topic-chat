@@ -31,7 +31,6 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
 
     static List<Person> mComments = new ArrayList<>();
     private RVAdapter mCommentListAdapter;
-    private RVAdapter mFeedListAdapter;
     private RecyclerView recyclerView;
     private WebSocketClient mWebSocketClient;
     private final String TAG = DiscussionActivity.class.getSimpleName();
@@ -44,11 +43,11 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         setContentView(R.layout.discussion);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_discussion);
         setSupportActionBar(toolbar);
-        TextView senderName = (TextView) findViewById(R.id.sender_name);
-        TextView receiverName = (TextView) findViewById(R.id.receiver_name);
-        TextView senderMessage = (TextView) findViewById(R.id.sender_message);
-        ImageView senderPhoto = (ImageView) findViewById(R.id.sender_photo);
-        ImageView messagePhoto = (ImageView) findViewById(R.id.message_photo);
+        //TextView senderName = (TextView) findViewById(R.id.sender_name);
+        //TextView receiverName = (TextView) findViewById(R.id.receiver_name);
+        //TextView senderMessage = (TextView) findViewById(R.id.sender_message);
+        //ImageView senderPhoto = (ImageView) findViewById(R.id.sender_photo);
+        //ImageView messagePhoto = (ImageView) findViewById(R.id.message_photo);
         Button  mSendButton = (Button) findViewById(R.id.send_button);
         final EditText  mMessageBox = (EditText) findViewById(R.id.msg_box);
 
@@ -61,7 +60,7 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         recyclerView.setLayoutManager(llm);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mCommentListAdapter);
-
+        mComments.clear();
         Bundle extras = getIntent().getExtras();
         //Intent extras = getIntent();
         if (extras != null) {
@@ -89,7 +88,7 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
                     Log.d(TAG, "Messaage:" + msg);
                     Log.d(TAG, "Token:" + HomeFeedActivity.mToken);
                     Log.d(TAG, "Receivere:" + HomeFeedActivity.mRecvr);
-                    msg = Helper.formCommentMessage("C",keyid, HomeFeedActivity.mToken, to, msg);
+                    msg = Helper.formCommentMessage("C",keyid, HomeFeedActivity.mToken,HomeFeedActivity.mRecvr, msg);
 
                     Log.d(TAG, "Formfeedmessage" + msg);
                     mWebSocketClient.sendMessage(msg);

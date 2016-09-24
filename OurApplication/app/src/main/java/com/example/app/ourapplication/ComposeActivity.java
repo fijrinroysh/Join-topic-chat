@@ -58,7 +58,7 @@ public class ComposeActivity extends AppCompatActivity {
     private static final int CAMERA_CAPTURE_VIDEO_REQUEST_CODE = 200;
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
-    //mWebSocketClient = new WebSocketClient(this);
+    private WebSocketClient mWebSocketClient;
 
     // directory name to store captured images and videos
     private static final String IMAGE_DIRECTORY_NAME = "Hello Camera";
@@ -79,7 +79,11 @@ public class ComposeActivity extends AppCompatActivity {
         mMessageBox = (EditText) findViewById(R.id.msg_box);
         camera_button = (ImageButton) findViewById(R.id.camera_button);
         gallery_button =(ImageButton) findViewById(R.id.gallery);
-       
+
+
+        mWebSocketClient = OurApp.getClient();
+        //mWebSocketClient.addWebSocketListener(this);
+
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -91,7 +95,7 @@ public class ComposeActivity extends AppCompatActivity {
                     Log.d(TAG, "Bitmap:" + mBitmap);
                     feedmessage = Helper.formFeedMessage("F", msg, HomeFeedActivity.mToken, HomeFeedActivity.mRecvr, mBitmap);
                     Log.d(TAG, "Formfeedmessage:" + feedmessage);
-                    HomeFeedActivity.mWebSocketClient.sendMessage(feedmessage);
+                    mWebSocketClient.sendMessage(feedmessage);
                     mMessageBox.setText(null);
                     finish();
                 }
