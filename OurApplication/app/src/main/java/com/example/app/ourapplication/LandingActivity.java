@@ -56,8 +56,10 @@ public class LandingActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(LandingActivity.this,HomeFeedActivity.class);
                 String title = mUserListAdapter.getItem(position);
+                String userid = mDBHelper.getProfileId(title);
+                intent.putExtra(Keys.KEY_ID,userid);
                 intent.putExtra(Keys.KEY_TITLE,title);
-                intent.putExtra(Keys.PERSON_LIST,mDBHelper.getData(title));
+                intent.putExtra(Keys.PERSON_LIST,mDBHelper.getData(userid));
                 startActivity(intent);
             }
         });

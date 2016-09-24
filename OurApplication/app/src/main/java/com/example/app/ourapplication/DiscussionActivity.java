@@ -55,7 +55,6 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         mCommentListAdapter = new RVAdapter(mComments);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(llm);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mCommentListAdapter);
         mComments.clear();
         Bundle extras = getIntent().getExtras();
@@ -72,7 +71,7 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
            //messagePhoto.setImageBitmap(null);
            //senderPhoto.setImageBitmap(Helper.decodeImageString(extras.getString(Keys.KEY_PROFIMG)));
            keyid = item.getPostId();
-           to = item.getReceiverName();
+           to = mDBHelper.getProfileId(item.getReceiverName());
         }
 
         mSendButton.setOnClickListener(new View.OnClickListener() {

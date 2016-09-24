@@ -53,6 +53,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 //    private BottomBar mBottomBar;
 //    private FragNavController fragNavController;
     private String mReceiver;
+    private String mReceiverid;
 
     //indices to fragments
 //    private final int TAB_FIRST = FragNavController.TAB1;
@@ -70,6 +71,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
         mFeeds = getIntent().getParcelableArrayListExtra(Keys.PERSON_LIST);
         mReceiver = getIntent().getStringExtra(Keys.KEY_TITLE);
+        mReceiverid = getIntent().getStringExtra(Keys.KEY_ID);
         mFeedListAdapter = new RVAdapter(mFeeds);
         getSupportActionBar().setTitle(mReceiver);
 
@@ -77,6 +79,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
         LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(llm);
+        recyclerView.setAdapter(mFeedListAdapter);
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(),recyclerView, new ClickListener() {
             @Override
             public void onClick(View view, int position) {
@@ -131,7 +134,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                     case R.id.add_message:
                         // Snackbar.make(coordinatorLayout, "Add Message Item Selected", Snackbar.LENGTH_LONG).show();
                         composeIntent.putExtra("ITEM", "add_message");
-                        composeIntent.putExtra(Keys.KEY_TITLE,mReceiver);
+                        composeIntent.putExtra(Keys.KEY_ID,mReceiverid);
                         // startActivityForResult(composeIntent, RETURN);
                         startActivity(composeIntent);
                         break;
@@ -190,7 +193,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
             if (msgObject.optString(Keys.KEY_TYPE).equals("F")) {
                 Log.d(TAG, "I am message type F:" + mReceiver + ":" + msgObject.optString(Keys.KEY_NAME) + ":" + msgObject.optString(Keys.KEY_TO) + ":");
 
-                if ((msgObject.optString(Keys.KEY_TO).equals(mReceiver)) || (msgObject.optString(Keys.KEY_TO).equals(mReceiver))) {
+                if ((msgObject.optString(Keys.KEY_TO).equals(mReceiverid)) || (msgObject.optString(Keys.KEY_TO).equals(mReceiverid))) {
                     Log.d(TAG, "I am here" + mReceiver + ":" + msgObject.optString(Keys.KEY_NAME) + ":" + msgObject.optString(Keys.KEY_TO));
                     mFeeds.add(0, parseFeeds(message));
                     mFeedListAdapter.notifyDataSetChanged();

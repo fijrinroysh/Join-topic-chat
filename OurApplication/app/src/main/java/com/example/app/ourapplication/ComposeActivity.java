@@ -44,7 +44,7 @@ public class ComposeActivity extends AppCompatActivity {
     private Bitmap mBitmap;
     private String imagemessage;
     private String msg_type;
-    private String mReceiver;
+    private String mReceiverid;
     private ImageView img;
     private EditText mMessageBox;
     public static Button mSendButton;
@@ -74,7 +74,7 @@ public class ComposeActivity extends AppCompatActivity {
         mMessageBox = (EditText) findViewById(R.id.msg_box);
         camera_button = (ImageButton) findViewById(R.id.camera_button);
         gallery_button =(ImageButton) findViewById(R.id.gallery);
-        mReceiver = getIntent().getStringExtra(Keys.KEY_TITLE);
+        mReceiverid = getIntent().getStringExtra(Keys.KEY_ID);
 
         mWebSocketClient = OurApp.getClient();
         //mWebSocketClient.addWebSocketListener(this);
@@ -89,7 +89,7 @@ public class ComposeActivity extends AppCompatActivity {
                     Log.d(TAG, "Token:" + token);
 //                    Log.d(TAG, "Receiver:" + HomeFeedActivity.mRecvr);
                     Log.d(TAG, "Bitmap:" + mBitmap);
-                    feedmessage = Helper.formFeedMessage("F", msg, token, mReceiver, mBitmap);
+                    feedmessage = Helper.formFeedMessage("F", msg, token, mReceiverid, mBitmap);
                     Log.d(TAG, "Formfeedmessage:" + feedmessage);
                     mWebSocketClient.sendMessage(feedmessage);
                     mMessageBox.setText(null);
