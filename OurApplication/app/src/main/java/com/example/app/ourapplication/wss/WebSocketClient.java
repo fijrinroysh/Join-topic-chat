@@ -21,7 +21,15 @@ public class WebSocketClient implements WebSocket.WebSocketConnectionObserver {
     private ArrayList<WebSocketListener> mWebSocketListeners = new ArrayList<>();
 
     public void addWebSocketListener(WebSocketListener webSocketListener){
-        mWebSocketListeners.add(webSocketListener);
+        if(!mWebSocketListeners.contains(webSocketListener)) {
+            mWebSocketListeners.add(webSocketListener);
+        }
+    }
+
+    public void removeWebSocketListener(WebSocketListener webSocketListener){
+        if(mWebSocketListeners.contains(webSocketListener)) {
+            mWebSocketListeners.remove(webSocketListener);
+        }
     }
 
     public void connectToWSS(String wssUrl) {

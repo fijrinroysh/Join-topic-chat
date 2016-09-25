@@ -1,7 +1,6 @@
 package com.example.app.ourapplication;
 
 import android.Manifest;
-import android.animation.Animator;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -13,7 +12,6 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.IdRes;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -177,8 +175,8 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
     @Override
     protected void onDestroy() {
-       //mWebSocketClient.disconnect();
         super.onDestroy();
+        mWebSocketClient.removeWebSocketListener(this);
     }
 
     @Override
@@ -329,7 +327,4 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         }
         mWebSocketClient.sendMessage(checkInObj.toString());
     }
-
-
-
 }

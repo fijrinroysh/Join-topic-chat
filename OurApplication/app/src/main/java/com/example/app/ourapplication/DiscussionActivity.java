@@ -2,7 +2,6 @@ package com.example.app.ourapplication;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -105,8 +104,6 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
 
     }
 
-
-
     @Override
     public void onTextMessage(String message)  {
         //List<Person> mComments = new ArrayList<>(DiscussionActivity.mComments);
@@ -160,5 +157,11 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
             e.printStackTrace();
         }
         return message_return;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mWebSocketClient.removeWebSocketListener(this);
     }
 }
