@@ -87,7 +87,7 @@ public class ComposeActivity extends AppCompatActivity {
                     String token = OurApp.getUserToken();
                     Log.d(TAG, "Messaage:" + msg);
                     Log.d(TAG, "Token:" + token);
-//                    Log.d(TAG, "Receiver:" + HomeFeedActivity.mRecvr);
+                    Log.d(TAG, "Receiver:" + mReceiverid);
                     Log.d(TAG, "Bitmap:" + mBitmap);
                     feedmessage = Helper.formFeedMessage("F", msg, token, mReceiverid, mBitmap);
                     Log.d(TAG, "Formfeedmessage:" + feedmessage);

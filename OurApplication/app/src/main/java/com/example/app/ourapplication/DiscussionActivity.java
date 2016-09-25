@@ -120,7 +120,6 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
 //                Log.d(TAG, "I am message type C:" + HomeFeedActivity.mRecvr +":" +commentObject.optString(Keys.KEY_NAME)+ ":" + commentObject.optString(Keys.KEY_TO)+":" );
 
                 if(commentObject.optString(Keys.KEY_ID).equals(keyid)) {
-
                     //Add to Comment array if it belongs to same post id and notify dataset changed
 //                    Log.d(TAG, "I am here" + HomeFeedActivity.mRecvr +":" +commentObject.optString(Keys.KEY_NAME)+ ":" + commentObject.optString(Keys.KEY_TO) );
                     mComments.add(parseFeeds(message));

@@ -1,6 +1,7 @@
 package com.example.app.ourapplication;
 
 import android.Manifest;
+import android.animation.Animator;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -12,6 +13,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -69,16 +71,21 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mFeeds = getIntent().getParcelableArrayListExtra(Keys.PERSON_LIST);
+        //mFeeds = getIntent().getParcelableArrayListExtra(Keys.PERSON_LIST);
+
         mReceiver = getIntent().getStringExtra(Keys.KEY_TITLE);
         mReceiverid = getIntent().getStringExtra(Keys.KEY_ID);
+        mFeeds = mDBHelper.getData(mReceiverid);
         mFeedListAdapter = new RVAdapter(mFeeds);
         getSupportActionBar().setTitle(mReceiver);
+
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv);
 
         LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(llm);
+
+
         recyclerView.setAdapter(mFeedListAdapter);
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(),recyclerView, new ClickListener() {
             @Override
@@ -170,7 +177,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
     @Override
     protected void onDestroy() {
-//        mWebSocketClient.disconnect();
+       //mWebSocketClient.disconnect();
         super.onDestroy();
     }
 
@@ -193,7 +200,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
             if (msgObject.optString(Keys.KEY_TYPE).equals("F")) {
                 Log.d(TAG, "I am message type F:" + mReceiver + ":" + msgObject.optString(Keys.KEY_NAME) + ":" + msgObject.optString(Keys.KEY_TO) + ":");
 
-                if ((msgObject.optString(Keys.KEY_TO).equals(mReceiverid)) || (msgObject.optString(Keys.KEY_TO).equals(mReceiverid))) {
+                if ((msgObject.optString(Keys.KEY_NAME).equals(mReceiverid)) || (msgObject.optString(Keys.KEY_TO).equals(mReceiverid))) {
                     Log.d(TAG, "I am here" + mReceiver + ":" + msgObject.optString(Keys.KEY_NAME) + ":" + msgObject.optString(Keys.KEY_TO));
                     mFeeds.add(0, parseFeeds(message));
                     mFeedListAdapter.notifyDataSetChanged();
@@ -322,4 +329,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
         }
         mWebSocketClient.sendMessage(checkInObj.toString());
     }
+
+
+
 }

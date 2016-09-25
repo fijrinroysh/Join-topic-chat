@@ -59,7 +59,7 @@ public class LandingActivity extends AppCompatActivity {
                 String userid = mDBHelper.getProfileId(title);
                 intent.putExtra(Keys.KEY_ID,userid);
                 intent.putExtra(Keys.KEY_TITLE,title);
-                intent.putExtra(Keys.PERSON_LIST,mDBHelper.getData(userid));
+                //intent.putExtra(Keys.PERSON_LIST,mDBHelper.getData(userid));
                 startActivity(intent);
             }
         });

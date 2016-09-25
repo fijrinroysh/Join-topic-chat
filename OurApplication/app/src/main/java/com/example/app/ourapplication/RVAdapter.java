@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -156,24 +157,34 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private void setAnimation(View viewToAnimate, int position)
     {
         // If the bound view wasn't previously displayed on screen, it's animated
-        //if (position > lastPosition)
-       /// {
-            Animation animation = AnimationUtils.loadAnimation(viewToAnimate.getContext(), android.R.anim.fade_out);
+        if (position > lastPosition)
+        {
+
+           /* Animation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
+                    Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF,
+                    0.0f, Animation.RELATIVE_TO_SELF, -5.0f);
+
+            animation.setDuration(400);
+            animation.setFillAfter(true);
+            animation.setFillEnabled(true);*/
+
+            Animation animation = AnimationUtils.loadAnimation(viewToAnimate.getContext(), android.R.anim.fade_in);
             viewToAnimate.startAnimation(animation);
+
             lastPosition = position;
-        //}
+        }
     }
 
 /*
     @Override
     public void onViewDetachedFromWindow(final RecyclerView.ViewHolder holder)
     {
-        ((CustomViewHolder)holder).clearAnimation();
+        ((RVAdapter)pv1).clearAnimation();
     }
 
     public void clearAnimation()
     {
-        mRootLayout.clearAnimation();
+        cv.clearAnimation();
     }
 
 */

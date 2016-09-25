@@ -16,8 +16,8 @@
 
             <ImageView
                 android:id="@+id/sender_photo"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginRight="16dp"
@@ -29,7 +29,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_toRightOf="@+id/sender_photo"
-                android:textSize="10sp"
+                android:textSize="12sp"
                 android:textStyle="bold" />
 
             <ImageView
@@ -50,16 +50,17 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_toRightOf="@+id/arrow_icon"
-                android:textSize="10sp"
+                android:textSize="12sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/message_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/sender_name"
-                android:layout_toRightOf="@+id/sender_photo"
-                android:textSize="10sp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:layout_toRightOf="@+id/receiver_name"
+                android:textSize="12sp"
                 />
 
             <TextView
@@ -67,7 +68,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/message_time"
-                android:layout_toRightOf="@+id/sender_photo" />
+                android:layout_toRightOf="@+id/sender_photo"
+                android:textSize="18sp"/>
 
 
         </RelativeLayout>
