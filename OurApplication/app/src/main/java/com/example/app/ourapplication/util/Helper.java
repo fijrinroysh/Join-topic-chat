@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.text.format.DateUtils;
 import android.util.Base64;
 import android.util.Log;
 
@@ -33,7 +34,7 @@ import java.util.Date;
 public class Helper extends AppCompatActivity{
 
     private final String TAG = Helper.class.getSimpleName();
-
+    String relativeTime;
 
     public static String getLoginRequestBody(String number, String password){
         JSONObject body = new JSONObject();
@@ -70,6 +71,11 @@ public class Helper extends AppCompatActivity{
         return body.toString();
     }
 
+
+
+
+
+
     public static String getCurrentTimeStamp(){
         try {
 
@@ -83,6 +89,26 @@ public class Helper extends AppCompatActivity{
             return null;
         }
     }
+
+    public static String getRelativeTime(String posttime){
+
+        Date currDate = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+
+            String relativeTime =  DateUtils.getRelativeTimeSpanString(
+                    dateFormat.parse(posttime).getTime(),// The time to display
+                    currDate.getTime(), //Current time
+                    DateUtils.SECOND_IN_MILLIS, // The minimum resolution. This will display seconds (eg: "3 seconds ago")
+                    DateUtils.FORMAT_NUMERIC_DATE).toString();
+
+            return relativeTime;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
 
     public static String formFeedMessage(String type, String message,String token,String receiver,Bitmap bitmap){

@@ -130,7 +130,7 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     vh1.senderName.setText(item.getSenderName());
                     vh1.receiverName.setText(item.getReceiverName());
                     vh1.senderMessage.setText(item.getMessage());
-                    vh1.messageTime.setText(item.getTimeMsg());
+                    vh1.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
                     vh1.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
                     setAnimation(vh1.cv, i);
                     break;
@@ -139,7 +139,7 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     vh2.senderName.setText(item.getSenderName());
                     vh2.receiverName.setText(item.getReceiverName());
                     vh2.senderMessage.setText(item.getMessage());
-                    vh2.messageTime.setText(item.getTimeMsg());
+                    vh2.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
                     vh2.messagePhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoMsg()));
                     vh2.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
                     setAnimation(vh2.cv, i);

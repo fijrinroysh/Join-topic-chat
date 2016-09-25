@@ -18,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -32,7 +33,9 @@ import com.roughike.bottombar.OnTabSelectListener;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -215,6 +218,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     }
 
     public Person parseFeeds(String message) {
+        Date now = new Date();
         JSONObject msgObject = null;
         Person message_return = null;
         try {
@@ -227,12 +231,14 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                     msgObject.optString(Keys.KEY_MESSAGE),
                     mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 2),
                     msgObject.optString(Keys.KEY_IMAGE),
-                    msgObject.optString(Keys.KEY_TIME));
+                    msgObject.optString(Keys.KEY_TIME)
+                    );
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return message_return;
     }
+
 
     private void Notify(String notificationTitle, String notificationMessage, String notificationIcon) {
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);

@@ -59,7 +59,6 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentRight="true"
-                android:layout_toRightOf="@+id/receiver_name"
                 android:textSize="12sp"
                 />
 
@@ -67,7 +66,7 @@
                 android:id="@+id/sender_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/message_time"
+                android:layout_below="@+id/receiver_name"
                 android:layout_toRightOf="@+id/sender_photo"
                 android:textSize="18sp"/>
 
