@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -45,6 +46,10 @@ public class ProfileActivity extends AppCompatActivity{
             setContentView(R.layout.activity_profile);
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_profile);
             setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled (true);
+            CollapsingToolbarLayout collapsingToolbar =
+                    (CollapsingToolbarLayout) findViewById(R.id.profile_collapse);
+            collapsingToolbar.setTitle("My Toolbar Tittle");
             profileImgView = (ImageView) findViewById(R.id.image_profile);
             Log.d(TAG, "Image data : " + mDBHelper.getProfileInfo(userid,2));
             profileImgView.setImageBitmap(Helper.decodeImageString(mDBHelper.getProfileInfo(userid,2)));
@@ -66,14 +71,7 @@ public class ProfileActivity extends AppCompatActivity{
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        intent.putExtra("crop", "true");
-        intent.putExtra("aspectX", 0);
-        intent.putExtra("aspectY", 0);
-        intent.putExtra("outputX", 200);
-        intent.putExtra("outputY", 150);
-
         try {
-            intent.putExtra("return-data", true);
             //startActivityForResult(Intent.createChooser(intent,"Complete action using"), UPDATE_PIC);
             startActivityForResult(intent, UPDATE_PIC);
         } catch (ActivityNotFoundException e) {
@@ -81,6 +79,7 @@ public class ProfileActivity extends AppCompatActivity{
             Snackbar.make(profileImgView, "Activity not found", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         }
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -92,8 +91,9 @@ public class ProfileActivity extends AppCompatActivity{
                     Log.d(TAG, "Data : " + filePath);
                         try {
                        // mBitmap = data.getParcelableExtra("data");
-                        mBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-                        if (mBitmap != null) {
+                       Bitmap bitmap  = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                        if (bitmap != null) {
+                            mBitmap=Helper.scaleBitmap(bitmap);
                             Log.d(TAG,"L : "+mBitmap.getWidth()+ "  : "+mBitmap.getScaledHeight(getResources().getDisplayMetrics()));
                             profileImgView.setImageBitmap(mBitmap);
                             imageprofilestring = Helper.getStringImage(mBitmap);

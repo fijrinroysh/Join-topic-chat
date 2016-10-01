@@ -1,18 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView
+    android:id="@+id/cv"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation='vertical'
-    android:padding="2dp">
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/cv"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
 
 
             <ImageView
@@ -25,7 +20,7 @@
                 android:scaleType="fitXY" />
 
             <TextView
-                android:id="@+id/sender_name"
+                android:id="@+id/sender_name4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
@@ -74,15 +69,16 @@
             <ImageView
                 android:id="@+id/message_photo"
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
+                android:layout_height="wrap_content"
                 android:layout_below="@+id/sender_message"
                 android:layout_toRightOf="@+id/sender_photo"
                 android:layout_margin="8dp"
-                android:scaleType="centerCrop"
+                android:adjustViewBounds="true"
                 />
 
         </RelativeLayout>
 
     </android.support.v7.widget.CardView>
 
-</LinearLayout>
+
+

@@ -200,7 +200,7 @@ public class ComposeActivity extends AppCompatActivity {
             img.setImageBitmap(bitmap);
 
             //mBitmap=BITMAP_RESIZER(bitmap,200,200);
-            mBitmap=scaleBitmap(bitmap);
+            mBitmap=Helper.scaleBitmap(bitmap);
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
            // mBitmap.compress(Bitmap.CompressFormat.JPEG, 20, bytes);
             imagemessage = Helper.getStringImage(mBitmap);
@@ -223,7 +223,7 @@ public class ComposeActivity extends AppCompatActivity {
                     try {
                         //Getting the Bitmap from Gallery
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-                        mBitmap=scaleBitmap(bitmap);
+                        mBitmap=Helper.scaleBitmap(bitmap);
                         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                         mBitmap.compress(Bitmap.CompressFormat.JPEG, 50, bytes);
                         img.setImageBitmap(mBitmap);
@@ -258,53 +258,5 @@ public class ComposeActivity extends AppCompatActivity {
 
         }
 
-    }
-
-    public Bitmap BITMAP_RESIZER(Bitmap bitmap,int newWidth,int newHeight) {
-        Bitmap scaledBitmap = Bitmap.createBitmap(newWidth, newHeight, Bitmap.Config.ARGB_8888);
-
-        float ratioX = newWidth / (float) bitmap.getWidth();
-        float ratioY = newHeight / (float) bitmap.getHeight();
-        float middleX = newWidth / 2.0f;
-        float middleY = newHeight / 2.0f;
-
-        Matrix scaleMatrix = new Matrix();
-        scaleMatrix.setScale(ratioX, ratioY, middleX, middleY);
-
-        Canvas canvas = new Canvas(scaledBitmap);
-        canvas.setMatrix(scaleMatrix);
-        canvas.drawBitmap(bitmap, middleX - bitmap.getWidth() / 2, middleY - bitmap.getHeight() / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
-        return scaledBitmap;
-
-    }
-
-
-    private Bitmap scaleBitmap(Bitmap bm) {
-        int width = bm.getWidth();
-        int height = bm.getHeight();
-        int maxWidth = 1024 ;
-        int maxHeight = 512;
-
-
-        Log.v("Pictures", "Width and height are " + width + "--" + height);
-
-        if (width > height) {
-            // landscape
-            float ratio = (float) width / maxWidth;
-            width = maxWidth;
-            height = (int) (height / ratio);
-        } else if (height > width) {
-            // portrait
-            float ratio = (float) height / maxHeight;
-            height = maxHeight;
-            width = (int) (width / ratio);
-        } else {
-            // square
-            height = maxHeight;
-            width = maxWidth;
-        }
-        Log.v("Pictures", "after scaling Width and height are " + width + "--" + height);
-        bm = Bitmap.createScaledBitmap(bm, width, height, true);
-        return bm;
     }
 }

@@ -1,15 +1,20 @@
 package com.example.app.ourapplication;
 
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.app.ourapplication.util.Helper;
 import com.example.app.ourapplication.wss.WebSocketClient;
@@ -27,7 +32,7 @@ import java.util.List;
 public class DiscussionActivity extends AppCompatActivity implements WebSocketListener {
 
     static List<Person> mComments = new ArrayList<>();
-    private RVAdapter mCommentListAdapter;
+    private FeedRVAdapter mCommentListAdapter;
     private WebSocketClient mWebSocketClient;
     private final String TAG = DiscussionActivity.class.getSimpleName();
     private String keyid;
@@ -39,11 +44,17 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         setContentView(R.layout.discussion);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_discussion);
         setSupportActionBar(toolbar);
-        //TextView senderName = (TextView) findViewById(R.id.sender_name);
-        //TextView receiverName = (TextView) findViewById(R.id.receiver_name);
-        //TextView senderMessage = (TextView) findViewById(R.id.sender_message);
-        //ImageView senderPhoto = (ImageView) findViewById(R.id.sender_photo);
-        //ImageView messagePhoto = (ImageView) findViewById(R.id.message_photo);
+        CollapsingToolbarLayout collapsingToolbar =
+                (CollapsingToolbarLayout) findViewById(R.id.discussion_collapse);
+        collapsingToolbar.setTitle("");
+
+        TextView senderName = (TextView) findViewById(R.id.sender_name);
+        TextView receiverName = (TextView) findViewById(R.id.receiver_name);
+        TextView senderMessage = (TextView) findViewById(R.id.sender_message);
+        ImageView senderPhoto = (ImageView) findViewById(R.id.sender_photo);
+        TextView messageTime = (TextView) findViewById(R.id.message_time);
+        ImageView messagePhoto = (ImageView) findViewById(R.id.message_photo);
+
         Button  mSendButton = (Button) findViewById(R.id.send_button);
         final EditText  mMessageBox = (EditText) findViewById(R.id.msg_box);
 
@@ -51,27 +62,27 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         mWebSocketClient.addWebSocketListener(this);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv);
-        mCommentListAdapter = new RVAdapter(mComments);
+        mCommentListAdapter = new FeedRVAdapter(mComments);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(llm);
-        recyclerView.setAdapter(mCommentListAdapter);
-        mComments.clear();
+
         Bundle extras = getIntent().getExtras();
-        //Intent extras = getIntent();
         if (extras != null) {
-
         Person item = extras.getParcelable(Keys.KEY_PERSON);
-        mComments.add(item);
-
-           //senderName.setText(extras.getString(Keys.KEY_NAME));
-           //receiverName.setText(extras.getString(Keys.KEY_TO));
-           //senderMessage.setText(extras.getString(Keys.KEY_MESSAGE));
-           //messagePhoto.setImageBitmap(Helper.decodeImageString(extras.getString(Keys.KEY_IMAGE)));
-           //messagePhoto.setImageBitmap(null);
-           //senderPhoto.setImageBitmap(Helper.decodeImageString(extras.getString(Keys.KEY_PROFIMG)));
+       // mComments.add(item);
+           // senderName.setText(item.getSenderName());
+            //senderName.setText("kkkj");
+           receiverName.setText(item.getReceiverName());
+           senderMessage.setText(item.getMessage());
+           messagePhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoMsg()));
+           senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
+            messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
            keyid = item.getPostId();
            to = mDBHelper.getProfileId(item.getReceiverName());
+            //collapsingToolbar.equals(item);
         }
+        mComments.addAll(mDBHelper.getCommentData(keyid));
+        recyclerView.setAdapter(mCommentListAdapter);
 
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,6 +104,8 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         });
     }
 
+
+
     @Override
     public void onOpen() {
 
@@ -106,7 +119,6 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
 
     @Override
     public void onTextMessage(String message)  {
-        //List<Person> mComments = new ArrayList<>(DiscussionActivity.mComments);
         JSONObject commentObject = null;
         try {
 
@@ -123,7 +135,7 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
                     mCommentListAdapter.notifyDataSetChanged();
                 }
                 //Insert into Database
-                //mDBHelper.insertData(message);
+                mDBHelper.insertCommentData(message);
 
                 //Notify using Inbox style
                 //Notify(mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 1),

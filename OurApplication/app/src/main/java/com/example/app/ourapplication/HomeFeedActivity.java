@@ -52,7 +52,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
     /*Views*/
     private List<Person> mFeeds = new ArrayList<>();
-    private RVAdapter mFeedListAdapter;
+    private FeedRVAdapter mFeedListAdapter;
 //    private BottomBar mBottomBar;
 //    private FragNavController fragNavController;
     private String mReceiver;
@@ -76,8 +76,8 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
         mReceiver = getIntent().getStringExtra(Keys.KEY_TITLE);
         mReceiverid = getIntent().getStringExtra(Keys.KEY_ID);
-        mFeeds = mDBHelper.getData(mReceiverid);
-        mFeedListAdapter = new RVAdapter(mFeeds);
+        mFeeds = mDBHelper.getFeedData(mReceiverid);
+        mFeedListAdapter = new FeedRVAdapter(mFeeds);
         getSupportActionBar().setTitle(mReceiver);
 
 
@@ -206,7 +206,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                     mFeeds.add(0, parseFeeds(message));
                     mFeedListAdapter.notifyDataSetChanged();
                 }
-                mDBHelper.insertData(message);
+                mDBHelper.insertFeedData(message);
             Notify(mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 1),
                     msgObject.optString(Keys.KEY_MESSAGE),
                     mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 2));

@@ -18,4 +18,5 @@ public class Keys {
     public static final String KEY_PERSON = "person";
     public static final String PERSON_LIST = "person_list";
     public static final String KEY_TITLE = "title";
+    public static final String KEY_LIKES = "likes";
 }

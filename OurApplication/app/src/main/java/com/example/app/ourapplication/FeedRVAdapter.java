@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,17 +18,17 @@ import java.util.List;
 /**
  * Created by ROYSH on 6/23/2016.
  */
-public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
-    private final String TAG = RVAdapter.class.getSimpleName();
+    private final String TAG = FeedRVAdapter.class.getSimpleName();
 
     private int lastPosition = -1;
 
 
     private List<Person> mFeeds;
 
-    RVAdapter(List<Person> mFeeds) {
+    FeedRVAdapter(List<Person> mFeeds) {
         this.mFeeds = mFeeds;
     }
 
@@ -39,7 +38,6 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         TextView receiverName;
         TextView senderMessage;
         ImageView senderPhoto;
-        ImageView messagePhoto;
         TextView messageTime;
 
         PersonViewHolder1(View itemView) {
@@ -50,8 +48,6 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             senderMessage = (TextView) itemView.findViewById(R.id.sender_message);
             senderPhoto = (ImageView) itemView.findViewById(R.id.sender_photo);
             messageTime = (TextView) itemView.findViewById(R.id.message_time);
-           // messagePhoto = (ImageView) itemView.findViewById(R.id.message_photo);
-
         }
     }
 
@@ -79,6 +75,12 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
 
+
+
+
+
+
+
     @Override
     public int getItemCount() {
         return mFeeds.size();
@@ -86,8 +88,8 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int i) {
-        if (mFeeds.get(i).getPhotoMsg().length() == 0) {
-            return 0;
+        if (mFeeds.get(i).getPhotoMsg()!= null) {
+            return 2;
         } else  {
             return 1;
         }
@@ -108,15 +110,16 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 break;
         }
         return pvh;*/
-                if (viewType == 0) {
+                if (viewType == 1) {
             Log.d(TAG,  "PersonViewHolder1 created");
             View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.card_item1, viewGroup, false);
             return new PersonViewHolder1(v);
         }
-            else{
+            else {
             Log.d(TAG,  "PersonViewHolder2 created");
             View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.card_item2, viewGroup, false);
             return new PersonViewHolder2(v);}
+
     }
 
 
@@ -125,7 +128,7 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i) {
         Person item = mFeeds.get(i);
         switch (viewHolder.getItemViewType()) {
-                case 0:
+                case 1:
                     PersonViewHolder1 vh1 = (PersonViewHolder1) viewHolder;
                     vh1.senderName.setText(item.getSenderName());
                     vh1.receiverName.setText(item.getReceiverName());
@@ -134,7 +137,7 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     vh1.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
                     setAnimation(vh1.cv, i);
                     break;
-                case 1:
+                case 2:
                     PersonViewHolder2 vh2 = (PersonViewHolder2) viewHolder;
                     vh2.senderName.setText(item.getSenderName());
                     vh2.receiverName.setText(item.getReceiverName());
@@ -156,37 +159,21 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private void setAnimation(View viewToAnimate, int position)
     {
+
         // If the bound view wasn't previously displayed on screen, it's animated
-        if (position > lastPosition)
-        {
-
-           /* Animation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
-                    Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF,
-                    0.0f, Animation.RELATIVE_TO_SELF, -5.0f);
-
-            animation.setDuration(400);
-            animation.setFillAfter(true);
-            animation.setFillEnabled(true);*/
-
-            Animation animation = AnimationUtils.loadAnimation(viewToAnimate.getContext(), android.R.anim.fade_in);
-            viewToAnimate.startAnimation(animation);
-
-            lastPosition = position;
-        }
+            //Animation animation = AnimationUtils.loadAnimation(viewToAnimate.getContext(), android.R.anim.fade_in);
+        Animation animation = AnimationUtils.loadAnimation(viewToAnimate.getContext(), (position > lastPosition) ? R.anim.up_from_bottom: android.R.anim.fade_in);
+        viewToAnimate.startAnimation(animation);
+        lastPosition = position;
     }
 
-/*
+
+
     @Override
-    public void onViewDetachedFromWindow(final RecyclerView.ViewHolder holder)
-    {
-        ((RVAdapter)pv1).clearAnimation();
+    public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        holder.itemView.clearAnimation();
     }
 
-    public void clearAnimation()
-    {
-        cv.clearAnimation();
-    }
-
-*/
 
 }

@@ -32,9 +32,11 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String MESSAGE_TO_COLUMN_NAME = "MESSAGE_TO";
     public static final String MESSAGE_IMAGE_COLUMN_NAME = "MESSAGE_IMAGE";
     public static final String MESSAGE_TIME_COLUMN_NAME = "MESSAGETIME";
+    public static final String MESSAGE_LIKES_COLUMN_NAME = "LIKES";
     public static final String PROFILE_IMAGE_COLUMN_NAME = "PROFILEIMAGE";
     public static final String PROFILE_USER_COLUMN_NAME = "PROFILEUSER";
     public static final String PROFILE_ID_COLUMN_NAME = "PROFILEID";
+
 
 
     SQLiteDatabase mydatabase;
@@ -42,7 +44,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public DBHelper(Context context)
     {
-        super(context, "FEED" , null, 1);
+        super(context, "FEED" , null, 2); //2 is the database version
     }
 
     @Override
@@ -54,6 +56,16 @@ public class DBHelper extends SQLiteOpenHelper {
                         MESSAGE_TO_COLUMN_NAME+" VARCHAR,"+
                         MESSAGE_COLUMN_NAME+" VARCHAR,"+
                         MESSAGE_IMAGE_COLUMN_NAME+" VARCHAR,"+
+                        MESSAGE_TIME_COLUMN_NAME+" VARCHAR)"
+
+        );
+
+        mydatabase.execSQL(
+                "create table COMMENT_DATA ("+MESSAGE_ID_COLUMN_NAME+" VARCHAR,"+
+                        MESSAGE_FROM_COLUMN_NAME+" VARCHAR,"+
+                        MESSAGE_TO_COLUMN_NAME+" VARCHAR,"+
+                        MESSAGE_COLUMN_NAME+" VARCHAR,"+
+                        MESSAGE_LIKES_COLUMN_NAME+" VARCHAR,"+
                         MESSAGE_TIME_COLUMN_NAME+" VARCHAR)"
 
         );
@@ -71,10 +83,11 @@ public class DBHelper extends SQLiteOpenHelper {
         // TODO Auto-generated method stub
         mydatabase.execSQL("DROP TABLE IF EXISTS MESSAGE_DATA");
         mydatabase.execSQL("DROP TABLE IF EXISTS PROFILE_DATA");
+        mydatabase.execSQL("DROP TABLE IF EXISTS COMMENT_DATA");
         onCreate(mydatabase);
     }
 
-    public boolean insertData (String message) {
+    public boolean insertFeedData (String message) {
         JSONObject msgObject = null;
         try {
             msgObject = new JSONObject(message);
@@ -90,6 +103,26 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(MESSAGE_IMAGE_COLUMN_NAME, msgObject.optString(Keys.KEY_IMAGE));
         contentValues.put(MESSAGE_TIME_COLUMN_NAME, msgObject.optString(Keys.KEY_TIME));
         mydatabase.insert("MESSAGE_DATA", null, contentValues);
+        return true;
+    }
+
+
+    public boolean insertCommentData (String message) {
+        JSONObject msgObject = null;
+        try {
+            msgObject = new JSONObject(message);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        mydatabase = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MESSAGE_ID_COLUMN_NAME, msgObject.optString(Keys.KEY_ID));
+        contentValues.put(MESSAGE_FROM_COLUMN_NAME, msgObject.optString(Keys.KEY_NAME));
+        contentValues.put(MESSAGE_TO_COLUMN_NAME, msgObject.optString(Keys.KEY_TO));
+        contentValues.put(MESSAGE_COLUMN_NAME, msgObject.optString(Keys.KEY_MESSAGE));
+        //contentValues.put(MESSAGE_LIKES_COLUMN_NAME, msgObject.optString(Keys.KEY_LIKES));
+        contentValues.put(MESSAGE_TIME_COLUMN_NAME, msgObject.optString(Keys.KEY_TIME));
+        mydatabase.insert("COMMENT_DATA", null, contentValues);
         return true;
     }
 
@@ -126,7 +159,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
-    public ArrayList<Person> getData(String id)
+    public ArrayList<Person> getFeedData(String id)
     {
         ArrayList<Person> array_list = new ArrayList<Person>();
 
@@ -151,6 +184,34 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return array_list;
     }
+
+
+
+    public ArrayList<Person> getCommentData(String id)
+    {
+        ArrayList<Person> array_list = new ArrayList<Person>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor msg_res =  db.rawQuery( "select * from COMMENT_DATA where " +MESSAGE_ID_COLUMN_NAME+ " = \"" + id +"\" ORDER BY "+ MESSAGE_TIME_COLUMN_NAME+" DESC", null );
+        //Cursor res =  db.rawQuery( "select * from MESSAGE_DATA" , null );
+        msg_res.moveToFirst();
+
+        while(msg_res.isAfterLast() == false){
+            String column0 = msg_res.getString(0);
+            String column1 = getProfileInfo(msg_res.getString(1),1);
+            String column2 = getProfileInfo(msg_res.getString(2),1);
+            String column3 = msg_res.getString(3);
+            String column4 = msg_res.getString(4);
+            String column5 = getProfileInfo(msg_res.getString(1), 2);
+            String column6 = msg_res.getString(5);
+
+            array_list.add(new Person("C",column0, column1 , column2 , column3, column5, column4, column6  ));
+            msg_res.moveToNext();
+        }
+        return array_list;
+    }
+
+
 
     public String getProfileInfo(String id,Integer columnnumber) {
         String columndata;
