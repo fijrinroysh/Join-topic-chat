@@ -1,6 +1,7 @@
 package com.example.app.ourapplication;
 
 import android.util.Log;
+import android.view.View;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -59,4 +60,10 @@ public class Util {
         }
         return sb.toString();
     }
+
+    public interface ClickListener {
+        void onClick(View view, int position);
+        void onLongClick(View view, int position);
+    }
+
 }

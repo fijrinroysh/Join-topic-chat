@@ -1,6 +1,7 @@
 package com.example.app.ourapplication;
 
 import android.Manifest;
+import android.support.v4.app.FragmentManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -13,6 +14,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.IdRes;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,6 +28,7 @@ import android.widget.Toast;
 import com.example.app.ourapplication.util.Helper;
 import com.example.app.ourapplication.wss.WebSocketClient;
 import com.example.app.ourapplication.wss.WebSocketListener;
+import com.ncapdevi.fragnav.FragNavController;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabReselectListener;
 import com.roughike.bottombar.OnTabSelectListener;
@@ -41,7 +44,7 @@ import java.util.List;
 /**
  * Created by sarumugam on 17/04/16.
  */
-public class HomeFeedActivity extends AppCompatActivity implements WebSocketListener {
+public class HomeFeedActivity extends AppCompatActivity {
 
     public static final int REQ_LOCATION = 7;
 
@@ -49,27 +52,41 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
     private DBHelper mDBHelper = new DBHelper(this);
     private WebSocketClient mWebSocketClient;
     private LocationManager locationManager;
+    public Fragment fragment;
 
     /*Views*/
     private List<Person> mFeeds = new ArrayList<>();
     private FeedRVAdapter mFeedListAdapter;
 //    private BottomBar mBottomBar;
-//    private FragNavController fragNavController;
+    private FragNavController fragNavController;
     private String mReceiver;
     private String mReceiverid;
 
     //indices to fragments
-//    private final int TAB_FIRST = FragNavController.TAB1;
-//    private final int TAB_SECOND = FragNavController.TAB2;
-//    private final int TAB_THIRD = FragNavController.TAB3;
-//    private final int TAB_FOURTH = FragNavController.TAB4;
+   private final int TAB_FIRST = FragNavController.TAB1;
+   private final int TAB_SECOND = FragNavController.TAB2;
+  private final int TAB_THIRD = FragNavController.TAB3;
+ private final int TAB_FOURTH = FragNavController.TAB4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home_feed);
+       setContentView(R.layout.activity_home);
+        List<Fragment> fragments = new ArrayList<>(4);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //add fragments to list
+        fragments.add(HomeFeedFragment.newInstance("home","frag"));
+        fragments.add(LocationFragment.newInstance("location","frag1"));
+        fragments.add(ComposeFragment.newInstance("compose","frag2"));
+        fragments.add(ProfileFragment.newInstance("profile","frag3"));
+
+        //link fragments to container
+        fragNavController = new FragNavController(getSupportFragmentManager(),R.id.frame,fragments);
+
+       // fragNavController.switchTab(TAB_FIRST);
+
+
+    /*    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         //mFeeds = getIntent().getParcelableArrayListExtra(Keys.PERSON_LIST);
@@ -102,35 +119,38 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
             public void onLongClick(View view, int position) {
 
             }
-        }));
+        }));*/
 
         bottomBar();
 
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+      /*  locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         mWebSocketClient = OurApp.getClient();
-        mWebSocketClient.addWebSocketListener(this);
+        mWebSocketClient.addWebSocketListener(this);*/
     }
 
     public void bottomBar() {
-        final Intent composeIntent = new Intent(this, ComposeActivity.class);
-        final Intent profileIntent = new Intent(this, ProfileActivity.class);
+      //  final Intent composeIntent = new Intent(this, ComposeActivity.class);
+        //final Intent profileIntent = new Intent(this, ProfileActivity.class);
 
         BottomBar bottomBar = (BottomBar) findViewById(R.id.bottomBar);
+      // BottomBar bottomBar=BottomBar.attach(this,savedInstanceState);
         bottomBar.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
             public void onTabSelected(@IdRes int tabId) {
 
                 switch (tabId) {
-                    case R.id.add_home:
-
-                        break;
+                   /* case R.id.add_home:
+                    fragNavController.switchTab(TAB_FIRST);
+                      break;*/
                     case R.id.add_location:
                         //Snackbar.make(tool_bar, "Add Location Item Selected", Snackbar.LENGTH_LONG).show();
-                        if (isLocationEnabled()) {
+                      /*  if (isLocationEnabled()) {
                             checkInLocation();
                         } else {
                             showAlert();
-                        }
+                        }*/
+                           fragNavController.switchTab(TAB_SECOND);
+                        //fragment = new LocationFragment();
                         break;
                   /*  case R.id.add_image:
                         //Snackbar.make(coordinatorLayout, " Add Image Item Selected", Snackbar.LENGTH_LONG).show();
@@ -141,29 +161,56 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
                         break;*/
                     case R.id.add_message:
                         // Snackbar.make(coordinatorLayout, "Add Message Item Selected", Snackbar.LENGTH_LONG).show();
-                        composeIntent.putExtra("ITEM", "add_message");
-                        composeIntent.putExtra(Keys.KEY_ID,mReceiverid);
+                        //composeIntent.putExtra("ITEM", "add_message");
+                        //composeIntent.putExtra(Keys.KEY_ID,mReceiverid);
                         // startActivityForResult(composeIntent, RETURN);
-                        startActivity(composeIntent);
+                        //startActivity(composeIntent);
+                        fragNavController.switchTab(TAB_THIRD);
+                        //fragment = new ComposeFragment();
                         break;
                     case R.id.add_profile:
-                        startActivity(profileIntent);
+                        //startActivity(profileIntent);
+                        fragNavController.switchTab(TAB_FOURTH);
+                        //fragment = new ProfileFragment();
                         break;
+                   default:
+                  fragNavController.switchTab(TAB_FIRST);
+                      // fragment = new HomeFeedFragment();
                 }
 
             }
         });
 
+    /*    if(fragment!=null)
+        {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.container,fragment).commit();
+
+        }*/
         bottomBar.setOnTabReselectListener(new OnTabReselectListener() {
             @Override
             public void onTabReSelected(@IdRes int tabId) {
+                fragNavController.switchTab(TAB_FIRST);
                 // Toast.makeText(getApplicationContext(), TabMessage.get(tabId, true), Toast.LENGTH_LONG).show();
+              //  if(tabId==R.id.add_home)
+                //{fragNavController.clearStack();}
             }
         });
 
     }
 
-    @Override
+
+
+
+    public void onBackPressed() {
+        if (fragNavController.getCurrentStack().size() > 1) {
+            fragNavController.pop();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+  /*  @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
@@ -174,9 +221,9 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 //                    Snackbar.make(mDrawer, "Location is not enabled", Snackbar.LENGTH_LONG).show();
                 }
         }
-    }
+    }*/
 
-    @Override
+   /* @Override
     protected void onDestroy() {
         super.onDestroy();
         mWebSocketClient.removeWebSocketListener(this);
@@ -188,17 +235,17 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
     @Override
     public void onClose() {
-    }
+    }*/
 
-    @Override
+  /*  @Override
     public void onTextMessage(String message) {
         JSONObject msgObject = null;
         try {
 
             msgObject = new JSONObject(message);
-            Log.d(TAG, "TYPE:" + msgObject.optString(Keys.KEY_TYPE) + ":");
+            Log.d(TAG, "TYPE:" + msgObject.optString(Keys.KEY_TYPE) + ":");*/
 
-            if (msgObject.optString(Keys.KEY_TYPE).equals("F")) {
+     /*       if (msgObject.optString(Keys.KEY_TYPE).equals("F")) {
                 Log.d(TAG, "I am message type F:" + mReceiver + ":" + msgObject.optString(Keys.KEY_NAME) + ":" + msgObject.optString(Keys.KEY_TO) + ":");
 
                 if ((msgObject.optString(Keys.KEY_NAME).equals(mReceiverid)) || (msgObject.optString(Keys.KEY_TO).equals(mReceiverid))) {
@@ -299,7 +346,7 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
 
     private Location getCurrentLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
+
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
             //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
@@ -332,5 +379,5 @@ public class HomeFeedActivity extends AppCompatActivity implements WebSocketList
             e.printStackTrace();
         }
         mWebSocketClient.sendMessage(checkInObj.toString());
-    }
+    }*/
 }

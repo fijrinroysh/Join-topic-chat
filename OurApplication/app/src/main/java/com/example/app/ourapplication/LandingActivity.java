@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -54,13 +56,22 @@ public class LandingActivity extends AppCompatActivity {
         userListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(LandingActivity.this,HomeFeedActivity.class);
+               Intent intent = new Intent(LandingActivity.this,HomeFeedActivity.class);
+             //   Intent intent = new Intent(LandingActivity.this,HomeFeedFragment.class);
                 String title = mUserListAdapter.getItem(position);
                 String userid = mDBHelper.getProfileId(title);
                 intent.putExtra(Keys.KEY_ID,userid);
                 intent.putExtra(Keys.KEY_TITLE,title);
                 //intent.putExtra(Keys.PERSON_LIST,mDBHelper.getData(userid));
                 startActivity(intent);
+             /*   Fragment fragment=new HomeFeedFragment();
+                if(fragment!=null)
+                {
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    fragmentManager.beginTransaction().replace(R.id.container,fragment).commit();
+
+                }*/
+
             }
         });
 
