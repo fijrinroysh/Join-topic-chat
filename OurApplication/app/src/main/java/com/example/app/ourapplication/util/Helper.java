@@ -75,10 +75,6 @@ public class Helper extends AppCompatActivity{
     }
 
 
-
-
-
-
     public static String getCurrentTimeStamp(){
         try {
 
@@ -88,7 +84,6 @@ public class Helper extends AppCompatActivity{
             return currentTimeStamp;
         } catch (Exception e) {
             e.printStackTrace();
-
             return null;
         }
     }

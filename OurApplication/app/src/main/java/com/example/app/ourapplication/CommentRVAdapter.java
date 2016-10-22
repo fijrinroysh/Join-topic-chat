@@ -82,7 +82,7 @@ public class CommentRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @Override
     public int getItemViewType(int i) {
-        if (mFeeds.get(i).getType().equals("F")) {
+        if (mFeeds.get(i).mType.equals("F")) {
             return 1;
         } else  {
             return 0;
@@ -123,21 +123,21 @@ public class CommentRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         switch (viewHolder.getItemViewType()) {
                 case 0:
                     PersonViewHolder3 vh1 = (PersonViewHolder3) viewHolder;
-                    vh1.senderName.setText(item.getSenderName());
+                    vh1.senderName.setText(item.mSenderName);
                     //vh1.receiverName.setText(item.getReceiverName());
-                    vh1.senderMessage.setText(item.getMessage());
-                    vh1.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
+                    vh1.senderMessage.setText(item.mMessage);
+                    vh1.messageTime.setText(Helper.getRelativeTime(item.mTimeMsg));
                     //vh1.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
                     setAnimation(vh1.cv, i);
                     break;
                 case 1:
                     PersonViewHolder4 vh2 = (PersonViewHolder4) viewHolder;
-                    vh2.senderName.setText(item.getSenderName());
-                    vh2.receiverName.setText(item.getReceiverName());
-                    vh2.senderMessage.setText(item.getMessage());
-                    vh2.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
-                    vh2.messagePhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoMsg()));
-                    vh2.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
+                    vh2.senderName.setText(item.mSenderName);
+                    vh2.receiverName.setText(item.mReceiverName);
+                    vh2.senderMessage.setText(item.mMessage);
+                    vh2.messageTime.setText(Helper.getRelativeTime(item.mTimeMsg));
+                    vh2.messagePhoto.setImageBitmap(Helper.decodeImageString(item.mPhotoMsg));
+                    vh2.senderPhoto.setImageBitmap(Helper.decodeImageString(item.mPhotoId));
                     break;
             }
 

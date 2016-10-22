@@ -54,7 +54,6 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         ImageView senderPhoto = (ImageView) findViewById(R.id.sender_photo);
         TextView messageTime = (TextView) findViewById(R.id.message_time);
         ImageView messagePhoto = (ImageView) findViewById(R.id.message_photo);
-
         Button  mSendButton = (Button) findViewById(R.id.send_button);
         final EditText  mMessageBox = (EditText) findViewById(R.id.msg_box);
 
@@ -66,20 +65,16 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         LinearLayoutManager llm = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(llm);
 
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-        Person item = extras.getParcelable(Keys.KEY_PERSON);
-       // mComments.add(item);
-           // senderName.setText(item.getSenderName());
-            //senderName.setText("kkkj");
-           receiverName.setText(item.getReceiverName());
-           senderMessage.setText(item.getMessage());
-           messagePhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoMsg()));
-           senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
-            messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
-           keyid = item.getPostId();
-           to = mDBHelper.getProfileId(item.getReceiverName());
-            //collapsingToolbar.equals(item);
+         keyid = getIntent().getStringExtra(Keys.KEY_ID);
+        if (keyid != null) {
+            to = mDBHelper.getFeedDataColumn(keyid, 1);
+            senderName.setText(mDBHelper.getProfileInfo(mDBHelper.getFeedDataColumn(keyid, 1), 1));
+            receiverName.setText(mDBHelper.getProfileInfo(mDBHelper.getFeedDataColumn(keyid, 2), 1));
+            senderMessage.setText(mDBHelper.getFeedDataColumn(keyid, 3));
+            messagePhoto.setImageBitmap(Helper.decodeImageString(mDBHelper.getFeedDataColumn(keyid, 4)));
+            //senderPhoto.setImageBitmap(Helper.decodeImageString(mDBHelper.getFeedDataColumn(keyid, 5)));
+            senderPhoto.setImageBitmap(Helper.decodeImageString(mDBHelper.getProfileInfo(mDBHelper.getFeedDataColumn(keyid, 1), 2)));
+
         }
         mComments.addAll(mDBHelper.getCommentData(keyid));
         recyclerView.setAdapter(mCommentListAdapter);

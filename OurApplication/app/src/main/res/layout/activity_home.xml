@@ -14,9 +14,9 @@
     <FrameLayout
         android:id="@+id/frame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></FrameLayout>
+        android:layout_height="match_parent">
 
-
+    </FrameLayout>
 
     <com.roughike.bottombar.BottomBar
         android:id="@+id/bottomBar"
@@ -26,6 +26,8 @@
         app:bb_tabXmlResource="@xml/bottom_bar_tabs"
         app:bb_behavior="underNavbar|shy"
         />
+
+
 
 </android.support.design.widget.CoordinatorLayout>
 

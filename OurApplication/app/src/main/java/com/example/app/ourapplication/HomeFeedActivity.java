@@ -110,9 +110,9 @@ public class HomeFeedActivity extends AppCompatActivity {
             public void onClick(View view, int position) {
                 Person item = mFeeds.get(position);
                 final Intent discussionIntent = new Intent(HomeFeedActivity.this, DiscussionActivity.class);
-                discussionIntent.putExtra(Keys.KEY_PERSON, item);
+                discussionIntent.putExtra(Keys.KEY_ID, item.mPostId);
                 startActivity(discussionIntent);
-                Toast.makeText(getApplicationContext(), item.getMessage() + " is selected!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), item.mMessage + " is selected!", Toast.LENGTH_SHORT).show();
             }
 
             @Override

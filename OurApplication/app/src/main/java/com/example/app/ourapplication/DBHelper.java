@@ -163,9 +163,7 @@ public class DBHelper extends SQLiteOpenHelper {
     {
         ArrayList<Person> array_list = new ArrayList<Person>();
 
-        //hp = new HashMap();
         SQLiteDatabase db = this.getReadableDatabase();
-       // Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " +MESSAGE_FROM_COLUMN_NAME+ " = \"" + id + "\" or " +MESSAGE_TO_COLUMN_NAME+ " = \""+id+"\" ORDER BY "+ MESSAGE_TIME_COLUMN_NAME+" DESC", null );
         Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " +MESSAGE_FROM_COLUMN_NAME+ " = \"" + id + "\" or " +MESSAGE_TO_COLUMN_NAME+ " = \""+id+"\" ORDER BY "+ MESSAGE_TIME_COLUMN_NAME+" DESC", null );
         //Cursor res =  db.rawQuery( "select * from MESSAGE_DATA" , null );
         msg_res.moveToFirst();
@@ -183,6 +181,28 @@ public class DBHelper extends SQLiteOpenHelper {
             msg_res.moveToNext();
         }
         return array_list;
+    }
+
+
+    public String getFeedDataColumn(String id, Integer columnnumber )
+    {
+
+        String  columndata;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " +MESSAGE_ID_COLUMN_NAME+ " = \"" + id +"\"" , null );
+
+        msg_res.moveToFirst();
+
+        if (msg_res.getCount() != 0){
+            msg_res.moveToFirst();
+            columndata = msg_res.getString(columnnumber);
+            Log.d(TAG, "getFeedDataColumn: " + columndata);}
+        else{
+            columndata="nodata";
+        }
+
+        return columndata;
+
     }
 
 

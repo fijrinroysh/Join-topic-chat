@@ -127,9 +127,9 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
             public void onClick(View view, int position) {
                 Person item = mFeeds.get(position);
                 final Intent discussionIntent = new Intent(activity, DiscussionActivity.class);
-                discussionIntent.putExtra(Keys.KEY_PERSON, item);
+                discussionIntent.putExtra(Keys.KEY_ID, item.mPostId);
                 startActivity(discussionIntent);
-                Toast.makeText(getContext().getApplicationContext(), item.getMessage() + " is selected!",
+                Toast.makeText(getContext().getApplicationContext(), item.mMessage  + " is selected!",
                         Toast.LENGTH_SHORT).show();
             }
 
