@@ -21,7 +21,7 @@
 
         <activity android:name=".LandingActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/FeedTheme">
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

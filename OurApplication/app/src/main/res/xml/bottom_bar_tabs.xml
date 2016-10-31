@@ -20,7 +20,7 @@
         />
     <tab
         id="@+id/add_profile"
-        icon="@drawable/profile"
+        icon="@drawable/ic_profile"
         title=""
         />
 

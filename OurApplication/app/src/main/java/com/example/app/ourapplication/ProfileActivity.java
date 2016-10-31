@@ -49,7 +49,7 @@ public class ProfileActivity extends AppCompatActivity{
             getSupportActionBar().setDisplayHomeAsUpEnabled (true);
             CollapsingToolbarLayout collapsingToolbar =
                     (CollapsingToolbarLayout) findViewById(R.id.profile_collapse);
-            collapsingToolbar.setTitle("My Toolbar Tittle");
+            collapsingToolbar.setTitle(mDBHelper.getProfileInfo(userid,1));
             profileImgView = (ImageView) findViewById(R.id.image_profile);
             Log.d(TAG, "Image data : " + mDBHelper.getProfileInfo(userid,2));
             profileImgView.setImageBitmap(Helper.decodeImageString(mDBHelper.getProfileInfo(userid,2)));

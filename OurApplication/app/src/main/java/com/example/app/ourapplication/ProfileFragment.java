@@ -58,6 +58,8 @@ public class ProfileFragment extends Fragment {
     public DBHelper mDBHelper ;
     public static Activity activity;
     String userid ;
+    private String mReceiver;
+    private String mReceiverid;
 
     private OnFragmentInteractionListener mListener;
 
@@ -95,27 +97,25 @@ public class ProfileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        view =  inflater.inflate(R.layout.activity_profile, container, false);
+        view =  inflater.inflate(R.layout.fragment_profile, container, false);
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar_profile);
         Context thiscontext=container.getContext();
         mDBHelper = new DBHelper(thiscontext);
-        userid = PreferenceEditor.getInstance(thiscontext).getLoggedInUserName();
+        //userid = PreferenceEditor.getInstance(thiscontext).getLoggedInUserName();
+
+        mReceiver = activity.getIntent().getStringExtra(Keys.KEY_TITLE);
+        mReceiverid = activity.getIntent().getStringExtra(Keys.KEY_ID);
+
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled (true);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         CollapsingToolbarLayout collapsingToolbar =
                 (CollapsingToolbarLayout) view.findViewById(R.id.profile_collapse);
-        collapsingToolbar.setTitle("My Toolbar Tittle");
+        collapsingToolbar.setTitle(mReceiver);
         profileImgView = (ImageView) view.findViewById(R.id.image_profile);
-        Log.d(TAG, "Image data : " + mDBHelper.getProfileInfo(userid, 2));
-        profileImgView.setImageBitmap(Helper.decodeImageString(mDBHelper.getProfileInfo(userid, 2)));
+        Log.d(TAG, "Image data : " + mDBHelper.getProfileInfo(mReceiverid, 2));
+        profileImgView.setImageBitmap(Helper.decodeImageString(mDBHelper.getProfileInfo(mReceiverid, 2)));
 
-        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showFileChooser();
-            }
-        });
+
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         return view;
@@ -160,105 +160,6 @@ public class ProfileFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
-
-    private void showFileChooser() {
-        //Intent intent = new Intent();
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        try {
-            //startActivityForResult(Intent.createChooser(intent,"Complete action using"), UPDATE_PIC);
-            startActivityForResult(intent, UPDATE_PIC);
-        } catch (ActivityNotFoundException e) {
-            e.printStackTrace();
-            Snackbar.make(profileImgView, "Activity not found", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode){
-            case UPDATE_PIC:
-                if (resultCode == getActivity().RESULT_OK && data != null) {
-                    // Bundle extras = data.getExtras();
-                    Uri filePath = data.getData();
-                    Log.d(TAG, "Data : " + filePath);
-                    try {
-                        // mBitmap = data.getParcelableExtra("data");
-                        Bitmap bitmap  = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), filePath);
-                        if (bitmap != null) {
-                            mBitmap=Helper.scaleBitmap(bitmap);
-                            Log.d(TAG,"L : "+mBitmap.getWidth()+ "  : "+mBitmap.getScaledHeight(getResources().getDisplayMetrics()));
-                            profileImgView.setImageBitmap(mBitmap);
-                            imageprofilestring = Helper.getStringImage(mBitmap);
-                            Log.d(TAG, "Image message value length : " + imageprofilestring.length());
-                            Log.d(TAG, "Image message value is : " + imageprofilestring);
-                            if(!TextUtils.isEmpty(userid)) {
-                                String body = Helper.getUpdateProfileBody(userid, Keys.KEY_PROFIMG, imageprofilestring);
-                                new ProfileUpdateTask().execute(body);
-                                mDBHelper.updateProfile(body);
-
-                            }
-                        }else{
-                            Snackbar.make(profileImgView, "Bitmap is null", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-                            Log.d(TAG, "Bitmap is null");}
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                break;
-        }
-    }
-
-    private class ProfileUpdateTask extends AsyncTask<String,Void,String> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            // UI.showProgressDialog(HomeFeedActivity.this, getString(R.string.login_progress));
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            String body = params[0];
-            String response = null;
-            try {
-                response = Helper.updateProfile(body);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return response;
-        }
-
-        @Override
-        protected void onPostExecute(String response) {
-            super.onPostExecute(response);
-            Log.d(TAG, "Response : " + response);
-            if(response != null){
-
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
-                    boolean isSuccess = jsonObject.getBoolean(Keys.KEY_SUCCESS);
-
-                    if(isSuccess) {
-
-                        Log.d(TAG, "Profile information Updated");
-                        Snackbar.make(profileImgView, "Profile information Updated", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-
-                    }else{
-                        Snackbar.make(profileImgView, "Profile information not Updated", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-                        Log.d(TAG, "Profile information not Updated");
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }else{
-                Log.d(TAG, "Update response is NULL");
-            }
-        }
-    }
-
 
 
 }
