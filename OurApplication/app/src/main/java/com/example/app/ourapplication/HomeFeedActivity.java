@@ -44,13 +44,13 @@ import java.util.List;
 /**
  * Created by sarumugam on 17/04/16.
  */
-public class HomeFeedActivity extends AppCompatActivity {
+public class HomeFeedActivity extends AppCompatActivity  {
 
     public static final int REQ_LOCATION = 7;
 
     private final String TAG = HomeFeedActivity.class.getSimpleName();
     private DBHelper mDBHelper = new DBHelper(this);
-    private WebSocketClient mWebSocketClient;
+    public WebSocketClient mWebSocketClient;
     private LocationManager locationManager;
     public Fragment fragment;
 
@@ -123,8 +123,8 @@ public class HomeFeedActivity extends AppCompatActivity {
 
         bottomBar();
 
-      /*  locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        mWebSocketClient = OurApp.getClient();
+      /*  locationManager = (LocationManager) getSystemService(LOCATION_SERVICE)
+         mWebSocketClient = OurApp.getClient();
         mWebSocketClient.addWebSocketListener(this);*/
     }
 
@@ -223,7 +223,8 @@ public class HomeFeedActivity extends AppCompatActivity {
         }
     }*/
 
-   /* @Override
+    /*
+  @Override
     protected void onDestroy() {
         super.onDestroy();
         mWebSocketClient.removeWebSocketListener(this);

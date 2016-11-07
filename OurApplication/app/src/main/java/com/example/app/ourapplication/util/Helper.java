@@ -98,7 +98,7 @@ public class Helper extends AppCompatActivity{
                     dateFormat.parse(posttime).getTime(),// The time to display
                     currDate.getTime(), //Current time
                     DateUtils.SECOND_IN_MILLIS, // The minimum resolution. This will display seconds (eg: "3 seconds ago")
-                    DateUtils.FORMAT_NUMERIC_DATE).toString();
+                    DateUtils.FORMAT_ABBREV_RELATIVE).toString();
 
             return relativeTime;
         } catch (Exception e) {
@@ -142,6 +142,7 @@ public class Helper extends AppCompatActivity{
             msgObject.put(Keys.KEY_TOKEN,token);
             msgObject.put(Keys.KEY_TO,receiver);
             msgObject.put(Keys.KEY_MESSAGE,message);
+            msgObject.put(Keys.KEY_IMAGE,"");
             msgObject.put(Keys.KEY_TIME,getCurrentTimeStamp());
 
         } catch (JSONException e) {

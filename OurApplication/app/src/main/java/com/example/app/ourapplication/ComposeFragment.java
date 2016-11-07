@@ -17,11 +17,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -86,7 +88,7 @@ public class ComposeFragment extends Fragment {
 
     private ImageView imgPreview;
     private VideoView videoPreview;
-
+    public static RelativeLayout layout;
 
     public ComposeFragment() {
         // Required empty public constructor
@@ -123,6 +125,9 @@ public class ComposeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view =  inflater.inflate(R.layout.compose, container, false);
+
+        layout = (RelativeLayout) view.findViewById(R.id.msg_send_lyt);
+
         img = (ImageView) view.findViewById(R.id.img);
         mSendButton = (Button) view.findViewById(R.id.send_button);
         mMessageBox = (EditText) view.findViewById(R.id.msg_box);
@@ -130,6 +135,15 @@ public class ComposeFragment extends Fragment {
         gallery_button =(ImageButton) view.findViewById(R.id.gallery);
         mReceiverid = getActivity().getIntent().getStringExtra(Keys.KEY_ID);
         showSoftKeyboard(mMessageBox);
+
+        if(img.getDrawable() == null)
+        {
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+                    RelativeLayout.LayoutParams.WRAP_CONTENT);
+            params.addRule(RelativeLayout.CENTER_IN_PARENT);
+            layout.setLayoutParams(params);
+
+        }
       /*  bottomBar = (BottomBar) view.findViewById(R.id.bottomBar);
         bottomBar.setEnabled(false);*/
 
@@ -346,9 +360,18 @@ public class ComposeFragment extends Fragment {
     public void showSoftKeyboard(View v)
     {
 
-        InputMethodManager input = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+
+        InputMethodManager imgr = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        //imgr.showSoftInput(v, 0);
         v.requestFocus();
-        input.showSoftInput(v,0);
+        imgr.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
+
     }
+
+
+
+
 
 }

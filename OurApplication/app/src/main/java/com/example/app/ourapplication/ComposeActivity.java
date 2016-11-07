@@ -77,7 +77,7 @@ public class ComposeActivity extends AppCompatActivity {
         mReceiverid = getIntent().getStringExtra(Keys.KEY_ID);
 
         mWebSocketClient = OurApp.getClient();
-        //mWebSocketClient.addWebSocketListener(this);
+
 
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override

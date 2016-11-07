@@ -65,6 +65,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     private String mReceiverid;
     public static View view;
     public static Activity activity;
+    public static Context thiscontext;
 
     public HomeFeedFragment() {
         // Required empty public constructor
@@ -95,6 +96,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
     }
 
     @Override
@@ -102,6 +104,12 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                              Bundle savedInstanceState) {
         view =  inflater.inflate(R.layout.activity_home_feed, container, false);
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+
+
+        thiscontext=getContext();
+        mWebSocketClient = OurApp.getClient();
+        mWebSocketClient.addWebSocketListener(this);
+
         mDBHelper = new DBHelper(getContext());
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
 
@@ -121,25 +129,26 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
 
         recyclerView.setAdapter(mFeedListAdapter);
-        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(activity.getApplicationContext(),recyclerView,
+        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(activity.getApplicationContext(), recyclerView,
                 new Util.ClickListener() {
-           // @Override
-            public void onClick(View view, int position) {
-                Person item = mFeeds.get(position);
-                final Intent discussionIntent = new Intent(activity, DiscussionActivity.class);
-                discussionIntent.putExtra(Keys.KEY_ID, item.mPostId);
-                startActivity(discussionIntent);
-                Toast.makeText(getContext().getApplicationContext(), item.mMessage  + " is selected!",
-                        Toast.LENGTH_SHORT).show();
-            }
+                    // @Override
+                    public void onClick(View view, int position) {
+                        Person item = mFeeds.get(position);
+                        final Intent discussionIntent = new Intent(activity, DiscussionActivity.class);
+                        discussionIntent.putExtra(Keys.KEY_ID, item.mPostId);
+                        startActivity(discussionIntent);
+                        Toast.makeText(getContext().getApplicationContext(), item.mMessage + " is selected!",
+                                Toast.LENGTH_SHORT).show();
+                    }
 
-            @Override
-            public void onLongClick(View view, int position) {
+                    @Override
+                    public void onLongClick(View view, int position) {
 
-            }
-        }));
+                    }
+                }));
 
         return view;
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -148,6 +157,8 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
             mListener.onFragmentInteraction(uri);
         }
     }
+
+
 
     @Override
     public void onAttach(Context context) {
@@ -165,6 +176,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        mWebSocketClient.removeWebSocketListener(this);
     }
 
     /**
@@ -236,8 +248,8 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
 
     private void Notify(String notificationTitle, String notificationMessage, String notificationIcon) {
-        NotificationManager notificationManager = (NotificationManager) getContext().getSystemService
-                (getContext().NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService
+                ( getActivity().NOTIFICATION_SERVICE);
         @SuppressWarnings("deprecation")
         //  Intent notificationIntent = new Intent(this,NotificationView.class);
                 Intent notificationIntent = new Intent(getContext(), HomeFeedFragment.class);
@@ -267,10 +279,10 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
         void onLongClick(View view, int position);
     }*/
 
-  /*@Override
+ /* @Override
     public void onDestroy() {
         super.onDestroy();
-       // mWebSocketClient.removeWebSocketListener(this);
+       mWebSocketClient.removeWebSocketListener(this);
     }*/
 
     @Override

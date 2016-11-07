@@ -120,6 +120,7 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(MESSAGE_FROM_COLUMN_NAME, msgObject.optString(Keys.KEY_NAME));
         contentValues.put(MESSAGE_TO_COLUMN_NAME, msgObject.optString(Keys.KEY_TO));
         contentValues.put(MESSAGE_COLUMN_NAME, msgObject.optString(Keys.KEY_MESSAGE));
+        //contentValues.put(MESSAGE_IMAGE_COLUMN_NAME, msgObject.optString(Keys.KEY_IMAGE));
         //contentValues.put(MESSAGE_LIKES_COLUMN_NAME, msgObject.optString(Keys.KEY_LIKES));
         contentValues.put(MESSAGE_TIME_COLUMN_NAME, msgObject.optString(Keys.KEY_TIME));
         mydatabase.insert("COMMENT_DATA", null, contentValues);
@@ -221,11 +222,11 @@ public class DBHelper extends SQLiteOpenHelper {
             String column1 = getProfileInfo(msg_res.getString(1),1);
             String column2 = getProfileInfo(msg_res.getString(2),1);
             String column3 = msg_res.getString(3);
-            String column4 = msg_res.getString(4);
+           // String column4 = msg_res.getString(4);
             String column5 = getProfileInfo(msg_res.getString(1), 2);
             String column6 = msg_res.getString(5);
 
-            array_list.add(new Person("C",column0, column1 , column2 , column3, column5, column4, column6  ));
+            array_list.add(new Person("C",column0, column1 , column2 , column3, column5, "", column6  ));
             msg_res.moveToNext();
         }
         return array_list;
@@ -245,7 +246,8 @@ public class DBHelper extends SQLiteOpenHelper {
         if (prof_res.getCount() != 0){
             prof_res.moveToFirst();
             columndata = prof_res.getString(columnnumber);
-            Log.d(TAG, "getProfileInfo: " + columndata);}
+        //    Log.d(TAG, "getProfileInfo: " + columndata);
+        }
         else{
             columndata="noimage";
         }
