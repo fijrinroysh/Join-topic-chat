@@ -63,9 +63,9 @@ public class HomeFeedActivity extends AppCompatActivity  {
     private String mReceiverid;
 
     //indices to fragments
-   private final int TAB_FIRST = FragNavController.TAB1;
-   private final int TAB_SECOND = FragNavController.TAB2;
-  private final int TAB_THIRD = FragNavController.TAB3;
+ private final int TAB_FIRST = FragNavController.TAB1;
+ private final int TAB_SECOND = FragNavController.TAB2;
+ private final int TAB_THIRD = FragNavController.TAB3;
  private final int TAB_FOURTH = FragNavController.TAB4;
 
     @Override

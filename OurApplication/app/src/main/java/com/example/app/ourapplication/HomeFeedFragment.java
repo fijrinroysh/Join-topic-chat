@@ -1,5 +1,6 @@
 package com.example.app.ourapplication;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -7,9 +8,13 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -52,6 +57,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     private String mParam1;
     private String mParam2;
     private WebSocketClient mWebSocketClient;
+    public static final int REQ_LOCATION = 7;
 
     private OnFragmentInteractionListener mListener;
     private final String TAG = HomeFeedFragment.class.getSimpleName();
@@ -66,6 +72,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     public static View view;
     public static Activity activity;
     public static Context thiscontext;
+
 
     public HomeFeedFragment() {
         // Required empty public constructor
@@ -292,7 +299,6 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     @Override
     public void onClose() {
     }
-
 
 
 

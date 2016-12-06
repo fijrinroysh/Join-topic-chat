@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.example.app.ourapplication.pref.PreferenceEditor;
 import com.example.app.ourapplication.util.Helper;
 import com.example.app.ourapplication.wss.WebSocketClient;
 import com.roughike.bottombar.BottomBar;
@@ -89,6 +90,7 @@ public class ComposeFragment extends Fragment {
     private ImageView imgPreview;
     private VideoView videoPreview;
     public static RelativeLayout layout;
+    final String location = PreferenceEditor.getInstance(getContext()).getLocation();
 
     public ComposeFragment() {
         // Required empty public constructor
@@ -133,7 +135,7 @@ public class ComposeFragment extends Fragment {
         mMessageBox = (EditText) view.findViewById(R.id.msg_box);
         camera_button = (ImageButton) view.findViewById(R.id.camera_button);
         gallery_button =(ImageButton) view.findViewById(R.id.gallery);
-        mReceiverid = getActivity().getIntent().getStringExtra(Keys.KEY_ID);
+        //mReceiverid = getActivity().getIntent().getStringExtra(Keys.KEY_ID);
         showSoftKeyboard(mMessageBox);
 
         if(img.getDrawable() == null)
@@ -159,9 +161,9 @@ public class ComposeFragment extends Fragment {
                     String token = OurApp.getUserToken();
                     Log.d(TAG, "Messaage:" + msg);
                     Log.d(TAG, "Token:" + token);
-                    Log.d(TAG, "Receiver:" + mReceiverid);
+                    Log.d(TAG, "Receiver:" + location);
                     Log.d(TAG, "Bitmap:" + mBitmap);
-                    feedmessage = Helper.formFeedMessage("F", msg, token, mReceiverid, mBitmap);
+                    feedmessage = Helper.formFeedMessage("F", msg, token, location, mBitmap);
                     Log.d(TAG, "Formfeedmessage:" + feedmessage);
                     mWebSocketClient.sendMessage(feedmessage);
                     mMessageBox.setText(null);

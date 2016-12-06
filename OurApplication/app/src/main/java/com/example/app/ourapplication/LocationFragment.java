@@ -9,6 +9,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.app.ourapplication.pref.PreferenceEditor;
 import com.example.app.ourapplication.wss.WebSocketClient;
 
 import org.json.JSONException;
@@ -86,10 +88,17 @@ public class LocationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view =  inflater.inflate(R.layout.fragment_location, container, false);
-        TextView textView = new TextView(getActivity());
-        textView.setText(R.string.hello_blank_fragment);
+        TextView textView = (TextView) view.findViewById(R.id.location);
+
         locationManager = (LocationManager) getContext().getSystemService(activity.LOCATION_SERVICE);
         mWebSocketClient = OurApp.getClient();
+
+        if (isLocationEnabled()) {
+            checkInLocation();
+        } else {
+                    Snackbar.make(view, "Location is not enabled", Snackbar.LENGTH_LONG).show();
+        }
+        textView.setText(PreferenceEditor.getInstance(getContext()).getLocation());
        // mWebSocketClient.addWebSocketListener(getContext());
         return view;
     }
@@ -183,11 +192,15 @@ public class LocationFragment extends Fragment {
         try {
             locationObj.put("longitude",location.getLongitude());
             locationObj.put("latitude",location.getLatitude());
-            checkInObj.put("check_in",locationObj);
+            Log.d(TAG, "Longitude is : " + location.getLongitude());
+            Log.d(TAG, "Latitude is : " + location.getLatitude());
+
+            //checkInObj.put("check_in",locationObj);
+            PreferenceEditor.getInstance(getContext()).setLocation(locationObj);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        mWebSocketClient.sendMessage(checkInObj.toString());
+       // mWebSocketClient.sendMessage(checkInObj.toString());
     }
 
 }
