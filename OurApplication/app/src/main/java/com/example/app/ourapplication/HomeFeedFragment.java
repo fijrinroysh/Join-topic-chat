@@ -12,8 +12,10 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -28,13 +30,16 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.app.ourapplication.pref.PreferenceEditor;
 import com.example.app.ourapplication.util.Helper;
 import com.example.app.ourapplication.wss.WebSocketClient;
 import com.example.app.ourapplication.wss.WebSocketListener;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -58,6 +63,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     private String mParam2;
     private WebSocketClient mWebSocketClient;
     public static final int REQ_LOCATION = 7;
+    public String location = PreferenceEditor.getInstance(getContext()).getLocation();
 
     private OnFragmentInteractionListener mListener;
     private final String TAG = HomeFeedFragment.class.getSimpleName();
@@ -154,8 +160,21 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                     }
                 }));
 
-        return view;
 
+        //HTTP requst to fetch data for Homefeed
+        try {
+            JSONObject jsonObject = new JSONObject(location);
+            String longitude = jsonObject.optString("longitude");
+            String latitude = jsonObject.optString("latitude");
+            String body = Helper.getHomeFeedRequest(longitude, latitude, "20161131");
+            new HomefeedHTTPRequest().execute(body);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -254,6 +273,30 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     }
 
 
+
+    public Person parseFeeds1(String message) {
+        Date now = new Date();
+        JSONObject msgObject = null;
+        Person message_return = null;
+        try {
+            msgObject = new JSONObject(message);
+
+            message_return = new Person(msgObject.optString(Keys.KEY_TYPE),
+                    msgObject.optString(Keys.KEY_ID),
+                    msgObject.optString(Keys.KEY_NAME),
+                    "Public",
+                    msgObject.optString(Keys.KEY_MESSAGE),
+                    msgObject.optString(Keys.KEY_PROFIMG),
+                    msgObject.optString(Keys.KEY_IMAGE),
+                    msgObject.optString(Keys.KEY_TIME)
+            );
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return message_return;
+    }
+
+
     private void Notify(String notificationTitle, String notificationMessage, String notificationIcon) {
         NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService
                 ( getActivity().NOTIFICATION_SERVICE);
@@ -292,6 +335,73 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
        mWebSocketClient.removeWebSocketListener(this);
     }*/
 
+
+    private class HomefeedHTTPRequest extends AsyncTask<String,Void,String> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            // UI.showProgressDialog(HomeFeedActivity.this, getString(R.string.login_progress));
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            String body = params[0];
+            String response = null;
+            try {
+                response = Helper.getHomefeed(body);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String response) {
+            super.onPostExecute(response);
+            //Log.d(TAG, "Response : " + response);
+            if(response != null){
+
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    boolean isSuccess = jsonObject.getBoolean(Keys.KEY_SUCCESS);
+
+                    if(isSuccess) {
+
+                        Log.d(TAG, "Query returned records");
+
+                        JSONArray mFeedJSONArray = jsonObject.getJSONArray("data");
+                        if (mFeedJSONArray != null) {
+                            for (int i = 0; i < mFeedJSONArray.length(); i++) {
+                                JSONObject feed = new JSONObject(mFeedJSONArray.get(i).toString());
+                                Log.d(TAG, "Response : " + feed.toString());
+                                mFeeds.add(0, parseFeeds1(feed.toString()));
+                                // mDBHelper.insertProfile(users.get(i).toString());
+                            }
+                        }
+                        mFeedListAdapter.notifyDataSetChanged();
+
+
+                    }else{
+
+                        Log.d(TAG, "Query didn't return records");
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }else{
+                Log.d(TAG, "Query failed");
+            }
+        }
+    }
+
+
+
+
+
+
+
+
     @Override
     public void onOpen() {
     }
@@ -299,6 +409,12 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     @Override
     public void onClose() {
     }
+
+
+
+
+
+
 
 
 

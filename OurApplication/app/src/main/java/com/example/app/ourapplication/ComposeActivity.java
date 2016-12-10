@@ -89,7 +89,7 @@ public class ComposeActivity extends AppCompatActivity {
                     Log.d(TAG, "Token:" + token);
                     Log.d(TAG, "Receiver:" + mReceiverid);
                     Log.d(TAG, "Bitmap:" + mBitmap);
-                    feedmessage = Helper.formFeedMessage("F", msg, token, mReceiverid, mBitmap);
+                  //  feedmessage = Helper.formFeedMessage("F", msg, token, mReceiverid, mBitmap);
                     Log.d(TAG, "Formfeedmessage:" + feedmessage);
                     mWebSocketClient.sendMessage(feedmessage);
                     mMessageBox.setText(null);

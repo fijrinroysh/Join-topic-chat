@@ -75,6 +75,20 @@ public class Helper extends AppCompatActivity{
     }
 
 
+    public static String getHomeFeedRequest(String latitude, String longitude, String latestdate){
+        JSONObject body = new JSONObject();
+        try {
+            body.put(Keys.KEY_TYPE,"F");
+            body.put(Keys.KEY_LONGITUDE,longitude);
+            body.put(Keys.KEY_LATITUDE,latitude);
+            body.put("latestdate",latestdate);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return body.toString();
+    }
+
+
     public static String getCurrentTimeStamp(){
         try {
 
@@ -109,7 +123,7 @@ public class Helper extends AppCompatActivity{
 
 
 
-    public static String formFeedMessage(String type, String message,String token,String receiver,Bitmap bitmap){
+    public static String formFeedMessage(String type, String message,String token,String longitude, String latitude,Bitmap bitmap){
 
         String image_string;
         if (bitmap == null) {
@@ -123,7 +137,8 @@ public class Helper extends AppCompatActivity{
             msgObject.put(Keys.KEY_TYPE,type);
             msgObject.put(Keys.KEY_MESSAGE,message);
             msgObject.put(Keys.KEY_TOKEN,token);
-            msgObject.put(Keys.KEY_TO,receiver);
+            msgObject.put(Keys.KEY_LONGITUDE,longitude);
+            msgObject.put(Keys.KEY_LATITUDE,latitude);
             msgObject.put(Keys.KEY_IMAGE,image_string);
             msgObject.put(Keys.KEY_TIME,getCurrentTimeStamp());
 
@@ -178,6 +193,14 @@ public class Helper extends AppCompatActivity{
 
     public static String updateProfile(String reqBody) throws IOException {
         HttpURLConnection connection = Util.getHttpConnection(AppUrl.UPDATE_URL, "POST");
+        Util.writeToStream(connection, reqBody);
+
+        return Util.readInputStream(connection);
+    }
+
+
+    public static String getHomefeed(String reqBody) throws IOException {
+        HttpURLConnection connection = Util.getHttpConnection(AppUrl.HOMEFEEDQUERY_URL, "POST");
         Util.writeToStream(connection, reqBody);
 
         return Util.readInputStream(connection);

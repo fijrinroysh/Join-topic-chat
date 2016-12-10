@@ -33,6 +33,9 @@ import com.example.app.ourapplication.util.Helper;
 import com.example.app.ourapplication.wss.WebSocketClient;
 import com.roughike.bottombar.BottomBar;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -90,7 +93,9 @@ public class ComposeFragment extends Fragment {
     private ImageView imgPreview;
     private VideoView videoPreview;
     public static RelativeLayout layout;
+
     final String location = PreferenceEditor.getInstance(getContext()).getLocation();
+
 
     public ComposeFragment() {
         // Required empty public constructor
@@ -157,18 +162,27 @@ public class ComposeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 String msg = mMessageBox.getText().toString();
+                try {
+                    JSONObject jsonObject = new JSONObject(location);
+                    String longitude = jsonObject.optString("longitude");
+                    String latitude = jsonObject.optString("latitude");
+
                 if (!TextUtils.isEmpty(msg)) {
                     String token = OurApp.getUserToken();
                     Log.d(TAG, "Messaage:" + msg);
                     Log.d(TAG, "Token:" + token);
                     Log.d(TAG, "Receiver:" + location);
                     Log.d(TAG, "Bitmap:" + mBitmap);
-                    feedmessage = Helper.formFeedMessage("F", msg, token, location, mBitmap);
+                    feedmessage = Helper.formFeedMessage("F", msg, token, longitude , latitude, mBitmap);
                     Log.d(TAG, "Formfeedmessage:" + feedmessage);
                     mWebSocketClient.sendMessage(feedmessage);
                     mMessageBox.setText(null);
                     //finish();
                 }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
             }
         });
 
