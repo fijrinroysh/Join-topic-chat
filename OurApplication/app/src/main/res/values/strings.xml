@@ -1,4 +1,17 @@
 <resources>
+
+    <string-array name="cities">
+        <item>Ahmadabad</item>
+        <item>Bangalore</item>
+        <item>Chennai</item>
+        <item>Cochin</item>
+        <item>Kolkata</item>
+        <item>Mumbai</item>
+        <item>Hyderabad</item>
+        <item>XXXXXXX</item>
+        <item>YYYYYYY</item>
+    </string-array>
+
     <string name="app_name">OurApplication</string>
 
     <string name="no_feed">No Feeds for you.</string>
@@ -24,5 +37,8 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-
+    <string name="locate">Locate Me</string>
+    <string name="search">Search</string>
+    <string name="city">City</string>
+    <string name="location">Location</string>
 </resources>
