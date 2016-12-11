@@ -75,12 +75,14 @@ public class Helper extends AppCompatActivity{
     }
 
 
-    public static String getHomeFeedRequest(String latitude, String longitude, String latestdate){
+    public static String getHomeFeedRequest(String range , String longitude, String latitude, String latestdate){
         JSONObject body = new JSONObject();
         try {
             body.put(Keys.KEY_TYPE,"F");
+            body.put("range",range);
             body.put(Keys.KEY_LONGITUDE,longitude);
             body.put(Keys.KEY_LATITUDE,latitude);
+
             body.put("latestdate",latestdate);
         } catch (JSONException e) {
             e.printStackTrace();

@@ -166,7 +166,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
             JSONObject jsonObject = new JSONObject(location);
             String longitude = jsonObject.optString("longitude");
             String latitude = jsonObject.optString("latitude");
-            String body = Helper.getHomeFeedRequest(longitude, latitude, "20161131");
+            String body = Helper.getHomeFeedRequest("5", longitude, latitude, "2016-12-11 17:00:00");
             new HomefeedHTTPRequest().execute(body);
 
         } catch (JSONException e) {
@@ -239,7 +239,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                     mFeeds.add(0, parseFeeds(message));
                     mFeedListAdapter.notifyDataSetChanged();
                 }
-                mDBHelper.insertFeedData(message);
+
                 Notify(mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 1),
                         msgObject.optString(Keys.KEY_MESSAGE),
                         mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 2));
@@ -376,10 +376,11 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                                 JSONObject feed = new JSONObject(mFeedJSONArray.get(i).toString());
                                 Log.d(TAG, "Response : " + feed.toString());
                                 mFeeds.add(0, parseFeeds1(feed.toString()));
-                                // mDBHelper.insertProfile(users.get(i).toString());
+                                mFeedListAdapter.notifyDataSetChanged();
+                                //mDBHelper.insertFeedData(message);
                             }
                         }
-                        mFeedListAdapter.notifyDataSetChanged();
+
 
 
                     }else{

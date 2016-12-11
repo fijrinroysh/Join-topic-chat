@@ -44,7 +44,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public DBHelper(Context context)
     {
-        super(context, "FEED" , null, 2); //2 is the database version
+        super(context, "FEED" , null, 3); //3 is the database version
     }
 
     @Override
