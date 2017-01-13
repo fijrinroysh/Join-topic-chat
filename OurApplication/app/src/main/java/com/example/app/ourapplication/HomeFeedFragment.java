@@ -138,10 +138,10 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
         mReceiverid = activity.getIntent().getStringExtra(Keys.KEY_ID);
         mFeeds = mDBHelper.getFeedData();
         mFeedListAdapter = new FeedRVAdapter(mFeeds);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(mReceiver);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Our App");
 
-        RelativeLayout toastlayout = (RelativeLayout) view.findViewById(R.id.relativeLayout1) ;
-        toastview = inflater.inflate(R.layout.toast_layout, toastlayout );
+        //RelativeLayout toastlayout = (RelativeLayout) view.findViewById(R.id.relativeLayout1) ;
+        //toastview = inflater.inflate(R.layout.toast_layout, toastlayout );
 
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv);
@@ -259,12 +259,14 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                 Log.d(TAG, "I am message type F:" + mReceiver + ":" + msgObject.optString(Keys.KEY_NAME) );
 
                     mFeeds.add(0, parseFeeds(message));
+
                     mFeedListAdapter.notifyDataSetChanged();
+                    mDBHelper.insertFeedData(message, "WS");
 
-
-                Notify(mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_USERID), 1),
+                Notify(msgObject.optString(Keys.KEY_NAME),
                         msgObject.optString(Keys.KEY_MESSAGE),
-                        mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_USERID), 2));
+                        msgObject.optString(Keys.KEY_PROFIMG),
+                        msgObject.optString(Keys.KEY_ID));
             }
 
         } catch (JSONException e) {
@@ -296,12 +298,13 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     }
 
 
-    private void Notify(String notificationTitle, String notificationMessage, String notificationIcon) {
+    private void Notify(String notificationTitle, String notificationMessage, String notificationIcon , String postid) {
         NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService
                 ( getActivity().NOTIFICATION_SERVICE);
         @SuppressWarnings("deprecation")
         //  Intent notificationIntent = new Intent(this,NotificationView.class);
-                Intent notificationIntent = new Intent(getContext(), HomeFeedFragment.class);
+                Intent notificationIntent = new Intent(getContext(), DiscussionActivity.class);
+        notificationIntent.putExtra(Keys.KEY_ID, postid);
         notificationIntent.setAction(Intent.ACTION_MAIN);
         notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), 0, notificationIntent, 0);
@@ -374,19 +377,20 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                             for (int i = 0; i < mFeedJSONArray.length(); i++) {
                                 JSONObject feed = new JSONObject(mFeedJSONArray.get(i).toString());
                                 Log.d(TAG, "Response : " + feed.toString());
-                                mDBHelper.insertFeedData(feed.toString());
+                                mDBHelper.insertFeedData(feed.toString(),"HTTP");
                                 mFeeds.add(0, parseFeeds(feed.toString()));
                                 mFeedListAdapter.notifyItemInserted(0);
 
                             }
 
+                            Toast.makeText(getContext(), "New Feeds",
+                                    Toast.LENGTH_LONG).show();
 
-
-                            Toast toast = new Toast(getContext().getApplicationContext());
-                            toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
-                            toast.setDuration(Toast.LENGTH_LONG);
-                            toast.setView(toastview);
-                            toast.show();
+                           // Toast toast = new Toast(getContext().getApplicationContext());
+                           // toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
+                            //toast.setDuration(Toast.LENGTH_LONG);
+                            //toast.setView(toastview);
+                            //toast.show();
                         }
 
 
@@ -394,14 +398,17 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
                     }else{
 
-                        mSwipeRefreshLayout.setRefreshing(false);
+
+                        Toast.makeText(getContext(), "No Feeds", Toast.LENGTH_LONG).show();
                         Log.d(TAG, "Query didn't return records");
+                        mSwipeRefreshLayout.setRefreshing(false);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }else{
                 Log.d(TAG, "Query failed");
+                Toast.makeText(getContext(), "Query Failed", Toast.LENGTH_LONG).show();
                 mSwipeRefreshLayout.setRefreshing(false);
             }
         }

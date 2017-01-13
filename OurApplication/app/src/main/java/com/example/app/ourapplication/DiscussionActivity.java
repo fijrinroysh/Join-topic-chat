@@ -40,7 +40,6 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
     private WebSocketClient mWebSocketClient;
     private final String TAG = DiscussionActivity.class.getSimpleName();
     private String keyid;
-    private String to;
     private DBHelper mDBHelper = new DBHelper(this);
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,7 +133,6 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
                     mComments.add(parseFeeds(message));
                     mCommentListAdapter.notifyDataSetChanged();
                 }
-                //Insert into Database
 
 
                 //Notify using Inbox style

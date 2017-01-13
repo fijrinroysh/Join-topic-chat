@@ -36,6 +36,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String PROFILE_IMAGE_COLUMN = "PROFILEIMAGE";
     public static final String PROFILE_USER_COLUMN = "PROFILEUSER";
     public static final String PROFILE_ID_COLUMN = "PROFILEID";
+    public static final String MESSAGE_PROTOCOL_COLUMN = "PROTOCOL";
 
 
 
@@ -44,7 +45,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public DBHelper(Context context)
     {
-        super(context, "FEED" , null, 8); //8 is the database version
+        super(context, "FEED" , null, 9); //9 is the database version
     }
 
     @Override
@@ -57,7 +58,8 @@ public class DBHelper extends SQLiteOpenHelper {
                         MESSAGE_COLUMN+" VARCHAR,"+
                         PROFILE_IMAGE_COLUMN +" VARCHAR,"+
                         MESSAGE_IMAGE_COLUMN+" VARCHAR,"+
-                        MESSAGE_TIME_COLUMN+" VARCHAR)"
+                        MESSAGE_TIME_COLUMN+" VARCHAR,"+
+                        MESSAGE_PROTOCOL_COLUMN+" VARCHAR)"
 
         );
 
@@ -89,7 +91,7 @@ public class DBHelper extends SQLiteOpenHelper {
         onCreate(mydatabase);
     }
 
-    public boolean insertFeedData (String message) {
+    public boolean insertFeedData (String message , String protocol) {
         JSONObject msgObject = null;
         try {
             msgObject = new JSONObject(message);
@@ -106,6 +108,7 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(PROFILE_IMAGE_COLUMN, msgObject.optString(Keys.KEY_PROFIMG));
         contentValues.put(MESSAGE_IMAGE_COLUMN, msgObject.optString(Keys.KEY_IMAGE));
         contentValues.put(MESSAGE_TIME_COLUMN, msgObject.optString(Keys.KEY_TIME));
+        contentValues.put(MESSAGE_PROTOCOL_COLUMN, protocol);
         mydatabase.insert("MESSAGE_DATA", null, contentValues);
         return true;
     }
@@ -171,7 +174,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getReadableDatabase();
         //Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " +MESSAGE_FROM_COLUMN+ " = \"" + id + "\" or " +MESSAGE_TO_COLUMN_NAME+ " = \""+id+"\" ORDER BY "+ MESSAGE_TIME_COLUMN_NAME+" DESC", null );
-        Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA ORDER BY "+ MESSAGE_TIME_COLUMN+" DESC", null );
+        Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " + MESSAGE_PROTOCOL_COLUMN + " = \"HTTP\" ORDER BY "+ MESSAGE_TIME_COLUMN+" DESC", null );
         msg_res.moveToFirst();
 
         while(msg_res.isAfterLast() == false){
@@ -215,7 +218,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         String  columndata;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA  ORDER BY "+ MESSAGE_TIME_COLUMN+" DESC" , null );
+        Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " + MESSAGE_PROTOCOL_COLUMN + " = \"HTTP\"  ORDER BY "+ MESSAGE_TIME_COLUMN+" DESC" , null );
 
         msg_res.moveToFirst();
 
