@@ -18,15 +18,18 @@ import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,6 +66,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     private String mParam2;
     private WebSocketClient mWebSocketClient;
     public static final int REQ_LOCATION = 7;
+    public  static SwipeRefreshLayout mSwipeRefreshLayout;
     public String location = PreferenceEditor.getInstance(getContext()).getLocation();
 
     private OnFragmentInteractionListener mListener;
@@ -76,8 +80,10 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     private String mReceiver;
     private String mReceiverid;
     public static View view;
+    public static View toastview;
     public static Activity activity;
     public static Context thiscontext;
+
 
 
     public HomeFeedFragment() {
@@ -130,13 +136,15 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
         mReceiver = activity.getIntent().getStringExtra(Keys.KEY_TITLE);
         mReceiverid = activity.getIntent().getStringExtra(Keys.KEY_ID);
-        mFeeds = mDBHelper.getFeedData(mReceiverid);
+        mFeeds = mDBHelper.getFeedData();
         mFeedListAdapter = new FeedRVAdapter(mFeeds);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(mReceiver);
 
+        RelativeLayout toastlayout = (RelativeLayout) view.findViewById(R.id.relativeLayout1) ;
+        toastview = inflater.inflate(R.layout.toast_layout, toastlayout );
+
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv);
-
         LinearLayoutManager llm = new LinearLayoutManager(getContext().getApplicationContext());
         recyclerView.setLayoutManager(llm);
 
@@ -166,13 +174,32 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
             JSONObject jsonObject = new JSONObject(location);
             String longitude = jsonObject.optString("longitude");
             String latitude = jsonObject.optString("latitude");
-            String body = Helper.getHomeFeedRequest("5", longitude, latitude, "2016-12-11 17:00:00");
+            String body = Helper.getHomeFeedRequest("5", longitude, latitude, mDBHelper.getFeedDataLatestTime());
             new HomefeedHTTPRequest().execute(body);
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
+        mSwipeRefreshLayout.setRefreshing(true);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Refresh items
+                try {
+                    JSONObject jsonObject = new JSONObject(location);
+                    String longitude = jsonObject.optString("longitude");
+                    String latitude = jsonObject.optString("latitude");
+                    String body = Helper.getHomeFeedRequest("5", longitude, latitude, mDBHelper.getFeedDataLatestTime());
+                    new HomefeedHTTPRequest().execute(body);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
 
         return view;
     }
@@ -229,26 +256,22 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
             Log.d(TAG, "TYPE:" + msgObject.optString(Keys.KEY_TYPE) + ":");
 
             if (msgObject.optString(Keys.KEY_TYPE).equals("F")) {
-                Log.d(TAG, "I am message type F:" + mReceiver + ":" + msgObject.optString(Keys.KEY_NAME) + ":" +
-                        msgObject.optString(Keys.KEY_TO) + ":");
+                Log.d(TAG, "I am message type F:" + mReceiver + ":" + msgObject.optString(Keys.KEY_NAME) );
 
-                if ((msgObject.optString(Keys.KEY_NAME).equals(mReceiverid)) ||
-                        (msgObject.optString(Keys.KEY_TO).equals(mReceiverid))) {
-                    Log.d(TAG, "I am here" + mReceiver + ":" + msgObject.optString(Keys.KEY_NAME) + ":" +
-                            msgObject.optString(Keys.KEY_TO));
                     mFeeds.add(0, parseFeeds(message));
                     mFeedListAdapter.notifyDataSetChanged();
-                }
 
-                Notify(mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 1),
+
+                Notify(mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_USERID), 1),
                         msgObject.optString(Keys.KEY_MESSAGE),
-                        mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 2));
+                        mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_USERID), 2));
             }
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
+
 
     public Person parseFeeds(String message) {
         Date now = new Date();
@@ -259,32 +282,8 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
             message_return = new Person(msgObject.optString(Keys.KEY_TYPE),
                     msgObject.optString(Keys.KEY_ID),
-                    mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 1),
-                    mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_TO), 1),
-                    msgObject.optString(Keys.KEY_MESSAGE),
-                    mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 2),
-                    msgObject.optString(Keys.KEY_IMAGE),
-                    msgObject.optString(Keys.KEY_TIME)
-            );
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return message_return;
-    }
-
-
-
-    public Person parseFeeds1(String message) {
-        Date now = new Date();
-        JSONObject msgObject = null;
-        Person message_return = null;
-        try {
-            msgObject = new JSONObject(message);
-
-            message_return = new Person(msgObject.optString(Keys.KEY_TYPE),
-                    msgObject.optString(Keys.KEY_ID),
                     msgObject.optString(Keys.KEY_NAME),
-                    "Public",
+                   // mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_USERID), 1),
                     msgObject.optString(Keys.KEY_MESSAGE),
                     msgObject.optString(Keys.KEY_PROFIMG),
                     msgObject.optString(Keys.KEY_IMAGE),
@@ -367,24 +366,35 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                     boolean isSuccess = jsonObject.getBoolean(Keys.KEY_SUCCESS);
 
                     if(isSuccess) {
-
-                        Log.d(TAG, "Query returned records");
-
                         JSONArray mFeedJSONArray = jsonObject.getJSONArray("data");
-                        if (mFeedJSONArray != null) {
+
+
+                        if ((mFeedJSONArray != null) & (mFeedJSONArray.length() >0)) {
+                            Log.d(TAG, "Query returned records");
                             for (int i = 0; i < mFeedJSONArray.length(); i++) {
                                 JSONObject feed = new JSONObject(mFeedJSONArray.get(i).toString());
                                 Log.d(TAG, "Response : " + feed.toString());
-                                mFeeds.add(0, parseFeeds1(feed.toString()));
-                                mFeedListAdapter.notifyDataSetChanged();
-                                //mDBHelper.insertFeedData(message);
+                                mDBHelper.insertFeedData(feed.toString());
+                                mFeeds.add(0, parseFeeds(feed.toString()));
+                                mFeedListAdapter.notifyItemInserted(0);
+
                             }
+
+
+
+                            Toast toast = new Toast(getContext().getApplicationContext());
+                            toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
+                            toast.setDuration(Toast.LENGTH_LONG);
+                            toast.setView(toastview);
+                            toast.show();
                         }
 
 
+                        mSwipeRefreshLayout.setRefreshing(false);
 
                     }else{
 
+                        mSwipeRefreshLayout.setRefreshing(false);
                         Log.d(TAG, "Query didn't return records");
                     }
                 } catch (JSONException e) {
@@ -392,14 +402,10 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                 }
             }else{
                 Log.d(TAG, "Query failed");
+                mSwipeRefreshLayout.setRefreshing(false);
             }
         }
     }
-
-
-
-
-
 
 
 
@@ -410,10 +416,6 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     @Override
     public void onClose() {
     }
-
-
-
-
 
 
 

@@ -11,7 +11,7 @@ public class Keys {
     public static final String KEY_NAME = "name";
     public static final String KEY_USERS = "users";
     public static final String KEY_ID = "postid";
-    public static final String KEY_TO = "to";
+    public static final String KEY_USERID = "userid";
     public static final String KEY_LONGITUDE = "longitude";
     public static final String KEY_LATITUDE = "latitude";
     public static final String KEY_IMAGE = "image";

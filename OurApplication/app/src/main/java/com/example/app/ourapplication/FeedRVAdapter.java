@@ -35,7 +35,6 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public class PersonViewHolder1 extends RecyclerView.ViewHolder {
         CardView cv;
         TextView senderName;
-        TextView receiverName;
         TextView senderMessage;
         ImageView senderPhoto;
         TextView messageTime;
@@ -44,7 +43,6 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             super(itemView);
             cv = (CardView) itemView.findViewById(R.id.cv);
             senderName = (TextView) itemView.findViewById(R.id.sender_name);
-            receiverName = (TextView) itemView.findViewById(R.id.receiver_name);
             senderMessage = (TextView) itemView.findViewById(R.id.sender_message);
             senderPhoto = (ImageView) itemView.findViewById(R.id.sender_photo);
             messageTime = (TextView) itemView.findViewById(R.id.message_time);
@@ -55,7 +53,6 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public class PersonViewHolder2 extends RecyclerView.ViewHolder {
         CardView cv;
         TextView senderName;
-        TextView receiverName;
         TextView senderMessage;
         ImageView senderPhoto;
         ImageView messagePhoto;
@@ -65,7 +62,6 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             super(itemView);
             cv = (CardView) itemView.findViewById(R.id.cv);
             senderName = (TextView) itemView.findViewById(R.id.sender_name);
-            receiverName = (TextView) itemView.findViewById(R.id.receiver_name);
             senderMessage = (TextView) itemView.findViewById(R.id.sender_message);
             senderPhoto = (ImageView) itemView.findViewById(R.id.sender_photo);
             messageTime = (TextView) itemView.findViewById(R.id.message_time);
@@ -125,7 +121,6 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 case 1:
                     PersonViewHolder1 vh1 = (PersonViewHolder1) viewHolder;
                     vh1.senderName.setText(item.mSenderName);
-                    vh1.receiverName.setText(item.mReceiverName);
                     vh1.senderMessage.setText(item.mMessage);
                     vh1.messageTime.setText(Helper.getRelativeTime(item.mTimeMsg));
                     vh1.senderPhoto.setImageBitmap(Helper.decodeImageString(item.mPhotoId));
@@ -134,7 +129,6 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 case 2:
                     PersonViewHolder2 vh2 = (PersonViewHolder2) viewHolder;
                     vh2.senderName.setText(item.mSenderName);
-                    vh2.receiverName.setText(item.mReceiverName);
                     vh2.senderMessage.setText(item.mMessage);
                     vh2.messageTime.setText(Helper.getRelativeTime(item.mTimeMsg));
                     vh2.messagePhoto.setImageBitmap(Helper.decodeImageString(item.mPhotoMsg));

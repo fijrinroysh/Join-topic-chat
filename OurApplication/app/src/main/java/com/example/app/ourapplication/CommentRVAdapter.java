@@ -55,7 +55,6 @@ public class CommentRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public class PersonViewHolder4 extends RecyclerView.ViewHolder {
         CardView cv;
         TextView senderName;
-        TextView receiverName;
         TextView senderMessage;
         ImageView senderPhoto;
         ImageView messagePhoto;
@@ -65,7 +64,6 @@ public class CommentRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             super(itemView);
             cv = (CardView) itemView.findViewById(R.id.cv);
             senderName = (TextView) itemView.findViewById(R.id.sender_name);
-            receiverName = (TextView) itemView.findViewById(R.id.receiver_name);
             senderMessage = (TextView) itemView.findViewById(R.id.sender_message);
             senderPhoto = (ImageView) itemView.findViewById(R.id.sender_photo);
             messageTime = (TextView) itemView.findViewById(R.id.message_time);
@@ -124,7 +122,6 @@ public class CommentRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 case 0:
                     PersonViewHolder3 vh1 = (PersonViewHolder3) viewHolder;
                     vh1.senderName.setText(item.mSenderName);
-                    //vh1.receiverName.setText(item.getReceiverName());
                     vh1.senderMessage.setText(item.mMessage);
                     vh1.messageTime.setText(Helper.getRelativeTime(item.mTimeMsg));
                     //vh1.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
@@ -133,7 +130,6 @@ public class CommentRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 case 1:
                     PersonViewHolder4 vh2 = (PersonViewHolder4) viewHolder;
                     vh2.senderName.setText(item.mSenderName);
-                    vh2.receiverName.setText(item.mReceiverName);
                     vh2.senderMessage.setText(item.mMessage);
                     vh2.messageTime.setText(Helper.getRelativeTime(item.mTimeMsg));
                     vh2.messagePhoto.setImageBitmap(Helper.decodeImageString(item.mPhotoMsg));

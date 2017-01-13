@@ -1,5 +1,6 @@
 package com.example.app.ourapplication;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -20,10 +21,13 @@ import com.example.app.ourapplication.util.Helper;
 import com.example.app.ourapplication.wss.WebSocketClient;
 import com.example.app.ourapplication.wss.WebSocketListener;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -49,7 +53,6 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         collapsingToolbar.setTitle(" ");
 
         TextView senderName = (TextView) findViewById(R.id.sender_name);
-        TextView receiverName = (TextView) findViewById(R.id.receiver_name);
         TextView senderMessage = (TextView) findViewById(R.id.sender_message);
         ImageView senderPhoto = (ImageView) findViewById(R.id.sender_photo);
         TextView messageTime = (TextView) findViewById(R.id.message_time);
@@ -67,14 +70,11 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
 
          keyid = getIntent().getStringExtra(Keys.KEY_ID);
         if (keyid != null) {
-            to = mDBHelper.getFeedDataColumn(keyid, 1);
-            senderName.setText(mDBHelper.getProfileInfo(mDBHelper.getFeedDataColumn(keyid, 1), 1));
-            receiverName.setText(mDBHelper.getProfileInfo(mDBHelper.getFeedDataColumn(keyid, 2), 1));
+            senderName.setText(mDBHelper.getFeedDataColumn(keyid, 1));
             senderMessage.setText(mDBHelper.getFeedDataColumn(keyid, 3));
-            messagePhoto.setImageBitmap(Helper.decodeImageString(mDBHelper.getFeedDataColumn(keyid, 4)));
-            //senderPhoto.setImageBitmap(Helper.decodeImageString(mDBHelper.getFeedDataColumn(keyid, 5)));
-            senderPhoto.setImageBitmap(Helper.decodeImageString(mDBHelper.getProfileInfo(mDBHelper.getFeedDataColumn(keyid, 1), 2)));
-
+            messagePhoto.setImageBitmap(Helper.decodeImageString(mDBHelper.getFeedDataColumn(keyid, 5)));
+            senderPhoto.setImageBitmap(Helper.decodeImageString(mDBHelper.getFeedDataColumn(keyid, 4)));
+            messageTime.setText(Helper.getRelativeTime(mDBHelper.getFeedDataColumn(keyid, 6)));
         }
         mComments.clear();
         mComments.addAll(mDBHelper.getCommentData(keyid));
@@ -88,8 +88,8 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
                     String token = OurApp.getUserToken();
                     Log.d(TAG, "Messaage:" + msg);
                     Log.d(TAG, "Token:" + token);
-//                    Log.d(TAG, "Receivere:" + HomeFeedActivity.mRecvr);
-                    msg = Helper.formCommentMessage("C",keyid, token, to, msg);
+
+                    msg = Helper.formCommentMessage("C", keyid, token, msg);
 
                     Log.d(TAG, "Formfeedmessage" + msg);
                     mWebSocketClient.sendMessage(msg);
@@ -98,6 +98,9 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
                 }
             }
         });
+        String body = Helper.getCommentFeedRequest(keyid , "2016-12-11 17:00:00");
+        new CommentfeedHTTPRequest().execute(body);
+
     }
 
 
@@ -122,17 +125,17 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
             Log.d(TAG, message );
 
             if (commentObject.optString(Keys.KEY_TYPE).equals("C")){
-               Log.d(TAG, "I am message type C:" + ":" +commentObject.optString(Keys.KEY_NAME)+ ":" + commentObject.optString(Keys.KEY_TO)+":" );
+               Log.d(TAG, "I am message type C:" + ":" +commentObject.optString(Keys.KEY_NAME));
                 Log.d(TAG,commentObject.optString(Keys.KEY_ID)+ ":" + keyid );
 
                 if(commentObject.optString(Keys.KEY_ID).equals(keyid)) {
                     //Add to Comment array if it belongs to same post id and notify dataset changed
-                    Log.d(TAG, "I am here"  +":" +commentObject.optString(Keys.KEY_NAME)+ ":" + commentObject.optString(Keys.KEY_TO) );
+                    Log.d(TAG, "I am here"  +":" +commentObject.optString(Keys.KEY_NAME) );
                     mComments.add(parseFeeds(message));
                     mCommentListAdapter.notifyDataSetChanged();
                 }
                 //Insert into Database
-                mDBHelper.insertCommentData(message);
+
 
                 //Notify using Inbox style
                 //Notify(mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 1),
@@ -147,6 +150,7 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
     }
 
 
+
     public Person parseFeeds(String message){
         JSONObject msgObject = null;
         Person message_return = null;
@@ -155,16 +159,78 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
 
             message_return = new Person(msgObject.optString(Keys.KEY_TYPE),
                     msgObject.optString(Keys.KEY_ID),
-                    mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME),1) ,
-                    mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_TO),1) ,
+                    msgObject.optString(Keys.KEY_NAME),
+                   // mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_USERID), 1),
                     msgObject.optString(Keys.KEY_MESSAGE),
-                    mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME),2),
+                    msgObject.optString(Keys.KEY_PROFIMG),
                     msgObject.optString(Keys.KEY_IMAGE),
                     msgObject.optString(Keys.KEY_TIME));
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return message_return;
+    }
+
+
+
+    private class CommentfeedHTTPRequest extends AsyncTask<String,Void,String> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            // UI.showProgressDialog(HomeFeedActivity.this, getString(R.string.login_progress));
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            String body = params[0];
+            String response = null;
+            try {
+                response = Helper.getCommentfeed(body);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String response) {
+            super.onPostExecute(response);
+            //Log.d(TAG, "Response : " + response);
+            if(response != null){
+
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    boolean isSuccess = jsonObject.getBoolean(Keys.KEY_SUCCESS);
+
+                    if(isSuccess) {
+
+                        Log.d(TAG, "Query returned records");
+
+                        JSONArray mFeedJSONArray = jsonObject.getJSONArray("data");
+                        if (mFeedJSONArray != null) {
+                            for (int i = 0; i < mFeedJSONArray.length(); i++) {
+                                JSONObject feed = new JSONObject(mFeedJSONArray.get(i).toString());
+                                Log.d(TAG, "Response : " + feed.toString());
+                                mComments.add(0, parseFeeds(feed.toString()));
+                                mCommentListAdapter.notifyDataSetChanged();
+                                mDBHelper.insertCommentData(feed.toString());
+                            }
+                        }
+
+
+
+                    }else{
+
+                        Log.d(TAG, "Query didn't return records");
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }else{
+                Log.d(TAG, "Query failed");
+            }
+        }
     }
 
     @Override

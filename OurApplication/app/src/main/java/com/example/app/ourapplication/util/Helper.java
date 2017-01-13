@@ -91,6 +91,18 @@ public class Helper extends AppCompatActivity{
     }
 
 
+    public static String getCommentFeedRequest( String keyid,  String latestdate){
+        JSONObject body = new JSONObject();
+        try {
+            body.put(Keys.KEY_TYPE,"C");
+            body.put(Keys.KEY_ID,keyid);
+            body.put("latestdate",latestdate);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return body.toString();
+    }
+
     public static String getCurrentTimeStamp(){
         try {
 
@@ -151,13 +163,13 @@ public class Helper extends AppCompatActivity{
     }
 
 
-    public static String formCommentMessage(String type, String postid, String token, String receiver, String message){
+    public static String formCommentMessage(String type, String postid, String token,  String message){
         JSONObject msgObject = new JSONObject();
         try {
             msgObject.put(Keys.KEY_TYPE,type);
             msgObject.put(Keys.KEY_ID,postid);
             msgObject.put(Keys.KEY_TOKEN,token);
-            msgObject.put(Keys.KEY_TO,receiver);
+            //msgObject.put(Keys.KEY_TO,receiver);
             msgObject.put(Keys.KEY_MESSAGE,message);
             msgObject.put(Keys.KEY_IMAGE,"");
             msgObject.put(Keys.KEY_TIME,getCurrentTimeStamp());
@@ -203,6 +215,14 @@ public class Helper extends AppCompatActivity{
 
     public static String getHomefeed(String reqBody) throws IOException {
         HttpURLConnection connection = Util.getHttpConnection(AppUrl.HOMEFEEDQUERY_URL, "POST");
+        Util.writeToStream(connection, reqBody);
+
+        return Util.readInputStream(connection);
+    }
+
+
+    public static String getCommentfeed(String reqBody) throws IOException {
+        HttpURLConnection connection = Util.getHttpConnection(AppUrl.COMMENTFEEDQUERY_URL, "POST");
         Util.writeToStream(connection, reqBody);
 
         return Util.readInputStream(connection);
