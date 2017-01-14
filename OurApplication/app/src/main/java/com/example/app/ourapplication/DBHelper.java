@@ -135,40 +135,8 @@ public class DBHelper extends SQLiteOpenHelper {
         return true;
     }
 
-    public boolean insertProfile (String profile) {
-        JSONObject msgObject = null;
-        try {
-            msgObject = new JSONObject(profile);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        mydatabase = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(PROFILE_ID_COLUMN, msgObject.optString("phonenumber"));
-        contentValues.put(PROFILE_USER_COLUMN, msgObject.optString("username"));
-        contentValues.put(PROFILE_IMAGE_COLUMN, msgObject.optString(Keys.KEY_PROFIMG));
-        mydatabase.insertWithOnConflict("PROFILE_DATA", null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
-        return true;
-    }
 
-    public boolean updateProfile (String profile) {
-        JSONObject msgObject = null;
-        try {
-            msgObject = new JSONObject(profile);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        mydatabase = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        //contentValues.put(PROFILE_USER_COLUMN_NAME, msgObject.optString(Keys.KEY_NAME));
-        contentValues.put(msgObject.optString("columnname"), msgObject.optString("columndata"));
-        mydatabase.update("PROFILE_DATA", contentValues, PROFILE_ID_COLUMN + "= \"" + msgObject.optString(Keys.KEY_USERID) + "\" ", null);
-
-        return true;
-    }
-
-
-    public ArrayList<Person> getFeedData()
+    public ArrayList<Person> getFeedDataAll()
     {
         ArrayList<Person> array_list = new ArrayList<Person>();
 
@@ -190,6 +158,32 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return array_list;
     }
+
+
+
+    public Person getFeedData(String id)
+    {
+
+        Person  item;
+        SQLiteDatabase db = this.getReadableDatabase();
+        //Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " +MESSAGE_FROM_COLUMN+ " = \"" + id + "\" or " +MESSAGE_TO_COLUMN_NAME+ " = \""+id+"\" ORDER BY "+ MESSAGE_TIME_COLUMN_NAME+" DESC", null );
+        Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where "+MESSAGE_ID_COLUMN+ " = \"" + id +"\" and " + MESSAGE_PROTOCOL_COLUMN + " = \"HTTP\" ORDER BY "+ MESSAGE_TIME_COLUMN+" DESC", null );
+        msg_res.moveToFirst();
+
+            String column0 = msg_res.getString(0);
+            String column1 = msg_res.getString(1);
+            String column2 = msg_res.getString(3);
+            String column3 = msg_res.getString(4);
+            String column4 = msg_res.getString(5);
+            String column5 = msg_res.getString(6);
+
+        item = new Person("F",column0, column1 , column2 , column3, column4,column5 );
+
+        return item;
+    }
+
+
+
 
 
     public String getFeedDataColumn(String id, Integer columnnumber )
@@ -250,7 +244,7 @@ public class DBHelper extends SQLiteOpenHelper {
             String column1 = msg_res.getString(1);
             String column2 = msg_res.getString(3);
             String column3 = msg_res.getString(4);
-            String column4 = msg_res.getString(4);
+            String column4 = msg_res.getString(5);
 
 
             array_list.add(new Person("C",column0, column1 , column2 ,column3, "", column4  ));
@@ -301,6 +295,41 @@ public class DBHelper extends SQLiteOpenHelper {
 
         return columndata;
     }
+
+
+
+    public boolean insertProfile (String profile) {
+        JSONObject msgObject = null;
+        try {
+            msgObject = new JSONObject(profile);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        mydatabase = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(PROFILE_ID_COLUMN, msgObject.optString("phonenumber"));
+        contentValues.put(PROFILE_USER_COLUMN, msgObject.optString("username"));
+        contentValues.put(PROFILE_IMAGE_COLUMN, msgObject.optString(Keys.KEY_PROFIMG));
+        mydatabase.insertWithOnConflict("PROFILE_DATA", null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+        return true;
+    }
+
+    public boolean updateProfile (String profile) {
+        JSONObject msgObject = null;
+        try {
+            msgObject = new JSONObject(profile);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        mydatabase = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        //contentValues.put(PROFILE_USER_COLUMN_NAME, msgObject.optString(Keys.KEY_NAME));
+        contentValues.put(msgObject.optString("columnname"), msgObject.optString("columndata"));
+        mydatabase.update("PROFILE_DATA", contentValues, PROFILE_ID_COLUMN + "= \"" + msgObject.optString(Keys.KEY_USERID) + "\" ", null);
+
+        return true;
+    }
+
 
 
 }

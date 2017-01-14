@@ -12,8 +12,8 @@
 
             <ImageView
                 android:id="@+id/sender_photo"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginRight="16dp"
@@ -25,7 +25,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_toRightOf="@+id/sender_photo"
-                android:textSize="15sp"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
 
@@ -43,19 +43,11 @@
                 android:id="@+id/sender_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/receiver_name"
+                android:layout_below="@+id/sender_name"
                 android:layout_toRightOf="@+id/sender_photo"
                 android:textSize="14sp"/>
 
-            <ImageView
-                android:id="@+id/message_photo"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/sender_message"
-                android:layout_toRightOf="@+id/sender_photo"
-                android:layout_margin="8dp"
-                android:adjustViewBounds="true"
-                />
+
 
         </RelativeLayout>
 

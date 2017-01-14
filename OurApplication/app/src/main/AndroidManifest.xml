@@ -28,6 +28,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".HomeFeedActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"/>
@@ -36,19 +37,11 @@
             android:screenOrientation="portrait"
             android:theme="@style/LoginTheme"/>
 
-        <activity android:name=".ComposeActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/FeedTheme"/>
-           <!-- android:windowSoftInputMode="stateAlwaysVisible|adjustResize"-->
-
 
         <activity android:name=".DiscussionActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"/>
 
-        <activity android:name=".ProfileActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"/>
 
     </application>
 

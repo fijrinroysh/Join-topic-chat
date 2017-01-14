@@ -177,6 +177,7 @@ public class ComposeFragment extends Fragment {
                     Log.d(TAG, "Formfeedmessage:" + feedmessage);
                     mWebSocketClient.sendMessage(feedmessage);
                     mMessageBox.setText(null);
+
                     //finish();
                 }
                 } catch (JSONException e) {

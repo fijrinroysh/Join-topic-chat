@@ -38,6 +38,7 @@ public class CommentRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         TextView senderMessage;
         ImageView senderPhoto;
         TextView messageTime;
+        ImageView messagePhoto;
 
         PersonViewHolder3(View itemView) {
             super(itemView);
@@ -46,8 +47,7 @@ public class CommentRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             senderMessage = (TextView) itemView.findViewById(R.id.sender_message);
             senderPhoto = (ImageView) itemView.findViewById(R.id.sender_photo);
             messageTime = (TextView) itemView.findViewById(R.id.message_time);
-
-
+            messagePhoto = (ImageView) itemView.findViewById(R.id.message_photo);
         }
     }
 
@@ -57,7 +57,6 @@ public class CommentRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         TextView senderName;
         TextView senderMessage;
         ImageView senderPhoto;
-        ImageView messagePhoto;
         TextView messageTime;
 
         PersonViewHolder4(View itemView) {
@@ -67,7 +66,7 @@ public class CommentRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             senderMessage = (TextView) itemView.findViewById(R.id.sender_message);
             senderPhoto = (ImageView) itemView.findViewById(R.id.sender_photo);
             messageTime = (TextView) itemView.findViewById(R.id.message_time);
-            messagePhoto = (ImageView) itemView.findViewById(R.id.message_photo);
+
 
         }
     }
@@ -81,9 +80,9 @@ public class CommentRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public int getItemViewType(int i) {
         if (mFeeds.get(i).mType.equals("F")) {
-            return 1;
-        } else  {
             return 0;
+        } else  {
+            return 1;
         }
     }
 
@@ -120,20 +119,20 @@ public class CommentRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         Person item = mFeeds.get(i);
         switch (viewHolder.getItemViewType()) {
                 case 0:
-                    PersonViewHolder3 vh1 = (PersonViewHolder3) viewHolder;
-                    vh1.senderName.setText(item.mSenderName);
-                    vh1.senderMessage.setText(item.mMessage);
-                    vh1.messageTime.setText(Helper.getRelativeTime(item.mTimeMsg));
-                    //vh1.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
-                    setAnimation(vh1.cv, i);
+                    PersonViewHolder3 vh3 = (PersonViewHolder3) viewHolder;
+                    vh3.senderName.setText(item.mSenderName);
+                    vh3.senderMessage.setText(item.mMessage);
+                    vh3.messageTime.setText(Helper.getRelativeTime(item.mTimeMsg));
+                    vh3.messagePhoto.setImageBitmap(Helper.decodeImageString(item.mPhotoMsg));
+                    vh3.senderPhoto.setImageBitmap(Helper.decodeImageString(item.mPhotoId));
+                    setAnimation(vh3.cv, i);
                     break;
                 case 1:
-                    PersonViewHolder4 vh2 = (PersonViewHolder4) viewHolder;
-                    vh2.senderName.setText(item.mSenderName);
-                    vh2.senderMessage.setText(item.mMessage);
-                    vh2.messageTime.setText(Helper.getRelativeTime(item.mTimeMsg));
-                    vh2.messagePhoto.setImageBitmap(Helper.decodeImageString(item.mPhotoMsg));
-                    vh2.senderPhoto.setImageBitmap(Helper.decodeImageString(item.mPhotoId));
+                    PersonViewHolder4 vh4 = (PersonViewHolder4) viewHolder;
+                    vh4.senderName.setText(item.mSenderName);
+                    vh4.senderMessage.setText(item.mMessage);
+                    vh4.messageTime.setText(Helper.getRelativeTime(item.mTimeMsg));
+                    vh4.senderPhoto.setImageBitmap(Helper.decodeImageString(item.mPhotoId));
                     break;
             }
 

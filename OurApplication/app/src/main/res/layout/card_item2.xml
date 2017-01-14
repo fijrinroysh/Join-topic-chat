@@ -30,8 +30,9 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_toRightOf="@+id/sender_photo"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_color"/>
 
 
 
@@ -42,6 +43,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentRight="true"
                 android:textSize="12sp"
+
                 />
 
             <TextView
@@ -50,7 +52,8 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/sender_name"
                 android:layout_toRightOf="@+id/sender_photo"
-                android:textSize="14sp"/>
+                android:textSize="15sp"
+                />
 
             <ImageView
                 android:id="@+id/message_photo"

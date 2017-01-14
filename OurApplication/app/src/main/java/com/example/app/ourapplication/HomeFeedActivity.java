@@ -78,16 +78,20 @@ public class HomeFeedActivity extends AppCompatActivity  {
         fragments.add(HomeFeedFragment.newInstance("home","frag"));
         fragments.add(LocationFragment.newInstance("location","frag1"));
         fragments.add(ComposeFragment.newInstance("compose","frag2"));
-        fragments.add(ProfileFragment.newInstance("profile","frag3"));
+        fragments.add(ProfileFragment.newInstance("profile", "frag3"));
 
         //link fragments to container
         fragNavController = new FragNavController(getSupportFragmentManager(),R.id.frame,fragments);
 
        // fragNavController.switchTab(TAB_FIRST);
+/*
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
-    /*    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+        }
+getSupportActionBar().setTitle("Our Application");
 
         //mFeeds = getIntent().getParcelableArrayListExtra(Keys.PERSON_LIST);
 
@@ -105,7 +109,7 @@ public class HomeFeedActivity extends AppCompatActivity  {
 
 
         recyclerView.setAdapter(mFeedListAdapter);
-        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(),recyclerView, new ClickListener() {
+        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(),recyclerView, new Util.ClickListener() {
             @Override
             public void onClick(View view, int position) {
                 Person item = mFeeds.get(position);

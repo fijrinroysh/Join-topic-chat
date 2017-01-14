@@ -121,24 +121,25 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        view =  inflater.inflate(R.layout.activity_home_feed, container, false);
-        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-
+        view =  inflater.inflate(R.layout.fragment_home_feed, container, false);
+        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar_homefeed);
+        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Our App");
 
         thiscontext=getContext();
         mWebSocketClient = OurApp.getClient();
         mWebSocketClient.addWebSocketListener(this);
 
         mDBHelper = new DBHelper(getContext());
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+
 
         //mFeeds = getIntent().getParcelableArrayListExtra(Keys.PERSON_LIST);
 
         mReceiver = activity.getIntent().getStringExtra(Keys.KEY_TITLE);
         mReceiverid = activity.getIntent().getStringExtra(Keys.KEY_ID);
-        mFeeds = mDBHelper.getFeedData();
+        mFeeds = mDBHelper.getFeedDataAll();
         mFeedListAdapter = new FeedRVAdapter(mFeeds);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Our App");
+
 
         //RelativeLayout toastlayout = (RelativeLayout) view.findViewById(R.id.relativeLayout1) ;
         //toastview = inflater.inflate(R.layout.toast_layout, toastlayout );
@@ -169,24 +170,38 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                 }));
 
 
-        //HTTP requst to fetch data for Homefeed
-        try {
-            JSONObject jsonObject = new JSONObject(location);
-            String longitude = jsonObject.optString("longitude");
-            String latitude = jsonObject.optString("latitude");
-            String body = Helper.getHomeFeedRequest("5", longitude, latitude, mDBHelper.getFeedDataLatestTime());
-            new HomefeedHTTPRequest().execute(body);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
-        mSwipeRefreshLayout.setRefreshing(true);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            /**
+             * This method is called when swipe refresh is pulled down
+             */
             @Override
             public void onRefresh() {
                 // Refresh items
+                try {
+                    JSONObject jsonObject = new JSONObject(location);
+                    String longitude = jsonObject.optString("longitude");
+                    String latitude = jsonObject.optString("latitude");
+                    String body = Helper.getHomeFeedRequest("5", longitude, latitude, mDBHelper.getFeedDataLatestTime());
+                    new HomefeedHTTPRequest().execute(body);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        });
+
+        /**
+         * Showing Swipe Refresh animation on activity create
+         * As animation won't start on onCreate, post runnable is used
+         */
+        mSwipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+
+                //HTTP requst to fetch data for Homefeed
                 try {
                     JSONObject jsonObject = new JSONObject(location);
                     String longitude = jsonObject.optString("longitude");
@@ -343,6 +358,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            mSwipeRefreshLayout.setRefreshing(true);
             // UI.showProgressDialog(HomeFeedActivity.this, getString(R.string.login_progress));
         }
 
@@ -361,58 +377,57 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
         @Override
         protected void onPostExecute(String response) {
             super.onPostExecute(response);
-            //Log.d(TAG, "Response : " + response);
+            Log.d(TAG, "HTTP Feed Response : " + response);
             if(response != null){
 
                 try {
                     JSONObject jsonObject = new JSONObject(response);
                     boolean isSuccess = jsonObject.getBoolean(Keys.KEY_SUCCESS);
 
-                    if(isSuccess) {
+                    if (isSuccess) {
                         JSONArray mFeedJSONArray = jsonObject.getJSONArray("data");
 
 
-                        if ((mFeedJSONArray != null) & (mFeedJSONArray.length() >0)) {
+                        if ((mFeedJSONArray != null) & (mFeedJSONArray.length() > 0)) {
                             Log.d(TAG, "Query returned records");
                             for (int i = 0; i < mFeedJSONArray.length(); i++) {
                                 JSONObject feed = new JSONObject(mFeedJSONArray.get(i).toString());
                                 Log.d(TAG, "Response : " + feed.toString());
-                                mDBHelper.insertFeedData(feed.toString(),"HTTP");
+                                mDBHelper.insertFeedData(feed.toString(), "HTTP");
                                 mFeeds.add(0, parseFeeds(feed.toString()));
                                 mFeedListAdapter.notifyItemInserted(0);
 
                             }
-
+                            mSwipeRefreshLayout.setRefreshing(false);
                             Toast.makeText(getContext(), "New Feeds",
                                     Toast.LENGTH_LONG).show();
 
-                           // Toast toast = new Toast(getContext().getApplicationContext());
-                           // toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
+                            // Toast toast = new Toast(getContext().getApplicationContext());
+                            // toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
                             //toast.setDuration(Toast.LENGTH_LONG);
                             //toast.setView(toastview);
                             //toast.show();
+                        } else {
+
+                            Toast.makeText(getContext(), "No Feeds", Toast.LENGTH_LONG).show();
+                            Log.d(TAG, "Query didn't return records");
+                            mSwipeRefreshLayout.setRefreshing(false);
                         }
-
-
-                        mSwipeRefreshLayout.setRefreshing(false);
 
                     }else{
 
-
-                        Toast.makeText(getContext(), "No Feeds", Toast.LENGTH_LONG).show();
-                        Log.d(TAG, "Query didn't return records");
+                        Log.d(TAG, "Query failed");
+                        Toast.makeText(getContext(), "Query Failed", Toast.LENGTH_LONG).show();
                         mSwipeRefreshLayout.setRefreshing(false);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-            }else{
-                Log.d(TAG, "Query failed");
-                Toast.makeText(getContext(), "Query Failed", Toast.LENGTH_LONG).show();
-                mSwipeRefreshLayout.setRefreshing(false);
             }
         }
     }
+
+
 
 
 

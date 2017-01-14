@@ -3,6 +3,7 @@ package com.example.app.ourapplication;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.app.ourapplication.util.Helper;
 import com.example.app.ourapplication.wss.WebSocketClient;
@@ -41,26 +43,30 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
     private final String TAG = DiscussionActivity.class.getSimpleName();
     private String keyid;
     private DBHelper mDBHelper = new DBHelper(this);
+    public SwipeRefreshLayout mSwipeRefreshLayout;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.discussion);
+
+        /*
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_discussion);
         setSupportActionBar(toolbar);
-        CollapsingToolbarLayout collapsingToolbar =
-                (CollapsingToolbarLayout) findViewById(R.id.discussion_collapse);
-        collapsingToolbar.setTitle(" ");
+
 
         TextView senderName = (TextView) findViewById(R.id.sender_name);
         TextView senderMessage = (TextView) findViewById(R.id.sender_message);
         ImageView senderPhoto = (ImageView) findViewById(R.id.sender_photo);
         TextView messageTime = (TextView) findViewById(R.id.message_time);
         ImageView messagePhoto = (ImageView) findViewById(R.id.message_photo);
+        */
         Button  mSendButton = (Button) findViewById(R.id.send_button);
         final EditText  mMessageBox = (EditText) findViewById(R.id.msg_box);
 
+
         mWebSocketClient = OurApp.getClient();
         mWebSocketClient.addWebSocketListener(this);
+
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv);
         mCommentListAdapter = new FeedRVAdapter(mComments);
@@ -69,36 +75,70 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
 
          keyid = getIntent().getStringExtra(Keys.KEY_ID);
         if (keyid != null) {
+            /*
             senderName.setText(mDBHelper.getFeedDataColumn(keyid, 1));
             senderMessage.setText(mDBHelper.getFeedDataColumn(keyid, 3));
             messagePhoto.setImageBitmap(Helper.decodeImageString(mDBHelper.getFeedDataColumn(keyid, 5)));
             senderPhoto.setImageBitmap(Helper.decodeImageString(mDBHelper.getFeedDataColumn(keyid, 4)));
             messageTime.setText(Helper.getRelativeTime(mDBHelper.getFeedDataColumn(keyid, 6)));
+    */
+            mComments.clear();
+            mComments.add(0, mDBHelper.getFeedData(keyid));
+            //mComments.addAll(mDBHelper.getCommentData(keyid));
+            recyclerView.setAdapter(mCommentListAdapter);
         }
-        mComments.clear();
-        mComments.addAll(mDBHelper.getCommentData(keyid));
-        recyclerView.setAdapter(mCommentListAdapter);
 
-        mSendButton.setOnClickListener(new View.OnClickListener() {
+
+                mSendButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String msg = mMessageBox.getText().toString();
+                        if (!TextUtils.isEmpty(msg)) {
+                            String token = OurApp.getUserToken();
+                            Log.d(TAG, "Messaage:" + msg);
+                            Log.d(TAG, "Token:" + token);
+
+                            msg = Helper.formCommentMessage("C", keyid, token, msg);
+
+                            Log.d(TAG, "Formfeedmessage" + msg);
+                            mWebSocketClient.sendMessage(msg);
+                            mMessageBox.setText(null);
+
+                        }
+                    }
+                });
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            /**
+             * This method is called when swipe refresh is pulled down
+             */
             @Override
-            public void onClick(View v) {
-                String msg = mMessageBox.getText().toString();
-                if (!TextUtils.isEmpty(msg)) {
-                    String token = OurApp.getUserToken();
-                    Log.d(TAG, "Messaage:" + msg);
-                    Log.d(TAG, "Token:" + token);
-
-                    msg = Helper.formCommentMessage("C", keyid, token, msg);
-
-                    Log.d(TAG, "Formfeedmessage" + msg);
-                    mWebSocketClient.sendMessage(msg);
-                    mMessageBox.setText(null);
-
-                }
+            public void onRefresh() {
+                // Refresh items
+                //HTTP requst to fetch data for Commentfeed
+                String body = Helper.getCommentFeedRequest(keyid, "2016-12-11 17:00:00");
+                new CommentfeedHTTPRequest().execute(body);
             }
+
         });
-        String body = Helper.getCommentFeedRequest(keyid , "2016-12-11 17:00:00");
-        new CommentfeedHTTPRequest().execute(body);
+
+        /**
+         * Showing Swipe Refresh animation on activity create
+         * As animation won't start on onCreate, post runnable is used
+         */
+        mSwipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+
+                //HTTP requst to fetch data for Commentfeed
+                String body = Helper.getCommentFeedRequest(keyid, "2016-12-11 17:00:00");
+                new CommentfeedHTTPRequest().execute(body);
+            }
+
+
+        });
+
 
     }
 
@@ -177,6 +217,7 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         protected void onPreExecute() {
             super.onPreExecute();
             // UI.showProgressDialog(HomeFeedActivity.this, getString(R.string.login_progress));
+            mSwipeRefreshLayout.setRefreshing(true);
         }
 
         @Override
@@ -203,30 +244,37 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
 
                     if(isSuccess) {
 
-                        Log.d(TAG, "Query returned records");
-
                         JSONArray mFeedJSONArray = jsonObject.getJSONArray("data");
-                        if (mFeedJSONArray != null) {
+                        if ((mFeedJSONArray != null) & (mFeedJSONArray.length() >0)) {
+                            Log.d(TAG, "Query returned records");
                             for (int i = 0; i < mFeedJSONArray.length(); i++) {
                                 JSONObject feed = new JSONObject(mFeedJSONArray.get(i).toString());
                                 Log.d(TAG, "Response : " + feed.toString());
-                                mComments.add(0, parseFeeds(feed.toString()));
+                                mComments.add(parseFeeds(feed.toString()));
                                 mCommentListAdapter.notifyDataSetChanged();
-                                mDBHelper.insertCommentData(feed.toString());
+                               // mDBHelper.insertCommentData(feed.toString());
+
                             }
+                            mSwipeRefreshLayout.setRefreshing(false);
+
+
+                        }else{
+                            mSwipeRefreshLayout.setRefreshing(false);
+                            Toast.makeText(getApplicationContext(), "No more Comments to Load", Toast.LENGTH_LONG).show();
+                            Log.d(TAG, "Query didn't return records");
+
                         }
 
 
 
                     }else{
-
-                        Log.d(TAG, "Query didn't return records");
+                        Log.d(TAG, "Query failed");
+                        mSwipeRefreshLayout.setRefreshing(false);
+                        Toast.makeText(getApplicationContext(), "Loading Comments Failed", Toast.LENGTH_LONG).show();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-            }else{
-                Log.d(TAG, "Query failed");
             }
         }
     }
