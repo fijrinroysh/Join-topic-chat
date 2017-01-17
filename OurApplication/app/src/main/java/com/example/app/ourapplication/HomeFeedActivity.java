@@ -81,7 +81,7 @@ public class HomeFeedActivity extends AppCompatActivity  {
         fragments.add(ProfileFragment.newInstance("profile", "frag3"));
 
         //link fragments to container
-        fragNavController = new FragNavController(getSupportFragmentManager(),R.id.frame,fragments);
+        fragNavController = new FragNavController(getSupportFragmentManager(),R.id.contentContainer,fragments);
 
        // fragNavController.switchTab(TAB_FIRST);
 /*
@@ -92,38 +92,9 @@ public class HomeFeedActivity extends AppCompatActivity  {
             setSupportActionBar(toolbar);
         }
 getSupportActionBar().setTitle("Our Application");
-
-        //mFeeds = getIntent().getParcelableArrayListExtra(Keys.PERSON_LIST);
-
-        mReceiver = getIntent().getStringExtra(Keys.KEY_TITLE);
-        mReceiverid = getIntent().getStringExtra(Keys.KEY_ID);
-        mFeeds = mDBHelper.getFeedData(mReceiverid);
-        mFeedListAdapter = new FeedRVAdapter(mFeeds);
-        getSupportActionBar().setTitle(mReceiver);
+*/
 
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv);
-
-        LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
-        recyclerView.setLayoutManager(llm);
-
-
-        recyclerView.setAdapter(mFeedListAdapter);
-        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(),recyclerView, new Util.ClickListener() {
-            @Override
-            public void onClick(View view, int position) {
-                Person item = mFeeds.get(position);
-                final Intent discussionIntent = new Intent(HomeFeedActivity.this, DiscussionActivity.class);
-                discussionIntent.putExtra(Keys.KEY_ID, item.mPostId);
-                startActivity(discussionIntent);
-                Toast.makeText(getApplicationContext(), item.mMessage + " is selected!", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onLongClick(View view, int position) {
-
-            }
-        }));*/
 
         bottomBar();
 
@@ -132,11 +103,13 @@ getSupportActionBar().setTitle("Our Application");
         mWebSocketClient.addWebSocketListener(this);*/
     }
 
+
+
+
     public void bottomBar() {
-      //  final Intent composeIntent = new Intent(this, ComposeActivity.class);
-        //final Intent profileIntent = new Intent(this, ProfileActivity.class);
 
         BottomBar bottomBar = (BottomBar) findViewById(R.id.bottomBar);
+
       // BottomBar bottomBar=BottomBar.attach(this,savedInstanceState);
         bottomBar.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
@@ -147,39 +120,21 @@ getSupportActionBar().setTitle("Our Application");
                     fragNavController.switchTab(TAB_FIRST);
                       break;*/
                     case R.id.add_location:
-                        //Snackbar.make(tool_bar, "Add Location Item Selected", Snackbar.LENGTH_LONG).show();
-                      /*  if (isLocationEnabled()) {
-                            checkInLocation();
-                        } else {
-                            showAlert();
-                        }*/
                            fragNavController.switchTab(TAB_SECOND);
                         //fragment = new LocationFragment();
                         break;
-                  /*  case R.id.add_image:
-                        //Snackbar.make(coordinatorLayout, " Add Image Item Selected", Snackbar.LENGTH_LONG).show();
-                        //showFileChooser();
-                        composeIntent.putExtra("ITEM","add_image");
-                        startActivity(composeIntent);
 
-                        break;*/
                     case R.id.add_message:
-                        // Snackbar.make(coordinatorLayout, "Add Message Item Selected", Snackbar.LENGTH_LONG).show();
-                        //composeIntent.putExtra("ITEM", "add_message");
-                        //composeIntent.putExtra(Keys.KEY_ID,mReceiverid);
-                        // startActivityForResult(composeIntent, RETURN);
-                        //startActivity(composeIntent);
                         fragNavController.switchTab(TAB_THIRD);
-                        //fragment = new ComposeFragment();
                         break;
+
                     case R.id.add_profile:
-                        //startActivity(profileIntent);
                         fragNavController.switchTab(TAB_FOURTH);
-                        //fragment = new ProfileFragment();
                         break;
+
                    default:
                   fragNavController.switchTab(TAB_FIRST);
-                      // fragment = new HomeFeedFragment();
+
                 }
 
             }

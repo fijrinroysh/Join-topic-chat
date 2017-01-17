@@ -122,9 +122,10 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view =  inflater.inflate(R.layout.fragment_home_feed, container, false);
-        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar_homefeed);
+
+        /*Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar_homefeed);
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Our App");
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Our App");*/
 
         thiscontext=getContext();
         mWebSocketClient = OurApp.getClient();
@@ -135,8 +136,8 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
         //mFeeds = getIntent().getParcelableArrayListExtra(Keys.PERSON_LIST);
 
-        mReceiver = activity.getIntent().getStringExtra(Keys.KEY_TITLE);
-        mReceiverid = activity.getIntent().getStringExtra(Keys.KEY_ID);
+       // mReceiver = activity.getIntent().getStringExtra(Keys.KEY_TITLE);
+       // mReceiverid = activity.getIntent().getStringExtra(Keys.KEY_ID);
         mFeeds = mDBHelper.getFeedDataAll();
         mFeedListAdapter = new FeedRVAdapter(mFeeds);
 
