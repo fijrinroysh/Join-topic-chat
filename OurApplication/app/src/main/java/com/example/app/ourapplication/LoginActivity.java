@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -13,6 +14,10 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.example.app.ourapplication.pref.PreferenceEditor;
+import com.example.app.ourapplication.rest.model.request.SignInReqModel;
+import com.example.app.ourapplication.rest.model.request.SignUpReqModel;
+import com.example.app.ourapplication.rest.model.response.SignInRespModel;
+import com.example.app.ourapplication.ui.HomeActivity;
 import com.example.app.ourapplication.util.Helper;
 import com.example.app.ourapplication.util.UI;
 
@@ -23,27 +28,15 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import retrofit.Call;
+import retrofit.Callback;
+import retrofit.Response;
+import retrofit.Retrofit;
+
 /**
  * Created by sarumugam on 17/04/16.
  */
 public class LoginActivity extends AppCompatActivity {
-
-    enum RequestType{
-        LOGIN(0),
-        SIGNUP(1);
-
-        private int value;
-
-        RequestType(int value) {
-            this.value = value;
-        }
-
-        public void setValue(int value) {
-            this.value = value;
-        }
-    }
-
-    public static final int REQUEST_LOGIN = 1;
 
     private final String TAG = LoginActivity.class.getSimpleName();
 
@@ -70,6 +63,8 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if(mScreenFlipper.getDisplayedChild() == 1){
+            mScreenFlipper.setInAnimation(AnimationUtils.loadAnimation(LoginActivity.this,R.anim.right_out_short));
+            mScreenFlipper.setOutAnimation(AnimationUtils.loadAnimation(LoginActivity.this,R.anim.left_in_short));
             mScreenFlipper.setDisplayedChild(0);
             setTitle(getString(R.string.login));
             return;
@@ -94,6 +89,8 @@ public class LoginActivity extends AppCompatActivity {
         mNewUserText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mScreenFlipper.setInAnimation(AnimationUtils.loadAnimation(LoginActivity.this,R.anim.right_in_short));
+                mScreenFlipper.setOutAnimation(AnimationUtils.loadAnimation(LoginActivity.this,R.anim.left_out_long));
                 mScreenFlipper.setDisplayedChild(1);
                 setTitle(getString(R.string.sign_up));
             }
@@ -101,112 +98,65 @@ public class LoginActivity extends AppCompatActivity {
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String body = Helper.getLoginRequestBody(mUserIdBox.getText().toString(),
-                        mPasswordBox.getText().toString());
-                new ServerTask().execute(body);
+                login(mUserIdBox.getText().toString(), mPasswordBox.getText().toString());
             }
         });
         mSignUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String body = Helper.getSignUpRequestBody(mSignUpUserIdBox.getText().toString(),
-                        mSignUpNameBox.getText().toString(),
+                signUp(mSignUpUserIdBox.getText().toString(), mSignUpNameBox.getText().toString(),
                         mSignUpPasswordBox.getText().toString());
-                Log.d(TAG, "Sign Up Body : " + body);
-                new ServerTask(RequestType.SIGNUP).execute(body);
             }
         });
     }
 
-    private class ServerTask extends AsyncTask<String, Void, String> {
+    private void login(String userId, String password){
+        SignInReqModel reqModel = new SignInReqModel();
+        reqModel.setUserId(userId);
+        reqModel.setPassword(password);
+        Call<SignInRespModel> login = ((OurApplication)getApplicationContext()).getRestApi().signIn(reqModel);
 
-        private RequestType mRequestType;
-
-        public ServerTask(RequestType type){
-            mRequestType = type;
-        }
-
-        public ServerTask(){
-            this(RequestType.LOGIN);
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            UI.showProgressDialog(LoginActivity.this,getString((mRequestType == RequestType.LOGIN)?
-                    R.string.login_progress:R.string.sign_up_progress));
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            // The web services part to be plugged here.
-            String body = params[0];
-            String response = null;
-            try {
-                switch (mRequestType){
-                    case LOGIN:
-                        response = Helper.login(body);
-                        break;
-                    case SIGNUP:
-                        response = Helper.signUp(body);
-                        break;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return response;
-        }
-
-        @Override
-        protected void onPostExecute(String response) {
-            super.onPostExecute(response);
-            Log.d(TAG, "Response : " + response);
-            if(response != null){
-                switch (mRequestType){
-                    case LOGIN:
-                        UI.dismissProgress();
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            boolean isSuccess = jsonObject.getBoolean(Keys.KEY_SUCCESS);
-
-                            if(isSuccess) {
-                                PreferenceEditor.getInstance(LoginActivity.this).setLoggedInUserName(mUserIdBox.getText().toString(),
-                                        mPasswordBox.getText().toString());
-                                Intent data = new Intent();
-                                String token = null;
-                                ArrayList<String> listdata = new ArrayList<String>();
-
-                                token = jsonObject.getString(Keys.KEY_TOKEN);
-                                // users= jsonObject.getJSONArray(Keys.KEY_USERS);
-
-                                JSONArray users = jsonObject.getJSONArray(Keys.KEY_USERS);
-                                if (users != null) {
-                                    for (int i = 0; i < users.length(); i++) {
-                                        JSONObject user = new JSONObject(users.get(i).toString());
-                                        listdata.add(user.getString("username"));
-                                    }
-                                }
-                                Log.d("USERS", listdata.toString());
-                                OurApp.setUserToken(token);
-                                data.putStringArrayListExtra(Keys.KEY_USERS, listdata);
-                                setResult(RESULT_OK,data);
-                                finish();
-                                return;
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    case SIGNUP:
-                        String body = Helper.getLoginRequestBody(mSignUpUserIdBox.getText().toString(),
-                                mSignUpPasswordBox.getText().toString());
-                        new ServerTask().execute(body);
-                        return;
+        login.enqueue(new Callback<SignInRespModel>() {
+            @Override
+            public void onResponse(Response<SignInRespModel> response, Retrofit retrofit) {
+                if(response.body().isSuccess()){
+                    PreferenceEditor.getInstance(LoginActivity.this).setLoggedInUserName(mUserIdBox.getText().toString(),
+                            mPasswordBox.getText().toString());
+                    ((OurApplication)getApplicationContext()).setUserToken(response.body().getToken());
+                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                    startActivity(intent);
+                    finish();
+                }else{
+                    Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_SHORT).show();
                 }
             }
-            UI.dismissProgress();
-            Toast.makeText(LoginActivity.this, getString((mRequestType == RequestType.LOGIN)?
-                    R.string.login_failed:R.string.sign_up_failed), Toast.LENGTH_SHORT).show();
-        }
+
+            @Override
+            public void onFailure(Throwable t) {
+                t.printStackTrace();
+                Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void signUp(final String userId, String name, final String password){
+        SignUpReqModel reqModel = new SignUpReqModel();
+        reqModel.setUserId(userId);
+        reqModel.setName(name);
+        reqModel.setPassword(password);
+        final Call<Void> login = ((OurApplication)getApplicationContext()).getRestApi().signUp(reqModel);
+
+        login.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Response<Void> response, Retrofit retrofit) {
+                login(userId,password);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                t.printStackTrace();
+                Toast.makeText(LoginActivity.this, getString(R.string.sign_up_failed), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

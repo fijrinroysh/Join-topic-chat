@@ -1,7 +1,6 @@
 package com.example.app.ourapplication;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -9,6 +8,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -19,10 +19,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.app.ourapplication.pref.PreferenceEditor;
-import com.example.app.ourapplication.wss.WebSocketClient;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.example.app.ourapplication.rest.model.request.LocationModel;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -33,25 +30,12 @@ import org.json.JSONObject;
  * create an instance of this fragment.
  */
 public class LocationFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    private OnFragmentInteractionListener mListener;
-
-    public static final int REQ_LOCATION = 7;
 
     private final String TAG = LocationFragment.class.getSimpleName();
-    private DBHelper mDBHelper = new DBHelper(getContext());
-    private WebSocketClient mWebSocketClient;
+    private static final int REQ_LOCATION = 7;
+
+    private OnFragmentInteractionListener mListener;
     private LocationManager locationManager;
-    public static Activity activity;
-    public static View view;
 
     public LocationFragment() {
         // Required empty public constructor
@@ -61,16 +45,11 @@ public class LocationFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
      * @return A new instance of fragment LocationFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static LocationFragment newInstance(String param1, String param2) {
+    public static LocationFragment newInstance() {
         LocationFragment fragment = new LocationFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -78,29 +57,25 @@ public class LocationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        view =  inflater.inflate(R.layout.fragment_location, container, false);
-        TextView textView = (TextView) view.findViewById(R.id.location);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_location, container, false);
+    }
 
-        locationManager = (LocationManager) getContext().getSystemService(activity.LOCATION_SERVICE);
-        mWebSocketClient = OurApp.getClient();
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        TextView textView = (TextView) view.findViewById(R.id.location);
 
         if (isLocationEnabled()) {
             checkInLocation();
         } else {
-                    Snackbar.make(view, "Location is not enabled", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(view, "Location is not enabled", Snackbar.LENGTH_LONG).show();
         }
-        textView.setText(PreferenceEditor.getInstance(getContext()).getLocation());
-       // mWebSocketClient.addWebSocketListener(getContext());
-        return view;
+        textView.setText(PreferenceEditor.getInstance(getContext()).getLocation().toString());
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -113,7 +88,6 @@ public class LocationFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        activity =(Activity) getContext();
      /*   if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
@@ -187,20 +161,7 @@ public class LocationFragment extends Fragment {
         if(location == null){
             return;
         }
-        JSONObject checkInObj = new JSONObject();
-        JSONObject locationObj = new JSONObject();
-        try {
-            locationObj.put("longitude",location.getLongitude());
-            locationObj.put("latitude",location.getLatitude());
-            Log.d(TAG, "Longitude is : " + location.getLongitude());
-            Log.d(TAG, "Latitude is : " + location.getLatitude());
-
-            //checkInObj.put("check_in",locationObj);
-            PreferenceEditor.getInstance(getContext()).setLocation(locationObj);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-       // mWebSocketClient.sendMessage(checkInObj.toString());
+        LocationModel locationModel = new LocationModel(location);
+        PreferenceEditor.getInstance(getContext()).setLocation(locationModel);
     }
-
 }

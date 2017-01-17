@@ -1,35 +1,21 @@
 package com.example.app.ourapplication;
 
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.example.app.ourapplication.pref.PreferenceEditor;
+import com.example.app.ourapplication.database.DBHelper;
 import com.example.app.ourapplication.util.Helper;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -40,27 +26,9 @@ import java.io.IOException;
  * create an instance of this fragment.
  */
 public class ProfileFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public static View view;
     private final String TAG = ProfileActivity.class.getSimpleName();
-    public static Bitmap mBitmap;
-    private String imageprofilestring;
-    private ImageView profileImgView;
-    public static final int UPDATE_PIC = 1;
-    public DBHelper mDBHelper ;
-    public static Activity activity;
-    String userid ;
-    private String mReceiver;
-    private String mReceiverid;
 
+    private DBHelper mDBHelper ;
     private OnFragmentInteractionListener mListener;
 
     public ProfileFragment() {
@@ -71,16 +39,11 @@ public class ProfileFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
      * @return A new instance of fragment ProfileFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static ProfileFragment newInstance(String param1, String param2) {
+    public static ProfileFragment newInstance() {
         ProfileFragment fragment = new ProfileFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -88,37 +51,31 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        mDBHelper = new DBHelper(getActivity());
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        view =  inflater.inflate(R.layout.fragment_profile, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_profile, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar_profile);
-        Context thiscontext=container.getContext();
-        mDBHelper = new DBHelper(thiscontext);
         //userid = PreferenceEditor.getInstance(thiscontext).getLoggedInUserName();
 
-        mReceiver = activity.getIntent().getStringExtra(Keys.KEY_TITLE);
-        mReceiverid = activity.getIntent().getStringExtra(Keys.KEY_ID);
+        String receiver = getActivity().getIntent().getStringExtra(Keys.KEY_TITLE);
+        String receiverId = getActivity().getIntent().getStringExtra(Keys.KEY_ID);
 
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         CollapsingToolbarLayout collapsingToolbar =
                 (CollapsingToolbarLayout) view.findViewById(R.id.profile_collapse);
-        collapsingToolbar.setTitle(mReceiver);
-        profileImgView = (ImageView) view.findViewById(R.id.image_profile);
-        Log.d(TAG, "Image data : " + mDBHelper.getProfileInfo(mReceiverid, 2));
-        profileImgView.setImageBitmap(Helper.decodeImageString(mDBHelper.getProfileInfo(mReceiverid, 2)));
-
-
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        return view;
+        collapsingToolbar.setTitle(receiver);
+        ImageView profileImgView = (ImageView) view.findViewById(R.id.image_profile);
+        Log.d(TAG, "Image data : " + mDBHelper.getProfileInfo(receiverId, 2));
+        profileImgView.setImageBitmap(Helper.decodeImageString(mDBHelper.getProfileInfo(receiverId, 2)));
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -131,7 +88,6 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        activity = (Activity) context;
        /* if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
@@ -160,6 +116,4 @@ public class ProfileFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
-
-
 }

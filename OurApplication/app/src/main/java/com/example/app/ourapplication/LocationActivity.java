@@ -74,7 +74,7 @@ public class LocationActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Toast.makeText(LocationActivity.this,"selected is : "+adapterView.getItemAtPosition(i),Toast.LENGTH_LONG).show();
-                displayLocation((String) adapterView.getItemAtPosition(i));
+//                displayLocation((String) adapterView.getItemAtPosition(i));
             }
         });
 
@@ -88,20 +88,5 @@ public class LocationActivity extends AppCompatActivity {
                 Toast.makeText(LocationActivity.this,"selected is : "+i+1,Toast.LENGTH_LONG).show();
             }
         });
-    }
-
-    private void displayLocation(String city){
-        if(TextUtils.isEmpty(city)){
-            return;
-        }
-        mLocationAdapter.addAll(getAvailableShops(city));
-    }
-
-    private String[] getAvailableShops(String city){
-        String[] shops = new String[25];
-        for (int i = 0; i < 25; i++) {
-            shops[i] = city+" : "+(i+1);
-        }
-        return shops;
     }
 }

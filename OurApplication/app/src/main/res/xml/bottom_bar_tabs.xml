@@ -4,24 +4,20 @@
     <tab
         id="@+id/add_home"
         icon="@drawable/home"
-        title=""
-        />
+        title="" />
 
     <tab
         id="@+id/add_location"
-        icon="@drawable/add_location"
-        title=""
-        />
+        icon="@drawable/location"
+        title="" />
 
     <tab
         id="@+id/add_message"
-        icon="@drawable/add_message"
-        title=""
-        />
+        icon="@drawable/compose"
+        title="" />
     <tab
         id="@+id/add_profile"
-        icon="@drawable/ic_profile"
-        title=""
-        />
+        icon="@drawable/profile"
+        title="" />
 
 </tabs>

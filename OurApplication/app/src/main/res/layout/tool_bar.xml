@@ -5,8 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context=".HomeFeedActivity">
+    android:fitsSystemWindows="true">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -58,8 +57,7 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:layout_margin="16dp"
-            android:background="@drawable/floater_bg"
-            android:src="@drawable/action_login"/>
+            android:background="@drawable/floater_bg"/>
     </RelativeLayout>
 
 </android.support.design.widget.CoordinatorLayout>

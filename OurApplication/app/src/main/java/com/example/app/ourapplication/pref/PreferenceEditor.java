@@ -3,7 +3,12 @@ package com.example.app.ourapplication.pref;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.example.app.ourapplication.rest.model.request.LocationModel;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.json.JSONObject;
+
+import java.io.IOException;
 
 /**
  * Created by sarumugam on 21/06/16.
@@ -33,14 +38,22 @@ public class PreferenceEditor {
         return mSharedPrefs.getString(PrefKeys.LOGGED_IN_PASSWORD, null);
     }
 
-    public String getLocation() {
-        return mSharedPrefs.getString(PrefKeys.CHECK_IN, null);
+    public LocationModel getLocation() {
+        ObjectMapper mapper = new ObjectMapper();
+        String location = mSharedPrefs.getString(PrefKeys.CHECK_IN, null);
+        if(location != null){
+            try {
+                return mapper.readValue(location,LocationModel.class);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return new LocationModel(0,0);
     }
 
-    public void setLocation(JSONObject loc) {
+    public void setLocation(LocationModel loc) {
         SharedPreferences.Editor editor = mSharedPrefs.edit();
         editor.putString(PrefKeys.CHECK_IN, loc.toString());
-
         editor.apply();
     }
 

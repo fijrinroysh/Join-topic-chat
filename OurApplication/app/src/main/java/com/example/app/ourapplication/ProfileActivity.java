@@ -4,7 +4,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -17,13 +16,18 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.example.app.ourapplication.database.DBHelper;
 import com.example.app.ourapplication.pref.PreferenceEditor;
+import com.example.app.ourapplication.rest.model.request.ProfileUpdateModel;
+import com.example.app.ourapplication.rest.model.response.ProfileRespModel;
 import com.example.app.ourapplication.util.Helper;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
+
+import retrofit.Call;
+import retrofit.Callback;
+import retrofit.Response;
+import retrofit.Retrofit;
 
 /**
  * Created by ROYSH on 8/8/2016.
@@ -31,40 +35,33 @@ import java.io.IOException;
 public class ProfileActivity extends AppCompatActivity{
 
     private final String TAG = ProfileActivity.class.getSimpleName();
-    public static Bitmap mBitmap;
-    private String imageprofilestring;
+    private static final int UPDATE_PIC = 1;
     private ImageView profileImgView;
-    public static final int UPDATE_PIC = 1;
-    public DBHelper mDBHelper = new DBHelper(this);
+    private DBHelper mDBHelper = new DBHelper(this);
+    private String mUserId;
 
-            String userid = PreferenceEditor.getInstance(this).getLoggedInUserName();
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_profile);
+        mUserId = PreferenceEditor.getInstance(this).getLoggedInUserName();
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_profile);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled (true);
+        CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.profile_collapse);
+        collapsingToolbar.setTitle(mDBHelper.getProfileInfo(mUserId,1));
+        profileImgView = (ImageView) findViewById(R.id.image_profile);
+        Log.d(TAG, "Image data : " + mDBHelper.getProfileInfo(mUserId,2));
+        profileImgView.setImageBitmap(Helper.decodeImageString(mDBHelper.getProfileInfo(mUserId,2)));
 
-
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_profile);
-            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_profile);
-            setSupportActionBar(toolbar);
-            getSupportActionBar().setDisplayHomeAsUpEnabled (true);
-            CollapsingToolbarLayout collapsingToolbar =
-                    (CollapsingToolbarLayout) findViewById(R.id.profile_collapse);
-            collapsingToolbar.setTitle(mDBHelper.getProfileInfo(userid,1));
-            profileImgView = (ImageView) findViewById(R.id.image_profile);
-            Log.d(TAG, "Image data : " + mDBHelper.getProfileInfo(userid,2));
-            profileImgView.setImageBitmap(Helper.decodeImageString(mDBHelper.getProfileInfo(userid,2)));
-
-            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    showFileChooser();
-                }
-            });
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        }
-
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showFileChooser();
+            }
+        });
+    }
 
     private void showFileChooser() {
         //Intent intent = new Intent();
@@ -86,84 +83,55 @@ public class ProfileActivity extends AppCompatActivity{
         switch (requestCode){
             case UPDATE_PIC:
                 if (resultCode == RESULT_OK && data != null) {
-                   // Bundle extras = data.getExtras();
+                    // Bundle extras = data.getExtras();
                     Uri filePath = data.getData();
                     Log.d(TAG, "Data : " + filePath);
-                        try {
-                       // mBitmap = data.getParcelableExtra("data");
-                       Bitmap bitmap  = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                    try {
+                        // mBitmap = data.getParcelableExtra("data");
+                        Bitmap bitmap  = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
                         if (bitmap != null) {
-                            mBitmap=Helper.scaleBitmap(bitmap);
-                            Log.d(TAG,"L : "+mBitmap.getWidth()+ "  : "+mBitmap.getScaledHeight(getResources().getDisplayMetrics()));
-                            profileImgView.setImageBitmap(mBitmap);
-                            imageprofilestring = Helper.getStringImage(mBitmap);
-                            Log.d(TAG, "Image message value length : " + imageprofilestring.length());
-                            Log.d(TAG, "Image message value is : " + imageprofilestring);
-                            if(!TextUtils.isEmpty(userid)) {
-                                String body = Helper.getUpdateProfileBody(userid, Keys.KEY_PROFIMG, imageprofilestring);
-                                new ProfileUpdateTask().execute(body);
-                                mDBHelper.updateProfile(body);
-
-                        }
-                    }else{
+                            Bitmap bitmapRef = Helper.scaleBitmap(bitmap);
+                            Log.d(TAG,"L : "+bitmapRef.getWidth()+ "  : "+bitmapRef.getScaledHeight(getResources().getDisplayMetrics()));
+                            profileImgView.setImageBitmap(bitmapRef);
+                            if(!TextUtils.isEmpty(mUserId)) {
+                                String imageProfileString = Helper.getStringImage(bitmapRef);
+                                Log.d(TAG, "Image message value length : " + imageProfileString.length());
+                                Log.d(TAG, "Image message value is : " + imageProfileString);
+                                ProfileUpdateModel model = new ProfileUpdateModel(mUserId, Keys.KEY_PROFIMG, imageProfileString);
+                                updateProfile(model);
+                                mDBHelper.updateProfile(model.toString());
+                            }
+                        }else{
                             Snackbar.make(profileImgView, "Bitmap is null", Snackbar.LENGTH_LONG).setAction("Action", null).show();
                             Log.d(TAG, "Bitmap is null");}
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
+                }
                 break;
         }
     }
 
-    private class ProfileUpdateTask extends AsyncTask<String,Void,String> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            // UI.showProgressDialog(HomeFeedActivity.this, getString(R.string.login_progress));
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            String body = params[0];
-            String response = null;
-            try {
-                response = Helper.updateProfile(body);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return response;
-        }
-
-        @Override
-        protected void onPostExecute(String response) {
-            super.onPostExecute(response);
-            Log.d(TAG, "Response : " + response);
-            if(response != null){
-
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
-                    boolean isSuccess = jsonObject.getBoolean(Keys.KEY_SUCCESS);
-
-                    if(isSuccess) {
-
-                        Log.d(TAG, "Profile information Updated");
-                        Snackbar.make(profileImgView, "Profile information Updated", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-
-                    }else{
-                        Snackbar.make(profileImgView, "Profile information not Updated", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-                        Log.d(TAG, "Profile information not Updated");
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+    private void updateProfile(ProfileUpdateModel reqModel){
+        Call<ProfileRespModel> profileUpdater = ((OurApplication)getApplicationContext()).getRestApi().updateProfile(reqModel);
+        profileUpdater.enqueue(new Callback<ProfileRespModel>() {
+            @Override
+            public void onResponse(Response<ProfileRespModel> response, Retrofit retrofit) {
+                if(response.body().isSuccess()) {
+                    Log.d(TAG, "Profile information Updated");
+                    Snackbar.make(profileImgView, "Profile information Updated", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                }else{
+                    Snackbar.make(profileImgView, "Profile information not Updated", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                    Log.d(TAG, "Profile information not Updated");
                 }
-            }else{
-                Log.d(TAG, "Update response is NULL");
             }
-        }
+
+            @Override
+            public void onFailure(Throwable t) {
+                t.printStackTrace();
+                Snackbar.make(profileImgView, "Profile information not Updated", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                Log.d(TAG, "Profile information not Updated");
+            }
+        });
     }
-
-
-
 }

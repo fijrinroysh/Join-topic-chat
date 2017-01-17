@@ -1,51 +1,46 @@
 package com.example.app.ourapplication;
 
-import android.Manifest;
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.app.ourapplication.database.DBHelper;
 import com.example.app.ourapplication.pref.PreferenceEditor;
+import com.example.app.ourapplication.rest.model.request.HomeFeedReqModel;
+import com.example.app.ourapplication.rest.model.request.LocationModel;
+import com.example.app.ourapplication.rest.model.response.FeedRespModel;
+import com.example.app.ourapplication.rest.model.response.Person;
 import com.example.app.ourapplication.util.Helper;
 import com.example.app.ourapplication.wss.WebSocketClient;
 import com.example.app.ourapplication.wss.WebSocketListener;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+
+import retrofit.Call;
+import retrofit.Callback;
+import retrofit.Response;
+import retrofit.Retrofit;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -56,197 +51,6 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class HomeFeedFragment extends Fragment implements WebSocketListener{
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-    private WebSocketClient mWebSocketClient;
-    public static final int REQ_LOCATION = 7;
-    public  static SwipeRefreshLayout mSwipeRefreshLayout;
-    public String location = PreferenceEditor.getInstance(getContext()).getLocation();
-
-    private OnFragmentInteractionListener mListener;
-    private final String TAG = HomeFeedFragment.class.getSimpleName();
-    /*Views*/
-    private List<Person> mFeeds = new ArrayList<>();
-    private FeedRVAdapter mFeedListAdapter;
-    private DBHelper mDBHelper ;//= new DBHelper(getContext());
-    //    private BottomBar mBottomBar;
-//    private FragNavController fragNavController;
-    private String mReceiver;
-    private String mReceiverid;
-    public static View view;
-    public static View toastview;
-    public static Activity activity;
-    public static Context thiscontext;
-
-
-
-    public HomeFeedFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment HomeFeedFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static HomeFeedFragment newInstance(String param1, String param2) {
-        HomeFeedFragment fragment = new HomeFeedFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        view =  inflater.inflate(R.layout.fragment_home_feed, container, false);
-
-        /*Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar_homefeed);
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Our App");*/
-
-        thiscontext=getContext();
-        mWebSocketClient = OurApp.getClient();
-        mWebSocketClient.addWebSocketListener(this);
-
-        mDBHelper = new DBHelper(getContext());
-
-
-        //mFeeds = getIntent().getParcelableArrayListExtra(Keys.PERSON_LIST);
-
-       // mReceiver = activity.getIntent().getStringExtra(Keys.KEY_TITLE);
-       // mReceiverid = activity.getIntent().getStringExtra(Keys.KEY_ID);
-        mFeeds = mDBHelper.getFeedDataAll();
-        mFeedListAdapter = new FeedRVAdapter(mFeeds);
-
-
-        //RelativeLayout toastlayout = (RelativeLayout) view.findViewById(R.id.relativeLayout1) ;
-        //toastview = inflater.inflate(R.layout.toast_layout, toastlayout );
-
-
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv);
-        LinearLayoutManager llm = new LinearLayoutManager(getContext().getApplicationContext());
-        recyclerView.setLayoutManager(llm);
-
-
-        recyclerView.setAdapter(mFeedListAdapter);
-        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(activity.getApplicationContext(), recyclerView,
-                new Util.ClickListener() {
-                    // @Override
-                    public void onClick(View view, int position) {
-                        Person item = mFeeds.get(position);
-                        final Intent discussionIntent = new Intent(activity, DiscussionActivity.class);
-                        discussionIntent.putExtra(Keys.KEY_ID, item.mPostId);
-                        startActivity(discussionIntent);
-                        Toast.makeText(getContext().getApplicationContext(), item.mMessage + " is selected!",
-                                Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onLongClick(View view, int position) {
-
-                    }
-                }));
-
-
-        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            /**
-             * This method is called when swipe refresh is pulled down
-             */
-            @Override
-            public void onRefresh() {
-                // Refresh items
-                try {
-                    JSONObject jsonObject = new JSONObject(location);
-                    String longitude = jsonObject.optString("longitude");
-                    String latitude = jsonObject.optString("latitude");
-                    String body = Helper.getHomeFeedRequest("5", longitude, latitude, mDBHelper.getFeedDataLatestTime());
-                    new HomefeedHTTPRequest().execute(body);
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            }
-
-        });
-
-        /**
-         * Showing Swipe Refresh animation on activity create
-         * As animation won't start on onCreate, post runnable is used
-         */
-        mSwipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-
-                //HTTP requst to fetch data for Homefeed
-                try {
-                    JSONObject jsonObject = new JSONObject(location);
-                    String longitude = jsonObject.optString("longitude");
-                    String latitude = jsonObject.optString("latitude");
-                    String body = Helper.getHomeFeedRequest("5", longitude, latitude, mDBHelper.getFeedDataLatestTime());
-                    new HomefeedHTTPRequest().execute(body);
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        });
-
-        return view;
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        activity=(Activity) getContext();
-     /*   if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }*/
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-        mWebSocketClient.removeWebSocketListener(this);
-    }
 
     /**
      * This interface must be implemented by activities that contain this
@@ -263,63 +67,159 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
         void onFragmentInteraction(Uri uri);
     }
 
+    private final String TAG = HomeFeedFragment.class.getSimpleName();
 
+    private WebSocketClient mWebSocketClient;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+
+    private OnFragmentInteractionListener mListener;
+    /*Views*/
+    private List<Person> mFeeds = new ArrayList<>();
+    private FeedRVAdapter mFeedListAdapter;
+    private DBHelper mDBHelper;
+    public LocationModel location;
+
+    public HomeFeedFragment() {
+        // Required empty public constructor
+    }
+
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @return A new instance of fragment HomeFeedFragment.
+     */
+    // TODO: Rename and change types and number of parameters
+    public static HomeFeedFragment newInstance() {
+        HomeFeedFragment fragment = new HomeFeedFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        location = PreferenceEditor.getInstance(getContext()).getLocation();
+        mWebSocketClient = ((OurApplication)getActivity().getApplicationContext()).getClient();
+        mWebSocketClient.addWebSocketListener(this);
+
+        mDBHelper = new DBHelper(getContext());
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_home_feed, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        mFeeds = mDBHelper.getFeedDataAll();
+        mFeedListAdapter = new FeedRVAdapter(mFeeds);
+
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv);
+        LinearLayoutManager llm = new LinearLayoutManager(getContext().getApplicationContext());
+        recyclerView.setLayoutManager(llm);
+
+        recyclerView.setAdapter(mFeedListAdapter);
+        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getActivity().getApplicationContext(), recyclerView,
+                new Util.ClickListener() {
+                    // @Override
+                    public void onClick(View view, int position) {
+                        Person item = mFeeds.get(position);
+                        final Intent discussionIntent = new Intent(getActivity(), DiscussionActivity.class);
+                        discussionIntent.putExtra(Keys.KEY_ID, item.getPostId());
+                        startActivity(discussionIntent);
+                        Toast.makeText(getContext().getApplicationContext(), item.getMessage() + " is selected!",
+                                Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onLongClick(View view, int position) {}
+                }));
+
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            /**
+             * This method is called when swipe refresh is pulled down
+             */
+            @Override
+            public void onRefresh() {
+                // Refresh items
+                getUpdatedFeeds();
+            }
+
+        });
+
+        /**
+         * Showing Swipe Refresh animation on activity create
+         * As animation won't start on onCreate, post runnable is used
+         */
+        mSwipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                //HTTP requst to fetch data for Homefeed
+                getUpdatedFeeds();
+            }
+        });
+    }
+
+    // TODO: Rename method, update argument and hook method into UI event
+    public void onButtonPressed(Uri uri) {
+        if (mListener != null) {
+            mListener.onFragmentInteraction(uri);
+        }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+     /*   if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }*/
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+        mWebSocketClient.removeWebSocketListener(this);
+    }
+
+    @Override
     public void onTextMessage(String message) {
         JSONObject msgObject = null;
         try {
-
             msgObject = new JSONObject(message);
             Log.d(TAG, "TYPE:" + msgObject.optString(Keys.KEY_TYPE) + ":");
 
             if (msgObject.optString(Keys.KEY_TYPE).equals("F")) {
-                Log.d(TAG, "I am message type F:" + mReceiver + ":" + msgObject.optString(Keys.KEY_NAME) );
-
-                    mFeeds.add(0, parseFeeds(message));
-
+                Log.d(TAG, "I am message type F:" + ":" + msgObject.optString(Keys.KEY_NAME) );
+                try {
+                    Person person = new ObjectMapper().readValue(message,Person.class);
+                    mFeeds.add(0, person);
                     mFeedListAdapter.notifyDataSetChanged();
-                    mDBHelper.insertFeedData(message, "WS");
-
-                Notify(msgObject.optString(Keys.KEY_NAME),
-                        msgObject.optString(Keys.KEY_MESSAGE),
-                        msgObject.optString(Keys.KEY_PROFIMG),
-                        msgObject.optString(Keys.KEY_ID));
+                    mDBHelper.insertFeedData(person.toString(), "WS");
+                    notify(person.getSenderName(),person.getMessage(),person.getPhotoId(),person.getPostId());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-
-    public Person parseFeeds(String message) {
-        Date now = new Date();
-        JSONObject msgObject = null;
-        Person message_return = null;
-        try {
-            msgObject = new JSONObject(message);
-
-            message_return = new Person(msgObject.optString(Keys.KEY_TYPE),
-                    msgObject.optString(Keys.KEY_ID),
-                    msgObject.optString(Keys.KEY_NAME),
-                   // mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_USERID), 1),
-                    msgObject.optString(Keys.KEY_MESSAGE),
-                    msgObject.optString(Keys.KEY_PROFIMG),
-                    msgObject.optString(Keys.KEY_IMAGE),
-                    msgObject.optString(Keys.KEY_TIME)
-            );
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return message_return;
-    }
-
-
-    private void Notify(String notificationTitle, String notificationMessage, String notificationIcon , String postid) {
+    private void notify(String notificationTitle, String notificationMessage, String notificationIcon , String postid) {
         NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService
-                ( getActivity().NOTIFICATION_SERVICE);
-        @SuppressWarnings("deprecation")
-        //  Intent notificationIntent = new Intent(this,NotificationView.class);
-                Intent notificationIntent = new Intent(getContext(), DiscussionActivity.class);
+                (Context.NOTIFICATION_SERVICE);
+        Intent notificationIntent = new Intent(getContext(), DiscussionActivity.class);
         notificationIntent.putExtra(Keys.KEY_ID, postid);
         notificationIntent.setAction(Intent.ACTION_MAIN);
         notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -329,12 +229,12 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                 .setAutoCancel(true)
                 .setContentTitle(notificationTitle)
                 .setContentText(notificationMessage)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.mipmap.app_icon)
                 .setLargeIcon(Helper.decodeImageString(notificationIcon))
                 .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
                 .setStyle(new Notification.BigTextStyle()
                         .bigText(notificationMessage))
-                        // .setSmallIcon(setImageBitmap(Helper.decodeImageString(notificationIcon)))
+                // .setSmallIcon(setImageBitmap(Helper.decodeImageString(notificationIcon)))
                 .setContentIntent(pendingIntent).build();
         // hide the notification after its selected
         // notification.flags |= Notification.FLAG_AUTO_CANCEL;
@@ -342,106 +242,37 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
         notificationManager.notify(0, notification);
     }
 
-   /* public interface ClickListener {
-        void onClick(View view, int position);
-        void onLongClick(View view, int position);
-    }*/
+    @Override
+    public void onOpen() {}
 
- /* @Override
-    public void onDestroy() {
-        super.onDestroy();
-       mWebSocketClient.removeWebSocketListener(this);
-    }*/
+    @Override
+    public void onClose() {}
 
+    private void getUpdatedFeeds(){
+        HomeFeedReqModel reqModel = new HomeFeedReqModel("F","5",location.getLongitude(),
+                location.getLongitude(),mDBHelper.getFeedDataLatestTime());
 
-    private class HomefeedHTTPRequest extends AsyncTask<String,Void,String> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mSwipeRefreshLayout.setRefreshing(true);
-            // UI.showProgressDialog(HomeFeedActivity.this, getString(R.string.login_progress));
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            String body = params[0];
-            String response = null;
-            try {
-                response = Helper.getHomefeed(body);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return response;
-        }
-
-        @Override
-        protected void onPostExecute(String response) {
-            super.onPostExecute(response);
-            Log.d(TAG, "HTTP Feed Response : " + response);
-            if(response != null){
-
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
-                    boolean isSuccess = jsonObject.getBoolean(Keys.KEY_SUCCESS);
-
-                    if (isSuccess) {
-                        JSONArray mFeedJSONArray = jsonObject.getJSONArray("data");
-
-
-                        if ((mFeedJSONArray != null) & (mFeedJSONArray.length() > 0)) {
-                            Log.d(TAG, "Query returned records");
-                            for (int i = 0; i < mFeedJSONArray.length(); i++) {
-                                JSONObject feed = new JSONObject(mFeedJSONArray.get(i).toString());
-                                Log.d(TAG, "Response : " + feed.toString());
-                                mDBHelper.insertFeedData(feed.toString(), "HTTP");
-                                mFeeds.add(0, parseFeeds(feed.toString()));
-                                mFeedListAdapter.notifyItemInserted(0);
-
-                            }
-                            mSwipeRefreshLayout.setRefreshing(false);
-                            Toast.makeText(getContext(), "New Feeds",
-                                    Toast.LENGTH_LONG).show();
-
-                            // Toast toast = new Toast(getContext().getApplicationContext());
-                            // toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
-                            //toast.setDuration(Toast.LENGTH_LONG);
-                            //toast.setView(toastview);
-                            //toast.show();
-                        } else {
-
-                            Toast.makeText(getContext(), "No Feeds", Toast.LENGTH_LONG).show();
-                            Log.d(TAG, "Query didn't return records");
-                            mSwipeRefreshLayout.setRefreshing(false);
-                        }
-
-                    }else{
-
-                        Log.d(TAG, "Query failed");
-                        Toast.makeText(getContext(), "Query Failed", Toast.LENGTH_LONG).show();
-                        mSwipeRefreshLayout.setRefreshing(false);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+        Call<FeedRespModel> queryHomeFeeds = ((OurApplication)getActivity().getApplicationContext())
+                .getRestApi().queryHomeFeed(reqModel);
+        queryHomeFeeds.enqueue(new Callback<FeedRespModel>() {
+            @Override
+            public void onResponse(Response<FeedRespModel> response, Retrofit retrofit) {
+                ArrayList<Person> data = response.body().getData();
+                for (int i = 0; i < data.size(); i++) {
+                    mDBHelper.insertFeedData(data.toString(), "HTTP");
+                    mFeeds.add(0, data.get(i));
+                    mFeedListAdapter.notifyItemInserted(0);
                 }
+                mSwipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(getActivity(), "No more Feeds to Load", Toast.LENGTH_LONG).show();
             }
-        }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.d(TAG, "Query failed");
+                mSwipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(getActivity(), "Loading Feeds Failed", Toast.LENGTH_LONG).show();
+            }
+        });
     }
-
-
-
-
-
-    @Override
-    public void onOpen() {
-    }
-
-    @Override
-    public void onClose() {
-    }
-
-
-
-
-
 }

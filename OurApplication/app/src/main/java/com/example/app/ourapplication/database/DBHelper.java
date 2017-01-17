@@ -1,50 +1,41 @@
-package com.example.app.ourapplication;
+package com.example.app.ourapplication.database;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Base64;
 import android.util.Log;
-import android.widget.ImageView;
 
-import com.example.app.ourapplication.pref.PreferenceEditor;
+import com.example.app.ourapplication.Keys;
+import com.example.app.ourapplication.rest.model.response.Person;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-
 /**
  * Created by ROYSH on 6/8/2016.
  */
-
 public class DBHelper extends SQLiteOpenHelper {
 
-    private final String TAG = DBHelper.class.getSimpleName();
-    public static final String MESSAGE_ID_COLUMN = "POSTID";
-    public static final String MESSAGE_COLUMN = "MESSAGE";
-    public static final String MESSAGE_USER_NAME_COLUMN = "USER_NAME";
-    public static final String MESSAGE_USER_ID_COLUMN = "USER_ID";
-    public static final String MESSAGE_IMAGE_COLUMN = "MESSAGE_IMAGE";
-    public static final String MESSAGE_TIME_COLUMN = "MESSAGETIME";
-    public static final String MESSAGE_LIKES_COLUMN = "LIKES";
-    public static final String PROFILE_IMAGE_COLUMN = "PROFILEIMAGE";
-    public static final String PROFILE_USER_COLUMN = "PROFILEUSER";
-    public static final String PROFILE_ID_COLUMN = "PROFILEID";
-    public static final String MESSAGE_PROTOCOL_COLUMN = "PROTOCOL";
+    private static final String TAG = DBHelper.class.getSimpleName();
+    private static final String MESSAGE_ID_COLUMN = "POSTID";
+    private static final String MESSAGE_COLUMN = "MESSAGE";
+    private static final String MESSAGE_USER_NAME_COLUMN = "USER_NAME";
+    private static final String MESSAGE_USER_ID_COLUMN = "USER_ID";
+    private static final String MESSAGE_IMAGE_COLUMN = "MESSAGE_IMAGE";
+    private static final String MESSAGE_TIME_COLUMN = "MESSAGETIME";
+    private static final String MESSAGE_LIKES_COLUMN = "LIKES";
+    private static final String PROFILE_IMAGE_COLUMN = "PROFILEIMAGE";
+    private static final String PROFILE_USER_COLUMN = "PROFILEUSER";
+    private static final String PROFILE_ID_COLUMN = "PROFILEID";
+    private static final String MESSAGE_PROTOCOL_COLUMN = "PROTOCOL";
 
+    private SQLiteDatabase mydatabase;
 
-
-    SQLiteDatabase mydatabase;
-
-
-    public DBHelper(Context context)
-    {
+    public DBHelper(Context context) {
         super(context, "FEED" , null, 9); //9 is the database version
     }
 
@@ -113,7 +104,6 @@ public class DBHelper extends SQLiteOpenHelper {
         return true;
     }
 
-
     public boolean insertCommentData (String message) {
         JSONObject msgObject = null;
         try {
@@ -135,9 +125,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return true;
     }
 
-
-    public ArrayList<Person> getFeedDataAll()
-    {
+    public ArrayList<Person> getFeedDataAll() {
         ArrayList<Person> array_list = new ArrayList<Person>();
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -159,36 +147,26 @@ public class DBHelper extends SQLiteOpenHelper {
         return array_list;
     }
 
-
-
-    public Person getFeedData(String id)
-    {
-
+    public Person getFeedData(String id) {
         Person  item;
         SQLiteDatabase db = this.getReadableDatabase();
         //Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " +MESSAGE_FROM_COLUMN+ " = \"" + id + "\" or " +MESSAGE_TO_COLUMN_NAME+ " = \""+id+"\" ORDER BY "+ MESSAGE_TIME_COLUMN_NAME+" DESC", null );
         Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where "+MESSAGE_ID_COLUMN+ " = \"" + id +"\" and " + MESSAGE_PROTOCOL_COLUMN + " = \"HTTP\" ORDER BY "+ MESSAGE_TIME_COLUMN+" DESC", null );
         msg_res.moveToFirst();
 
-            String column0 = msg_res.getString(0);
-            String column1 = msg_res.getString(1);
-            String column2 = msg_res.getString(3);
-            String column3 = msg_res.getString(4);
-            String column4 = msg_res.getString(5);
-            String column5 = msg_res.getString(6);
+        String column0 = msg_res.getString(0);
+        String column1 = msg_res.getString(1);
+        String column2 = msg_res.getString(3);
+        String column3 = msg_res.getString(4);
+        String column4 = msg_res.getString(5);
+        String column5 = msg_res.getString(6);
 
         item = new Person("F",column0, column1 , column2 , column3, column4,column5 );
 
         return item;
     }
 
-
-
-
-
-    public String getFeedDataColumn(String id, Integer columnnumber )
-    {
-
+    public String getFeedDataColumn(String id, Integer columnnumber ) {
         String  columndata;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " +MESSAGE_ID_COLUMN+ " = \"" + id +"\"" , null );
@@ -204,12 +182,9 @@ public class DBHelper extends SQLiteOpenHelper {
         }
 
         return columndata;
-
     }
 
-    public String getFeedDataLatestTime()
-    {
-
+    public String getFeedDataLatestTime() {
         String  columndata;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " + MESSAGE_PROTOCOL_COLUMN + " = \"HTTP\"  ORDER BY "+ MESSAGE_TIME_COLUMN+" DESC" , null );
@@ -223,15 +198,10 @@ public class DBHelper extends SQLiteOpenHelper {
         else{
             columndata="2000-12-31 12:00:00";
         }
-
         return columndata;
-
     }
 
-
-
-    public ArrayList<Person> getCommentData(String id)
-    {
+    public ArrayList<Person> getCommentData(String id) {
         ArrayList<Person> array_list = new ArrayList<Person>();
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -246,14 +216,11 @@ public class DBHelper extends SQLiteOpenHelper {
             String column3 = msg_res.getString(4);
             String column4 = msg_res.getString(5);
 
-
             array_list.add(new Person("C",column0, column1 , column2 ,column3, "", column4  ));
             msg_res.moveToNext();
         }
         return array_list;
     }
-
-
 
     public String getProfileInfo(String id,Integer columnnumber) {
         String columndata;
@@ -267,7 +234,7 @@ public class DBHelper extends SQLiteOpenHelper {
         if (prof_res.getCount() != 0){
             prof_res.moveToFirst();
             columndata = prof_res.getString(columnnumber);
-        //    Log.d(TAG, "getProfileInfo: " + columndata);
+            //    Log.d(TAG, "getProfileInfo: " + columndata);
         }
         else{
             columndata="noimage";
@@ -295,8 +262,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
         return columndata;
     }
-
-
 
     public boolean insertProfile (String profile) {
         JSONObject msgObject = null;
@@ -329,11 +294,4 @@ public class DBHelper extends SQLiteOpenHelper {
 
         return true;
     }
-
-
-
 }
-
-
-
-
