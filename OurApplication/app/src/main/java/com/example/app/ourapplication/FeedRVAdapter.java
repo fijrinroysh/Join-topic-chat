@@ -1,5 +1,6 @@
 package com.example.app.ourapplication;
 
+import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -108,7 +109,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i) {
-        Person item = mFeeds.get(i);
+        final Person item = mFeeds.get(i);
         switch (viewHolder.getItemViewType()) {
             case 1:
                 PersonViewHolder1 vh1 = (PersonViewHolder1) viewHolder;
@@ -116,6 +117,14 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 vh1.senderMessage.setText(item.getMessage());
                 vh1.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
                 vh1.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
+                vh1.senderMessage.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final Intent discussionIntent = new Intent(v.getContext(), DiscussionActivity.class);
+                        discussionIntent.putExtra(Keys.KEY_ID, item.getPostId());
+                        v.getContext().startActivity(discussionIntent);
+                    }
+                });
                 setAnimation(vh1.cv, i);
                 break;
             case 2:
@@ -125,6 +134,14 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 vh2.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
                 vh2.messagePhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoMsg()));
                 vh2.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
+                vh2.senderMessage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                final Intent discussionIntent = new Intent(v.getContext(), DiscussionActivity.class);
+                discussionIntent.putExtra(Keys.KEY_ID,  item.getPostId());
+                v.getContext().startActivity(discussionIntent);
+            }
+        });
                 setAnimation(vh2.cv, i);
                 break;
         }

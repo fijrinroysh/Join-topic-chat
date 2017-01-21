@@ -28,6 +28,8 @@
 
         <activity android:name=".LoginActivity" android:theme="@style/LoginTheme" android:screenOrientation="portrait"/>
 
+        <activity android:name=".ProfileActivity" android:theme="@style/AppTheme.NoActionBar" android:screenOrientation="portrait"/>
+
         <activity android:name=".ui.HomeActivity" android:theme="@style/AppTheme.NoActionBar" android:screenOrientation="portrait"/>
 
         <activity android:name=".DiscussionActivity" android:screenOrientation="portrait" android:theme="@style/AppTheme.NoActionBar"/>

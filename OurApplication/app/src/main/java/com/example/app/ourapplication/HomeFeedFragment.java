@@ -124,7 +124,10 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
         recyclerView.setLayoutManager(llm);
 
         recyclerView.setAdapter(mFeedListAdapter);
-        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getActivity().getApplicationContext(), recyclerView,
+
+        /* Commented the below part and added onClickListener to sender_message in FeedRVAdapter for the below functionality */
+
+        /*recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getActivity().getApplicationContext(), recyclerView,
                 new Util.ClickListener() {
                     // @Override
                     public void onClick(View view, int position) {
@@ -138,7 +141,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
                     @Override
                     public void onLongClick(View view, int position) {}
-                }));
+                }));*/
 
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);

@@ -1,5 +1,11 @@
 package com.example.app.ourapplication;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -8,8 +14,12 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.app.ourapplication.database.DBHelper;
@@ -209,5 +219,60 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
                 Toast.makeText(getApplicationContext(), "Loading Comments Failed", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    public void onMessagePhotoClick(View v) {
+        ImageView messagePhoto = (ImageView) v.findViewById(R.id.message_photo);
+        BitmapDrawable imagedrawable = (BitmapDrawable) messagePhoto.getDrawable();
+        Bitmap imagebitmap = imagedrawable.getBitmap();
+        Dialog builder = new Dialog(v.getContext(),android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        builder.getWindow().setBackgroundDrawable(
+                new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                //nothing;
+            }
+        });
+
+        ImageView imageView = new ImageView(v.getContext());
+        imageView.setImageBitmap(imagebitmap) ;
+        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+        builder.addContentView(imageView, new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        builder.show();
+    }
+
+    public void onSenderPhotoClick(View v) {
+
+        /* Below code is to open the Profile of the sender but now it opens the profile of the user */
+
+        final Intent profileIntent = new Intent(v.getContext(), ProfileActivity.class);
+        // profileIntent.putExtra(Keys.KEY_ID, item.mPostId);
+        v.getContext().startActivity(profileIntent);
+
+        /* Below code is to open the Sender Photo onclick */
+
+        /*ImageView senderPhoto = (ImageView) v.findViewById(R.id.sender_photo);
+        BitmapDrawable imagedrawable = (BitmapDrawable) senderPhoto.getDrawable();
+        Bitmap imagebitmap = imagedrawable.getBitmap();
+        Dialog builder = new Dialog(v.getContext(),android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        builder.getWindow().setBackgroundDrawable(
+                new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                //nothing;
+            }
+        });
+
+        ImageView imageView = new ImageView(v.getContext());
+        imageView.setImageBitmap(imagebitmap) ;
+        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+        builder.addContentView(imageView, new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        builder.show();*/
     }
 }

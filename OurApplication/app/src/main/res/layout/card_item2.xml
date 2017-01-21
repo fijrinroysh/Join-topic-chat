@@ -22,7 +22,8 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginRight="16dp"
-                android:scaleType="fitXY" />
+                android:scaleType="fitXY"
+                android:onClick="onSenderPhotoClick"/>
 
             <TextView
                 android:id="@+id/sender_name"
@@ -63,6 +64,7 @@
                 android:layout_toRightOf="@+id/sender_photo"
                 android:layout_margin="8dp"
                 android:scaleType="centerCrop"
+                android:onClick="onMessagePhotoClick"
                 />
 
         </RelativeLayout>
