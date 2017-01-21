@@ -1,15 +1,23 @@
 package com.example.app.ourapplication;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.app.ourapplication.rest.model.response.Person;
@@ -117,7 +125,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 vh1.senderMessage.setText(item.getMessage());
                 vh1.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
                 vh1.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
-                vh1.senderMessage.setOnClickListener(new View.OnClickListener() {
+                vh1.cv.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         final Intent discussionIntent = new Intent(v.getContext(), DiscussionActivity.class);
@@ -125,6 +133,42 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         v.getContext().startActivity(discussionIntent);
                     }
                 });
+
+                vh1.senderPhoto.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+          /* Below code is to open the Profile of the sender but now it opens the profile of the user */
+
+              final Intent profileIntent = new Intent(v.getContext(), ProfileActivity.class);
+              // profileIntent.putExtra(Keys.KEY_ID, item.mPostId);
+              v.getContext().startActivity(profileIntent);
+
+        /* Below code is to open the Sender Photo onclick */
+
+        /*ImageView senderPhoto = (ImageView) v.findViewById(R.id.sender_photo);
+        BitmapDrawable imagedrawable = (BitmapDrawable) senderPhoto.getDrawable();
+        Bitmap imagebitmap = imagedrawable.getBitmap();
+        Dialog builder = new Dialog(v.getContext(),android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        builder.getWindow().setBackgroundDrawable(
+                new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                //nothing;
+            }
+        });
+
+        ImageView imageView = new ImageView(v.getContext());
+        imageView.setImageBitmap(imagebitmap) ;
+        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+        builder.addContentView(imageView, new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        builder.show();*/
+                    }
+                });
+
                 setAnimation(vh1.cv, i);
                 break;
             case 2:
@@ -134,14 +178,71 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 vh2.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
                 vh2.messagePhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoMsg()));
                 vh2.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
-                vh2.senderMessage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                final Intent discussionIntent = new Intent(v.getContext(), DiscussionActivity.class);
-                discussionIntent.putExtra(Keys.KEY_ID,  item.getPostId());
-                v.getContext().startActivity(discussionIntent);
+                vh2.cv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final Intent discussionIntent = new Intent(v.getContext(), DiscussionActivity.class);
+                        discussionIntent.putExtra(Keys.KEY_ID, item.getPostId());
+                        v.getContext().startActivity(discussionIntent);
+                    }
+                });
+                vh2.senderPhoto.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+          /* Below code is to open the Profile of the sender but now it opens the profile of the user */
+
+                        final Intent profileIntent = new Intent(v.getContext(), ProfileActivity.class);
+                        // profileIntent.putExtra(Keys.KEY_ID, item.mPostId);
+                        v.getContext().startActivity(profileIntent);
+
+        /* Below code is to open the Sender Photo onclick */
+
+        /*ImageView senderPhoto = (ImageView) v.findViewById(R.id.sender_photo);
+        BitmapDrawable imagedrawable = (BitmapDrawable) senderPhoto.getDrawable();
+        Bitmap imagebitmap = imagedrawable.getBitmap();
+        Dialog builder = new Dialog(v.getContext(),android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        builder.getWindow().setBackgroundDrawable(
+                new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                //nothing;
             }
         });
+
+        ImageView imageView = new ImageView(v.getContext());
+        imageView.setImageBitmap(imagebitmap) ;
+        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+        builder.addContentView(imageView, new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        builder.show();*/
+                    }
+                });
+                vh2.messagePhoto.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ImageView dialogmessagePhoto = (ImageView) v.findViewById(R.id.message_photo);
+                        BitmapDrawable imagedrawable = (BitmapDrawable) dialogmessagePhoto.getDrawable();
+                        Bitmap imagebitmap = imagedrawable.getBitmap();
+                        Dialog builder = new Dialog(v.getContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+                        builder.getWindow().setBackgroundDrawable(new ColorDrawable(Color.BLACK));
+                        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialogInterface) {
+                                //nothing;
+                            }
+                        });
+
+                        ImageView imageView = new ImageView(v.getContext());
+                        imageView.setImageBitmap(imagebitmap);
+                        imageView.setAdjustViewBounds(true);
+                        builder.addContentView(imageView, new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.MATCH_PARENT));
+                        builder.show();
+                    }
+                });
                 setAnimation(vh2.cv, i);
                 break;
         }
