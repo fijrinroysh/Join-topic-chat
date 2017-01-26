@@ -1,6 +1,7 @@
 package com.example.app.ourapplication.rest.model.response;
 
 import com.example.app.ourapplication.rest.model.Model;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
@@ -14,6 +15,8 @@ public class Person extends Model implements Serializable {
     private String mType;
     @JsonProperty("postid")
     private String mPostId;
+    @JsonProperty("userid")
+    private String mUserId;
     @JsonProperty("name")
     private String mSenderName;
     @JsonProperty("message")
@@ -25,9 +28,11 @@ public class Person extends Model implements Serializable {
     @JsonProperty("time")
     private String mTimeMsg;
 
-    public Person(String type, String id, String name, String msg, String photoId, String photoMsg, String time) {
+    @JsonCreator
+    public Person(@JsonProperty("type") String type,@JsonProperty("postid") String id,@JsonProperty("userid") String userid,@JsonProperty("name") String name,@JsonProperty("message") String msg,@JsonProperty("profileimage") String photoId,@JsonProperty("image") String photoMsg,@JsonProperty("time") String time) {
         this.mType = type;
         this.mPostId = id;
+        this.mUserId = userid;
         this.mSenderName = name;
         this.mMessage = msg;
         this.mPhotoId = photoId;
@@ -35,13 +40,13 @@ public class Person extends Model implements Serializable {
         this.mTimeMsg = time;
     }
 
-    public void setType(String type) {
-        this.mType = type;
-    }
+
 
     public String getType() {
         return mType;
     }
+
+    public void setType(String type) {this.mType = type;}
 
     public String getPostId() {
         return mPostId;
@@ -49,6 +54,14 @@ public class Person extends Model implements Serializable {
 
     public void setPostId(String postId) {
         this.mPostId = postId;
+    }
+
+    public String getUserId() {
+        return mUserId;
+    }
+
+    public void setUserId(String userId) {
+        this.mUserId = userId;
     }
 
     public String getSenderName() {

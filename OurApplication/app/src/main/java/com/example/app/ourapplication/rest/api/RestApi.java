@@ -2,6 +2,7 @@ package com.example.app.ourapplication.rest.api;
 
 import com.example.app.ourapplication.rest.model.request.CommentFeedReqModel;
 import com.example.app.ourapplication.rest.model.request.HomeFeedReqModel;
+import com.example.app.ourapplication.rest.model.request.ProfileFeedReqModel;
 import com.example.app.ourapplication.rest.model.request.ProfileUpdateModel;
 import com.example.app.ourapplication.rest.model.request.SignInReqModel;
 import com.example.app.ourapplication.rest.model.response.FeedRespModel;
@@ -29,6 +30,9 @@ public interface RestApi {
 
     @POST("/homefeedquery")
     Call<FeedRespModel> queryHomeFeed(@Body HomeFeedReqModel homeFeedReqModel);
+
+    @POST("/profilefeedquery")
+    Call<FeedRespModel> queryProfileFeed(@Body ProfileFeedReqModel profileFeedReqModel);
 
     @POST("/commentfeedquery")
     Call<FeedRespModel> queryCommentFeed(@Body CommentFeedReqModel commentFeedReqModel);

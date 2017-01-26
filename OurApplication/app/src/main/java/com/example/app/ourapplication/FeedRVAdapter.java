@@ -124,15 +124,12 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 vh1.senderName.setText(item.getSenderName());
                 vh1.senderMessage.setText(item.getMessage());
                 vh1.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
+                if(item.getPhotoId().equals("noimage")) {
+                vh1.senderPhoto.setImageResource(R.drawable.profile);
+                }
+                else {
                 vh1.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
-                vh1.cv.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        final Intent discussionIntent = new Intent(v.getContext(), DiscussionActivity.class);
-                        discussionIntent.putExtra(Keys.KEY_ID, item.getPostId());
-                        v.getContext().startActivity(discussionIntent);
-                    }
-                });
+                }
 
                 vh1.senderPhoto.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -140,32 +137,21 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
           /* Below code is to open the Profile of the sender but now it opens the profile of the user */
 
-              final Intent profileIntent = new Intent(v.getContext(), ProfileActivity.class);
-              // profileIntent.putExtra(Keys.KEY_ID, item.mPostId);
-              v.getContext().startActivity(profileIntent);
+                        final Intent profileIntent = new Intent(v.getContext(), ProfileActivity.class);
+                        profileIntent.putExtra(Keys.KEY_ID, item.getPostId());
+                        v.getContext().startActivity(profileIntent);
 
-        /* Below code is to open the Sender Photo onclick */
 
-        /*ImageView senderPhoto = (ImageView) v.findViewById(R.id.sender_photo);
-        BitmapDrawable imagedrawable = (BitmapDrawable) senderPhoto.getDrawable();
-        Bitmap imagebitmap = imagedrawable.getBitmap();
-        Dialog builder = new Dialog(v.getContext(),android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        builder.getWindow().setBackgroundDrawable(
-                new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialogInterface) {
-                //nothing;
-            }
-        });
+                    }
+                });
 
-        ImageView imageView = new ImageView(v.getContext());
-        imageView.setImageBitmap(imagebitmap) ;
-        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-        builder.addContentView(imageView, new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-        builder.show();*/
+
+                vh1.cv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final Intent discussionIntent = new Intent(v.getContext(), DiscussionActivity.class);
+                        discussionIntent.putExtra(Keys.KEY_ID, item.getPostId());
+                        v.getContext().startActivity(discussionIntent);
                     }
                 });
 
@@ -178,6 +164,22 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 vh2.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
                 vh2.messagePhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoMsg()));
                 vh2.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
+
+                vh2.senderPhoto.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+          /* Below code is to open the Profile of the sender  */
+
+                        final Intent profileIntent = new Intent(v.getContext(), ProfileActivity.class);
+                        profileIntent.putExtra(Keys.KEY_ID, item.getPostId());
+                        v.getContext().startActivity(profileIntent);
+
+
+                    }
+                });
+
+
                 vh2.cv.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -186,40 +188,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         v.getContext().startActivity(discussionIntent);
                     }
                 });
-                vh2.senderPhoto.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
 
-          /* Below code is to open the Profile of the sender but now it opens the profile of the user */
-
-                        final Intent profileIntent = new Intent(v.getContext(), ProfileActivity.class);
-                        // profileIntent.putExtra(Keys.KEY_ID, item.mPostId);
-                        v.getContext().startActivity(profileIntent);
-
-        /* Below code is to open the Sender Photo onclick */
-
-        /*ImageView senderPhoto = (ImageView) v.findViewById(R.id.sender_photo);
-        BitmapDrawable imagedrawable = (BitmapDrawable) senderPhoto.getDrawable();
-        Bitmap imagebitmap = imagedrawable.getBitmap();
-        Dialog builder = new Dialog(v.getContext(),android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        builder.getWindow().setBackgroundDrawable(
-                new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialogInterface) {
-                //nothing;
-            }
-        });
-
-        ImageView imageView = new ImageView(v.getContext());
-        imageView.setImageBitmap(imagebitmap) ;
-        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-        builder.addContentView(imageView, new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-        builder.show();*/
-                    }
-                });
                 vh2.messagePhoto.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

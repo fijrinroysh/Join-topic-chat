@@ -125,25 +125,6 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
         recyclerView.setAdapter(mFeedListAdapter);
 
-        /* Commented the below part and added onClickListener to sender_message in FeedRVAdapter for the below functionality */
-
-        /*recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getActivity().getApplicationContext(), recyclerView,
-                new Util.ClickListener() {
-                    // @Override
-                    public void onClick(View view, int position) {
-                        Person item = mFeeds.get(position);
-                        final Intent discussionIntent = new Intent(getActivity(), DiscussionActivity.class);
-                        discussionIntent.putExtra(Keys.KEY_ID, item.getPostId());
-                        startActivity(discussionIntent);
-                        Toast.makeText(getContext().getApplicationContext(), item.getMessage() + " is selected!",
-                                Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onLongClick(View view, int position) {}
-                }));*/
-
-
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             /**
@@ -208,7 +189,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                     Person person = new ObjectMapper().readValue(message,Person.class);
                     mFeeds.add(0, person);
                     mFeedListAdapter.notifyDataSetChanged();
-                    mDBHelper.insertFeedData(person.toString(), "WS");
+                    mDBHelper.insertFeedData(person, "WS");
                     notify(person.getSenderName(),person.getMessage(),person.getPhotoId(),person.getPostId());
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -253,16 +234,19 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
     private void getUpdatedFeeds(){
         HomeFeedReqModel reqModel = new HomeFeedReqModel("F","5",location.getLongitude(),
-                location.getLongitude(),mDBHelper.getFeedDataLatestTime());
+                location.getLatitude(),mDBHelper.getFeedDataLatestTime());
+       // reqModel.setLatestDate(mDBHelper.getFeedDataLatestTime());
+        Log.d(TAG, "Latest data :" + mDBHelper.getFeedDataLatestTime() );
 
         Call<FeedRespModel> queryHomeFeeds = ((OurApplication)getActivity().getApplicationContext())
                 .getRestApi().queryHomeFeed(reqModel);
         queryHomeFeeds.enqueue(new Callback<FeedRespModel>() {
             @Override
             public void onResponse(Response<FeedRespModel> response, Retrofit retrofit) {
+
                 ArrayList<Person> data = response.body().getData();
                 for (int i = 0; i < data.size(); i++) {
-                    mDBHelper.insertFeedData(data.toString(), "HTTP");
+                    mDBHelper.insertFeedData(data.get(i), "HTTP");
                     mFeeds.add(0, data.get(i));
                     mFeedListAdapter.notifyItemInserted(0);
                 }
@@ -272,7 +256,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
             @Override
             public void onFailure(Throwable t) {
-                Log.d(TAG, "Query failed");
+                Log.d(TAG, "Query failed: "+ t);
                 mSwipeRefreshLayout.setRefreshing(false);
                 Toast.makeText(getActivity(), "Loading Feeds Failed", Toast.LENGTH_LONG).show();
             }
