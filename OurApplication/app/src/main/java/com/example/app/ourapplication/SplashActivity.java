@@ -42,11 +42,7 @@ public class SplashActivity extends Activity {
             signInRequest.enqueue(new Callback<SignInRespModel>() {
                 @Override
                 public void onResponse(Response<SignInRespModel> response, Retrofit retrofit) {
-                    DBHelper dBHelper = new DBHelper(SplashActivity.this);
                     if(response.body().isSuccess()) {
-                        for (int i = 0; i < response.body().getUsers().size(); i++) {
-                            dBHelper.insertProfile(response.body().getUsers().get(i).toString());
-                        }
                         ((OurApplication)getApplicationContext()).setUserToken(response.body().getToken());
                         goToHomeScreen();
                     }else{

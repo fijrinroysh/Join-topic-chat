@@ -125,7 +125,7 @@ public class ComposeFragment extends Fragment {
                     String token = ((OurApplication)getActivity().getApplicationContext()).getUserToken();
                     LocationModel location = PreferenceEditor.getInstance(getContext()).getLocation();
 
-                    CompleteFeedModel model = new CompleteFeedModel("F", msg, token,location,Helper.getStringImage(mBitmap));
+                    CompleteFeedModel model = new CompleteFeedModel("F", token, msg,location,Helper.getStringImage(mBitmap));
 
                     Log.d(TAG, "Form feed message:" + model.toString());
                     mWebSocketClient.sendMessage(model.toString());

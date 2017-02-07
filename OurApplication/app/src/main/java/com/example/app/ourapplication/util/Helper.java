@@ -90,6 +90,9 @@ public class Helper extends AppCompatActivity{
     }
 
     public static String getStringImage(Bitmap bmp) {
+        if(bmp == null){
+            return "";
+        }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bmp.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] imageBytes = baos.toByteArray();
