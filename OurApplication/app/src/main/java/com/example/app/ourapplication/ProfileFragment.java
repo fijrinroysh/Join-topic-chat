@@ -95,7 +95,7 @@ public class ProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         //mFeeds = mDBHelper.getFeedDataAll();
-        mFeedListAdapter = new FeedRVAdapter(mFeeds);
+        mFeedListAdapter = new FeedRVAdapter(getActivity(),mFeeds);
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv);
         LinearLayoutManager llm = new LinearLayoutManager(getContext().getApplicationContext());

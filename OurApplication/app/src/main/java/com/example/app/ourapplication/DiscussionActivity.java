@@ -82,7 +82,7 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
 
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv);
-        mCommentListAdapter = new FeedRVAdapter(mComments);
+        mCommentListAdapter = new FeedRVAdapter(DiscussionActivity.this,mComments);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(llm);
 

@@ -1,6 +1,7 @@
 package com.example.app.ourapplication.rest.model.response;
 
 import com.example.app.ourapplication.rest.model.Model;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -15,12 +16,23 @@ public class SignInRespModel extends Model implements Serializable {
 
     @JsonProperty("success")
     private boolean mIsSuccess;
-    @JsonProperty("users")
+    @JsonProperty("token")
     private String mToken;
     @JsonProperty("message")
     private String mMessage;
     @JsonProperty("users")
     private ArrayList<UserModel> mUsers;
+
+
+    @JsonCreator
+    public SignInRespModel(@JsonProperty("success") Boolean success,@JsonProperty("token") String token,@JsonProperty("message") String message,@JsonProperty("users") ArrayList<UserModel> users) {
+        this.mIsSuccess = success;
+        this.mToken = token;
+        this.mMessage = message;
+        this.mUsers = users;
+
+    }
+
 
     public ArrayList<UserModel> getUsers() {
         return mUsers;

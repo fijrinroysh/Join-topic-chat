@@ -117,12 +117,11 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
         super.onViewCreated(view, savedInstanceState);
 
         mFeeds = mDBHelper.getFeedDataAll();
-        mFeedListAdapter = new FeedRVAdapter(mFeeds);
+        mFeedListAdapter = new FeedRVAdapter(getActivity(),mFeeds);
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv);
         LinearLayoutManager llm = new LinearLayoutManager(getContext().getApplicationContext());
         recyclerView.setLayoutManager(llm);
-
         recyclerView.setAdapter(mFeedListAdapter);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
@@ -147,8 +146,14 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
             public void run() {
                 //HTTP requst to fetch data for Homefeed
                 getUpdatedFeeds();
+
             }
         });
+        Log.d(TAG, "Length of Feed Array" + ": " + mFeeds.size());
+
+       //Log.d(TAG, "First item in Feed Array" + ": " + mFeeds.get(0).getPhotoMsg());
+
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event

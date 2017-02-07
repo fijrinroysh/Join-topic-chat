@@ -36,7 +36,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private SQLiteDatabase mydatabase;
 
     public DBHelper(Context context) {
-        super(context, "FEED" , null, 11); //11 is the database version
+        super(context, "FEED" , null, 19); //19 is the database version
     }
 
     @Override
@@ -100,7 +100,7 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(MESSAGE_IMAGE_COLUMN, message.getPhotoMsg());
         contentValues.put(MESSAGE_TIME_COLUMN, message.getTimeMsg());
         contentValues.put(MESSAGE_PROTOCOL_COLUMN, protocol);
-        mydatabase.insert("MESSAGE_DATA", null, contentValues);
+        mydatabase.insert("MESSAGE_DATA", null , contentValues);
         return true;
     }
 
