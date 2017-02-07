@@ -22,6 +22,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.MediaController;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
@@ -90,6 +91,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         ImageView senderPhoto;
         VideoView messageVideo;
         TextView messageTime;
+        ProgressBar videoLoaderProgressBar;
 
         PersonViewHolder3(View itemView) {
             super(itemView);
@@ -99,6 +101,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             senderPhoto = (ImageView) itemView.findViewById(R.id.sender_photo);
             messageTime = (TextView) itemView.findViewById(R.id.message_time);
             messageVideo = (VideoView) itemView.findViewById(R.id.message_video);
+            videoLoaderProgressBar = (ProgressBar) itemView.findViewById(R.id.video_loader_progress_bar);
         }
     }
 
@@ -258,8 +261,10 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 case 3:
 
                     final PersonViewHolder3 vh3 = (PersonViewHolder3) viewHolder;
-//                    final ProgressDialog pDialog = new ProgressDialog(mContext);
-//                    pDialog.show();
+                   // final ProgressDialog pDialog = new ProgressDialog(mContext);
+
+                    //pDialog.show();
+                    vh3.videoLoaderProgressBar.setVisibility(View.VISIBLE);
                     vh3.senderName.setText(item.getSenderName());
                     vh3.senderMessage.setText(item.getMessage());
                     vh3.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
@@ -269,16 +274,15 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
                     try {
                         // Start the MediaController
-                        String VideoURL = "http://ec2-54-254-164-222.ap-southeast-1.compute.amazonaws.com/video/testvideo30mb.mp4";
-
-
                         MediaController mediacontroller = new MediaController(mContext);
                         mediacontroller.setAnchorView(vh3.messageVideo);
                         // Get the URL from String VideoURL
                         vh3.messageVideo.setMediaController(mediacontroller);
-//                        Uri video = Uri.parse("\"" +item.getPhotoMsg()+ "\"");
-                        Uri video = Uri.parse(VideoURL);
+                        Uri video = Uri.parse(item.getPhotoMsg());
+                      //  Uri video = Uri.parse("\"" +item.getPhotoMsg()+ "\"");
+                       // Uri video = Uri.parse(VideoURL);
                         vh3.messageVideo.setVideoURI(video);
+                        vh3.messageVideo.requestFocus();
 
                         Log.d(TAG, "Video Url" + ": " + item.getPhotoMsg());
 
@@ -309,12 +313,13 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                             Log.d(TAG, "Video is prepared");
                             //vh3.messageVideo.bringToFront();
                             //vh3.messageVideo.setFocusable(true);
-                            resizeView(vh3.messageVideo,mContext.getResources().getDisplayMetrics().widthPixels,
-                                    mContext.getResources().getDisplayMetrics().heightPixels);
+                          //  resizeView(vh3.messageVideo, mContext.getResources().getDisplayMetrics().widthPixels,
+                            //        mContext.getResources().getDisplayMetrics().heightPixels);
 
-                            vh3.messageVideo.requestFocus();
+
                             vh3.messageVideo.start();
-//                            pDialog.dismiss();
+                          //  pDialog.dismiss();
+                            vh3.videoLoaderProgressBar.setVisibility(View.INVISIBLE);
                         }
                     });
 
@@ -412,7 +417,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public static void resizeView(View view, int width, int height) {
         ViewGroup.LayoutParams layout = view.getLayoutParams();
         layout.width = width;
-//        layout.height = height;
+        layout.height = height;
         view.setLayoutParams(layout);
     }
 

@@ -192,7 +192,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                 Log.d(TAG, "I am message type F:" + ":" + msgObject.optString(Keys.KEY_NAME) );
                 try {
                     Person person = new ObjectMapper().readValue(message,Person.class);
-                    mFeeds.add(0, person);
+                    //mFeeds.add(0, person);
                     mFeedListAdapter.notifyDataSetChanged();
                     mDBHelper.insertFeedData(person, "WS");
                     notify(person.getSenderName(),person.getMessage(),person.getPhotoId(),person.getPostId());
