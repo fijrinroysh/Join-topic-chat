@@ -36,7 +36,7 @@ dependencies {
     compile 'com.roughike:bottom-bar:2.0.2'
     compile 'com.ncapdevi:frag-nav:1.0.3'
     compile 'com.android.support:support-v4:23.4.0'
-    compile 'de.hdodenhof:circleimageview:2.1.0'
+    compile 'com.squareup.picasso:picasso:2.5.2'
 
     // For the Rest layer.
     compile 'com.squareup.retrofit:retrofit:2.0.0-beta2'
