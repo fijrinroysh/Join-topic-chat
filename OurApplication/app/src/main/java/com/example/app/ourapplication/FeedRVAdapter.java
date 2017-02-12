@@ -113,11 +113,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public int getItemViewType(int i) {
-        if (mFeeds.get(i).getPhotoMsg().equals(""))
-        {
-            return 1;
-        }
-        else if(mFeeds.get(i).getPhotoMsg().contains("/images/"))
+       if(mFeeds.get(i).getPhotoMsg().contains("/images/"))
         {
             return 2;
         }
@@ -125,7 +121,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         {
             return 3;
         }
-        else {return 0;}
+        else {return 1;}
     }
 
     @Override

@@ -14,33 +14,23 @@ import java.util.ArrayList;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SignInRespModel extends Model implements Serializable {
 
-    @JsonProperty("success")
+
     private boolean mIsSuccess;
-    @JsonProperty("token")
     private String mToken;
-    @JsonProperty("message")
     private String mMessage;
-    @JsonProperty("users")
-    private ArrayList<UserModel> mUsers;
+
 
 
     @JsonCreator
-    public SignInRespModel(@JsonProperty("success") Boolean success,@JsonProperty("token") String token,@JsonProperty("message") String message,@JsonProperty("users") ArrayList<UserModel> users) {
+    public SignInRespModel(@JsonProperty("success") Boolean success,@JsonProperty("token") String token,@JsonProperty("message") String message) {
         this.mIsSuccess = success;
         this.mToken = token;
         this.mMessage = message;
-        this.mUsers = users;
+
 
     }
 
 
-    public ArrayList<UserModel> getUsers() {
-        return mUsers;
-    }
-
-    public void setUsers(ArrayList<UserModel> users) {
-        this.mUsers = users;
-    }
 
     public String getMessage() {
         return mMessage;

@@ -1,6 +1,7 @@
 package com.example.app.ourapplication.rest.model.response;
 
 import com.example.app.ourapplication.rest.model.Model;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -8,8 +9,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class ProfileRespModel extends Model {
 
-    @JsonProperty("success")
+
     private boolean mIsSuccess;
+
+
+    @JsonCreator
+    public ProfileRespModel(@JsonProperty("success") Boolean success) {
+        this.mIsSuccess = success;
+    }
 
     public boolean isSuccess() {
         return mIsSuccess;

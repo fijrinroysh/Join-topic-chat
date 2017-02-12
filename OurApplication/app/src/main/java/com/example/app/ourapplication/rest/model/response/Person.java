@@ -11,21 +11,13 @@ import java.io.Serializable;
  */
 public class Person extends Model implements Serializable {
 
-    @JsonProperty("type")
     private String mType;
-    @JsonProperty("postid")
     private String mPostId;
-    @JsonProperty("userid")
     private String mUserId;
-    @JsonProperty("name")
     private String mSenderName;
-    @JsonProperty("message")
     private String mMessage;
-    @JsonProperty("profileimage")
     private String mPhotoId;
-    @JsonProperty("image")
     private String mPhotoMsg;
-    @JsonProperty("time")
     private String mTimeMsg;
 
     @JsonCreator

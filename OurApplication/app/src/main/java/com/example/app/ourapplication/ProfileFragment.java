@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import com.example.app.ourapplication.database.DBHelper;
 import com.example.app.ourapplication.pref.PreferenceEditor;
+import com.example.app.ourapplication.rest.ApiUrls;
 import com.example.app.ourapplication.rest.model.request.HomeFeedReqModel;
 import com.example.app.ourapplication.rest.model.request.ProfileFeedReqModel;
 import com.example.app.ourapplication.rest.model.request.ProfileUpdateModel;
@@ -34,6 +35,7 @@ import com.example.app.ourapplication.rest.model.response.FeedRespModel;
 import com.example.app.ourapplication.rest.model.response.Person;
 import com.example.app.ourapplication.rest.model.response.ProfileRespModel;
 import com.example.app.ourapplication.util.Helper;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -94,13 +96,14 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        String userId = PreferenceEditor.getInstance(getContext().getApplicationContext()).getLoggedInUserName();
+        String ImageURL = ApiUrls.HTTP_URL +"/images/"+userId+".jpg";
         //mFeeds = mDBHelper.getFeedDataAll();
-        mFeedListAdapter = new FeedRVAdapter(getActivity(),mFeeds);
 
+        mFeedListAdapter = new FeedRVAdapter(getActivity(),mFeeds);
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv);
         LinearLayoutManager llm = new LinearLayoutManager(getContext().getApplicationContext());
         recyclerView.setLayoutManager(llm);
-
         recyclerView.setAdapter(mFeedListAdapter);
 
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar_profile);
@@ -113,10 +116,12 @@ public class ProfileFragment extends Fragment {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         CollapsingToolbarLayout collapsingToolbar =
                 (CollapsingToolbarLayout) view.findViewById(R.id.profile_collapse);
-        collapsingToolbar.setTitle(mDBHelper.getProfileInfo(mUserId, 1));
+       // collapsingToolbar.setTitle(mDBHelper.getProfileInfo(mUserId, 1));
+        collapsingToolbar.setTitle(" ");
         profileImgView = (ImageView) view.findViewById(R.id.image_profile);
         Log.d(TAG, "Image data : " + mDBHelper.getProfileInfo(mDBHelper.getProfileInfo(mUserId, 2), 2));
-        profileImgView.setImageBitmap(Helper.decodeImageString(mDBHelper.getProfileInfo(mUserId, 2)));
+
+        Picasso.with((getActivity().getApplicationContext())).load(ImageURL).into(profileImgView);
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override

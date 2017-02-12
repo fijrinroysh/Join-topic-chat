@@ -9,10 +9,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -78,6 +82,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     private FeedRVAdapter mFeedListAdapter;
     private DBHelper mDBHelper;
     public LocationModel location;
+    public CoordinatorLayout mCoordinatorLayout;
 
     public HomeFeedFragment() {
         // Required empty public constructor
@@ -110,6 +115,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_home_feed, container, false);
+
     }
 
     @Override
@@ -118,6 +124,9 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
         mFeeds = mDBHelper.getFeedDataAll();
         mFeedListAdapter = new FeedRVAdapter(getActivity(),mFeeds);
+
+        //Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+       //((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv);
         LinearLayoutManager llm = new LinearLayoutManager(getContext().getApplicationContext());
@@ -137,6 +146,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
         });
 
+
         /**
          * Showing Swipe Refresh animation on activity create
          * As animation won't start on onCreate, post runnable is used
@@ -149,6 +159,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
             }
         });
+
         Log.d(TAG, "Length of Feed Array" + ": " + mFeeds.size());
 
        //Log.d(TAG, "First item in Feed Array" + ": " + mFeeds.get(0).getPhotoMsg());
@@ -241,7 +252,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
         HomeFeedReqModel reqModel = new HomeFeedReqModel("F","5",location.getLongitude(),
                 location.getLatitude(),mDBHelper.getFeedDataLatestTime());
        // reqModel.setLatestDate(mDBHelper.getFeedDataLatestTime());
-        Log.d(TAG, "Latest data :" + mDBHelper.getFeedDataLatestTime() );
+        Log.d(TAG, "Latest date :" + mDBHelper.getFeedDataLatestTime() );
 
         Call<FeedRespModel> queryHomeFeeds = ((OurApplication)getActivity().getApplicationContext())
                 .getRestApi().queryHomeFeed(reqModel);
