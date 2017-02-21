@@ -16,6 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:background="@color/white"
+        app:bb_inActiveTabColor="@color/bbInactive"
         app:bb_tabXmlResource="@xml/bottom_bar_tabs"/>
 
 </LinearLayout>

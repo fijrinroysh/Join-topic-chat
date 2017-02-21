@@ -72,7 +72,6 @@ public class ProfileActivity extends AppCompatActivity{
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_profile);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.profile_collapse);
         collapsingToolbar.setTitle(mDBHelper.getFeedDataColumn(mPostId, 2));
         Log.d(TAG, "Title : " + mDBHelper.getFeedDataColumn(mPostId, 2));

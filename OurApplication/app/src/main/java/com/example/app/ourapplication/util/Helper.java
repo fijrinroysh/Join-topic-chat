@@ -1,26 +1,37 @@
 package com.example.app.ourapplication.util;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateUtils;
 import android.util.Base64;
 import android.util.Log;
 
+import com.example.app.ourapplication.DiscussionActivity;
 import com.example.app.ourapplication.Keys;
+import com.example.app.ourapplication.R;
 import com.example.app.ourapplication.Util;
 import com.example.app.ourapplication.rest.ApiUrls;
 import com.example.app.ourapplication.rest.model.request.SignInReqModel;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -29,6 +40,8 @@ import java.util.Locale;
  * Created by sarumugam on 16/07/16.
  */
 public class Helper extends AppCompatActivity{
+
+
 
     private final String TAG = Helper.class.getSimpleName();
 
@@ -72,6 +85,23 @@ public class Helper extends AppCompatActivity{
         return msgObject.toString();
 
     }
+
+    public static Bitmap getBitmapFromURL(String strURL) {
+        try {
+            URL url = new URL(strURL);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            Bitmap myBitmap = BitmapFactory.decodeStream(input);
+            return myBitmap;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
 
     public static Bitmap decodeImageString(String rimgmessage) {
         String imgString;

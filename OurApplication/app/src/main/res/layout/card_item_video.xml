@@ -59,6 +59,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/sender_photo"
                 android:textSize="15sp"
+                android:textColor="@color/text_color"
                 />
 
         <RelativeLayout
@@ -73,6 +74,16 @@
                 android:layout_height="250dp"
                 android:clickable="true"/>
 
+
+            <ImageView
+                android:id="@+id/thumbnail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:layout_centerInParent="true"
+                android:scaleType="centerCrop"
+                android:visibility="visible"/>
+
             <ProgressBar
                 android:id="@+id/video_loader_progress_bar"
                 style="?android:attr/progressBarStyleLarge"
@@ -80,6 +91,19 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:visibility="invisible" />
+
+
+            <ImageView
+                android:id="@+id/video_play_img_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:clickable="true"
+                android:padding="1dp"
+                android:src="@mipmap/video_play"
+                android:tint="@android:color/holo_red_dark"
+                android:visibility="visible"/>
+
 
         </RelativeLayout>
 

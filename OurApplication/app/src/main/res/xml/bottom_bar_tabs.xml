@@ -18,6 +18,7 @@
     <tab
         id="@+id/add_profile"
         icon="@drawable/profile"
-        title="" />
+        title=""
+        />
 
 </tabs>

@@ -106,21 +106,19 @@ public class ProfileFragment extends Fragment {
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(mFeedListAdapter);
 
-        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar_profile);
+
 
         mUserId = PreferenceEditor.getInstance((getActivity().getApplicationContext())).getLoggedInUserName();
 
         Log.d(TAG, "User ID is" + mUserId);
 
+        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar_profile);
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        CollapsingToolbarLayout collapsingToolbar =
-                (CollapsingToolbarLayout) view.findViewById(R.id.profile_collapse);
-       // collapsingToolbar.setTitle(mDBHelper.getProfileInfo(mUserId, 1));
+
+
+        CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) view.findViewById(R.id.profile_collapse);
         collapsingToolbar.setTitle(" ");
         profileImgView = (ImageView) view.findViewById(R.id.image_profile);
-        Log.d(TAG, "Image data : " + mDBHelper.getProfileInfo(mDBHelper.getProfileInfo(mUserId, 2), 2));
-
         Picasso.with((getActivity().getApplicationContext())).load(ImageURL).into(profileImgView);
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -129,6 +127,10 @@ public class ProfileFragment extends Fragment {
                 showFileChooser();
             }
         });
+
+        Log.d(TAG, "Image data : " + mDBHelper.getProfileInfo(mDBHelper.getProfileInfo(mUserId, 2), 2));
+
+
 
 
         getUpdatedFeeds();

@@ -6,9 +6,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.v7.widget.CardView;
@@ -93,6 +95,8 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         VideoView messageVideo;
         TextView messageTime;
         ProgressBar videoLoaderProgressBar;
+        ImageView videoThumbnail;
+        ImageView playIcon;
 
         PersonViewHolder3(View itemView) {
             super(itemView);
@@ -103,6 +107,8 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             messageTime = (TextView) itemView.findViewById(R.id.message_time);
             messageVideo = (VideoView) itemView.findViewById(R.id.message_video);
             videoLoaderProgressBar = (ProgressBar) itemView.findViewById(R.id.video_loader_progress_bar);
+            videoThumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
+            playIcon = (ImageView) itemView.findViewById(R.id.video_play_img_btn);
         }
     }
 
@@ -153,7 +159,9 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     vh1.senderMessage.setText(item.getMessage());
                     vh1.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
                     vh1.senderPhoto.setImageResource(R.drawable.profile);
-                    Picasso.with(mContext).load(item.getPhotoId()).resize(50, 50).into(vh1.senderPhoto);
+                   // Picasso.with(mContext).load(item.getPhotoId()).resize(50, 50).into(vh1.senderPhoto);
+                    Picasso(item.getPhotoId(), vh1.senderPhoto);
+
 
 
                     vh1.senderPhoto.setOnClickListener(new View.OnClickListener() {
@@ -190,10 +198,12 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     vh2.senderMessage.setText(item.getMessage());
                     vh2.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
                     //vh2.messagePhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoMsg()));
-                    Picasso.with(mContext).load(item.getPhotoMsg()).into(vh2.messagePhoto);
+                    //Picasso.with(mContext).load(item.getPhotoMsg()).into(vh2.messagePhoto);
+                    Picasso(item.getPhotoMsg(), vh2.messagePhoto);
                     Log.d(TAG, "IMAGE URL :" + item.getPhotoMsg());
                     //vh2.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
-                    Picasso.with(mContext).load(item.getPhotoId()).resize(50, 50).into(vh2.senderPhoto);
+                   // Picasso.with(mContext).load(item.getPhotoId()).resize(50, 50).into(vh2.senderPhoto);
+                    Picasso(item.getPhotoId(), vh2.senderPhoto);
 
                     vh2.senderPhoto.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -248,33 +258,58 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 case 3:
 
                     final PersonViewHolder3 vh3 = (PersonViewHolder3) viewHolder;
-                    vh3.videoLoaderProgressBar.setVisibility(View.VISIBLE);
+                    final MediaController mediacontroller = new MediaController(mContext);
+                    MediaMetadataRetriever metaRetriver = new MediaMetadataRetriever();;
+
                     vh3.senderName.setText(item.getSenderName());
                     vh3.senderMessage.setText(item.getMessage());
                     vh3.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
+                    vh3.videoThumbnail.setImageResource(R.drawable.mickey);
+
+
+/*                    byte[] art = metaRetriver.getEmbeddedPicture();
+                    Bitmap thumbnailImage = BitmapFactory.decodeByteArray(art, 0, art.length);
+                    vh3.videoThumbnail.setImageBitmap(thumbnailImage);
+                    Bitmap thumbnailImage = metaRetriver.getFrameAtTime(2 * 1000000, MediaMetadataRetriever.OPTION_CLOSEST);
+                    vh3.videoThumbnail.setImageBitmap(thumbnailImage);*/
+                    vh3.playIcon.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            try {
+                                vh3.videoLoaderProgressBar.setVisibility(View.VISIBLE);
+                                vh3.playIcon.setVisibility(View.INVISIBLE);
+                                Uri video = Uri.parse(item.getPhotoMsg());
+                                vh3.messageVideo.setVideoURI(video);
+                                vh3.messageVideo.requestFocus();
+                                Log.d(TAG, "Video Url" + ": " + item.getPhotoMsg());
+
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    });
+
+
+                    vh3.messageVideo.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                        // Close the progress bar and play the video
+                        public void onPrepared(MediaPlayer mp) {
+                            Log.d(TAG, "Video is prepared");
+                            //vh3.messageVideo.bringToFront();
+                            //vh3.messageVideo.setFocusable(true);
+                            vh3.messageVideo.seekTo(0);
+                            vh3.videoLoaderProgressBar.setVisibility(View.INVISIBLE);
+                            vh3.videoThumbnail.setVisibility(View.INVISIBLE);
+                            mediacontroller.setAnchorView(vh3.messageVideo);
+                            vh3.messageVideo.setMediaController(mediacontroller);
+                            vh3.messageVideo.start();
+
+                        }
+                    });
 
 
 
-
-                    try {
-                        // Start the MediaController
-                        MediaController mediacontroller = new MediaController(mContext);
-                        mediacontroller.setAnchorView(vh3.messageVideo);
-                        // Get the URL from String VideoURL
-                        vh3.messageVideo.setMediaController(mediacontroller);
-                        Uri video = Uri.parse(item.getPhotoMsg());
-                      //  Uri video = Uri.parse("\"" +item.getPhotoMsg()+ "\"");
-                       // Uri video = Uri.parse(VideoURL);
-                        vh3.messageVideo.setVideoURI(video);
-                        vh3.messageVideo.requestFocus();
-
-                        Log.d(TAG, "Video Url" + ": " + item.getPhotoMsg());
-
-
-                    } catch (Exception e) {
-                        Log.e("Error", e.getMessage());
-                        e.printStackTrace();
-                    }
 
                     vh3.messageVideo.setOnErrorListener(new MediaPlayer.OnErrorListener() {
 
@@ -290,30 +325,11 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     });
 
 
-                    vh3.messageVideo.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                        // Close the progress bar and play the video
-                        public void onPrepared(MediaPlayer mp) {
-                            Log.d(TAG, "Video is prepared");
-                            //vh3.messageVideo.bringToFront();
-                            //vh3.messageVideo.setFocusable(true);
-                            vh3.messageVideo.seekTo(10);
-                            vh3.videoLoaderProgressBar.setVisibility(View.INVISIBLE);
-                        }
-                    });
-
-                    vh3.messageVideo.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-
-                            vh3.messageVideo.start();
-
-                        }
-                    });
-
 
 
                     //vh3.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
-                    Picasso.with(mContext).load(item.getPhotoId()).resize(50, 50).into(vh3.senderPhoto);
+                   // Picasso.with(mContext).load(item.getPhotoId()).resize(50, 50).into(vh3.senderPhoto);
+                    Picasso(item.getPhotoId(), vh3.senderPhoto);
 
                     vh3.senderPhoto.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -372,5 +388,10 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     }
 
-
+    void Picasso(String URL, ImageView imageView) {
+        Picasso.with(mContext).load(URL)
+                .placeholder(R.drawable.mickey)
+                .error(R.drawable.mickey)
+                .into(imageView);
+    }
 }

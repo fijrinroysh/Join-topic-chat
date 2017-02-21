@@ -26,8 +26,12 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.app.ourapplication.pref.PreferenceEditor;
+import com.example.app.ourapplication.rest.model.request.HomeFeedReqModel;
 import com.example.app.ourapplication.rest.model.request.LocationModel;
 import com.example.app.ourapplication.rest.model.response.CompleteFeedModel;
+import com.example.app.ourapplication.rest.model.response.ComposeRespModel;
+import com.example.app.ourapplication.rest.model.response.FeedRespModel;
+import com.example.app.ourapplication.rest.model.response.Person;
 import com.example.app.ourapplication.util.Helper;
 import com.example.app.ourapplication.util.UI;
 import com.example.app.ourapplication.wss.WebSocketClient;
@@ -36,8 +40,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+
+import retrofit.Call;
+import retrofit.Callback;
+import retrofit.Response;
+import retrofit.Retrofit;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -128,8 +138,11 @@ public class ComposeFragment extends Fragment {
                     CompleteFeedModel model = new CompleteFeedModel("F", token, msg,location,Helper.getStringImage(mBitmap));
 
                     Log.d(TAG, "Form feed message:" + model.toString());
-                    mWebSocketClient.sendMessage(model.toString());
+                  //  mWebSocketClient.sendMessage(model.toString());
+                    postFeed(model);
                     mMessageBox.setText(null);
+
+                    getFragmentManager().popBackStackImmediate();
                 }
             }
         });
@@ -304,4 +317,36 @@ public class ComposeFragment extends Fragment {
                 }
         }
     }
+
+
+
+    private void postFeed(CompleteFeedModel postModel){
+
+
+        Call<ComposeRespModel> composeFeed = ((OurApplication)getActivity().getApplicationContext())
+                .getRestApi().ComposeFeed(postModel);
+        composeFeed.enqueue(new Callback<ComposeRespModel>() {
+            @Override
+            public void onResponse(Response<ComposeRespModel> response, Retrofit retrofit) {
+
+                Boolean data = response.body().isSuccess();
+                if (data) {
+
+                    Toast.makeText(getActivity(), "Message posted successfully", Toast.LENGTH_LONG).show();
+                }
+                else{
+                    Toast.makeText(getActivity(), "Message post failed", Toast.LENGTH_LONG).show();
+                }
+
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.d(TAG, "Connection Failed "+ t);
+                Toast.makeText(getActivity(), "Connection Failed. Please Try again!", Toast.LENGTH_LONG).show();
+            }
+        });
+
+    }
+
 }

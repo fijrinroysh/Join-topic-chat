@@ -51,7 +51,7 @@ public class WebSocketOptions {
       mSocketConnectTimeout = 6000;
       mValidateIncomingUtf8 = true;
       mMaskClientFrames = true;
-      mReconnectInterval = 0;  // no reconnection by default
+      mReconnectInterval = 1;  // no reconnection by default
    }
 
    /**

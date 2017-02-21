@@ -5,6 +5,9 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -21,6 +24,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.example.app.ourapplication.database.DBHelper;
@@ -33,11 +38,16 @@ import com.example.app.ourapplication.util.Helper;
 import com.example.app.ourapplication.wss.WebSocketClient;
 import com.example.app.ourapplication.wss.WebSocketListener;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,6 +91,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     private List<Person> mFeeds = new ArrayList<>();
     private FeedRVAdapter mFeedListAdapter;
     private DBHelper mDBHelper;
+
     public LocationModel location;
     public CoordinatorLayout mCoordinatorLayout;
 
@@ -110,6 +121,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
         mWebSocketClient.addWebSocketListener(this);
 
         mDBHelper = new DBHelper(getContext());
+
     }
 
     @Override
@@ -123,10 +135,10 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
         super.onViewCreated(view, savedInstanceState);
 
         mFeeds = mDBHelper.getFeedDataAll();
-        mFeedListAdapter = new FeedRVAdapter(getActivity(),mFeeds);
+        mFeedListAdapter = new FeedRVAdapter(getContext(),mFeeds);
 
-        //Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-       //((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar_homefeed);
+       ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv);
         LinearLayoutManager llm = new LinearLayoutManager(getContext().getApplicationContext());
@@ -155,6 +167,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
             @Override
             public void run() {
                 //HTTP requst to fetch data for Homefeed
+                mSwipeRefreshLayout.setRefreshing(true);
                 getUpdatedFeeds();
 
             }
@@ -206,7 +219,8 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                     //mFeeds.add(0, person);
                     mFeedListAdapter.notifyDataSetChanged();
                     mDBHelper.insertFeedData(person, "WS");
-                    notify(person.getSenderName(),person.getMessage(),person.getPhotoId(),person.getPostId());
+                    notify(person.getSenderName(), person.getMessage(), person.getPhotoId(), person.getPostId());
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -217,7 +231,8 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     }
 
     private void notify(String notificationTitle, String notificationMessage, String notificationIcon , String postid) {
-        NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService
+
+        final NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService
                 (Context.NOTIFICATION_SERVICE);
         Intent notificationIntent = new Intent(getContext(), DiscussionActivity.class);
         notificationIntent.putExtra(Keys.KEY_ID, postid);
@@ -225,22 +240,48 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
         notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), 0, notificationIntent, 0);
 
-        Notification notification = new Notification.Builder(getContext())
-                .setAutoCancel(true)
-                .setContentTitle(notificationTitle)
-                .setContentText(notificationMessage)
-                .setSmallIcon(R.mipmap.app_icon)
-                .setLargeIcon(Helper.decodeImageString(notificationIcon))
-                .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
-                .setStyle(new Notification.BigTextStyle()
-                        .bigText(notificationMessage))
-                // .setSmallIcon(setImageBitmap(Helper.decodeImageString(notificationIcon)))
-                .setContentIntent(pendingIntent).build();
-        // hide the notification after its selected
-        // notification.flags |= Notification.FLAG_AUTO_CANCEL;
+        //Bitmap bitmap = Helper.getBitmapFromURL(notificationIcon);
 
-        notificationManager.notify(0, notification);
+
+        final Notification.Builder mBuilder = new Notification.Builder(getContext())
+                                .setAutoCancel(true)
+                                .setContentTitle(notificationTitle)
+                                .setContentText(notificationMessage)
+                                .setSmallIcon(R.mipmap.app_icon)
+
+                                .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
+                                .setStyle(new Notification.BigTextStyle()
+                                        .bigText(notificationMessage))
+                                        // .setSmallIcon(setImageBitmap(Helper.decodeImageString(notificationIcon)))
+                                .setContentIntent(pendingIntent);
+                        // hide the notification after its selected
+                        // notification.flags |= Notification.FLAG_AUTO_CANCEL;
+            Picasso.with(getContext())
+                    .load(notificationIcon)
+                    .placeholder(R.drawable.mickey)
+                    .error(R.drawable.mickey)
+                    .into(new Target() {
+                        @Override
+                        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                            mBuilder.setLargeIcon(bitmap);
+                            notificationManager.notify(0, mBuilder.build());
+                        }
+
+                        @Override
+                        public void onBitmapFailed(Drawable errorDrawable) {
+
+                        }
+
+                        @Override
+                        public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                        }
+                    });
+
     }
+
+
+
 
     @Override
     public void onOpen() {}
@@ -261,21 +302,26 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
             public void onResponse(Response<FeedRespModel> response, Retrofit retrofit) {
 
                 ArrayList<Person> data = response.body().getData();
-                for (int i = 0; i < data.size(); i++) {
-                    mDBHelper.insertFeedData(data.get(i), "HTTP");
-                    mFeeds.add(0, data.get(i));
-                    mFeedListAdapter.notifyItemInserted(0);
+                if (data.size() > 0) {
+                    for (int i = 0; i < data.size(); i++) {
+                        mDBHelper.insertFeedData(data.get(i), "HTTP");
+                        mFeeds.add(0, data.get(i));
+                        mFeedListAdapter.notifyItemInserted(0);
+                    }
+                    Toast.makeText(getActivity(), "New feeds", Toast.LENGTH_LONG).show();
                 }
-                mSwipeRefreshLayout.setRefreshing(false);
-                Toast.makeText(getActivity(), "No more Feeds to Load", Toast.LENGTH_LONG).show();
-            }
+                    else{
+                        Toast.makeText(getActivity(), "No more feeds to load", Toast.LENGTH_LONG).show();
+                    }
+
+                    }
 
             @Override
             public void onFailure(Throwable t) {
                 Log.d(TAG, "Query failed: "+ t);
-                mSwipeRefreshLayout.setRefreshing(false);
-                Toast.makeText(getActivity(), "Loading Feeds Failed", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "Loading feeds failed", Toast.LENGTH_LONG).show();
             }
         });
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 }
