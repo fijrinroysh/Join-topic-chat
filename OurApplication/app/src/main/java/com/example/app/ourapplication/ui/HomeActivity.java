@@ -1,37 +1,22 @@
 package com.example.app.ourapplication.ui;
 
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
+
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
-
 import com.example.app.ourapplication.ComposeFragment;
 import com.example.app.ourapplication.HomeFeedFragment;
 import com.example.app.ourapplication.LocationFragment;
-import com.example.app.ourapplication.ProfileActivity;
 import com.example.app.ourapplication.ProfileFragment;
 import com.example.app.ourapplication.R;
-import com.ncapdevi.fragnav.FragNavController;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabReselectListener;
 import com.roughike.bottombar.OnTabSelectListener;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,19 +25,21 @@ import java.util.List;
  */
 public class HomeActivity extends AppCompatActivity implements OnTabSelectListener, OnTabReselectListener {
 
-    private final String TAG = HomeActivity.class.getSimpleName();
-    private final int TAB_FIRST = FragNavController.TAB1;
-    private final int TAB_SECOND = FragNavController.TAB2;
-    private final int TAB_THIRD = FragNavController.TAB3;
-    private final int TAB_FOURTH = FragNavController.TAB4;
 
-    private FragNavController mBottomBarController;
+    private int index = -1;
+
+
+    private final String TAG = HomeActivity.class.getSimpleName();
+    private FragmentManager fm;
+    public static BottomBar bottomBar;
+    List<Fragment> fragments = new ArrayList<>(4);
+    private FragmentTransaction fragmentTransaction;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        List<Fragment> fragments = new ArrayList<>(4);
+
 
         //add fragments to list
         fragments.add(HomeFeedFragment.newInstance());
@@ -61,41 +48,68 @@ public class HomeActivity extends AppCompatActivity implements OnTabSelectListen
         fragments.add(ProfileFragment.newInstance());
 
         //link fragments to container
-        mBottomBarController = new FragNavController(getSupportFragmentManager(),R.id.contentContainer,fragments);
 
-        BottomBar bottomBar = (BottomBar) findViewById(R.id.bottomBar);
+
+        bottomBar = (BottomBar) findViewById(R.id.bottomBar);
         bottomBar.setOnTabSelectListener(this);
         bottomBar.setOnTabReselectListener(this);
+
     }
 
-    @Override
-    public void onBackPressed() {
-        if (mBottomBarController.getCurrentStack().size() > 1) {
-            mBottomBarController.pop();
-        } else {
-            moveTaskToBack(true);
-        }
-    }
 
     @Override
     public void onTabSelected(@IdRes int tabId) {
+
         switch (tabId) {
             case R.id.add_location:
-                mBottomBarController.switchTab(TAB_SECOND);
+                index = 1;
                 break;
             case R.id.add_message:
-                mBottomBarController.switchTab(TAB_THIRD);
+                index = 2;
                 break;
             case R.id.add_profile:
-                mBottomBarController.switchTab(TAB_FOURTH);
+                index = 3;
                 break;
             default:
-                mBottomBarController.switchTab(TAB_FIRST);
+                index = 0;
         }
+
+        Log.d(TAG, "onTabSelected : " + tabId);
+        fm = getSupportFragmentManager();
+        fragmentTransaction = fm.beginTransaction();
+        fragmentTransaction.replace(R.id.contentContainer, fragments.get(index));
+      //  fragmentTransaction.addToBackStack(Integer.toString(index));
+        fragmentTransaction.commit();
+
     }
 
     @Override
     public void onTabReSelected(@IdRes int tabId) {
-        Log.d(TAG,"onTabReSelected : "+tabId);
+        Log.d(TAG, "onTabReSelected : " + tabId);
+
     }
+
+
+    @Override
+    public void onBackPressed() {
+
+        if ( bottomBar.getCurrentTabPosition()!=0) {
+            bottomBar.selectTabAtPosition(0);
+/*
+            entry = fm.getBackStackEntryCount();
+            Log.i(TAG, "BackStackEntryCount after set Tab:" + fm.getBackStackEntryCount() + "\"");
+            Log.i(TAG, "Current Tab position after set Tab:" + Integer.toString(bottomBar.getCurrentTabPosition()) + "\"");
+            Log.i(TAG, "Previous fragment after set Tab:" + fm.getBackStackEntryAt(entry - 2).getName()+"\"");
+            Log.i(TAG, "Are they equal after set Tab:" + (Integer.toString(bottomBar.getCurrentTabPosition()).equals(fm.getBackStackEntryAt(entry - 2).getName())));
+*/
+        }
+       else {
+            moveTaskToBack(true);
+        }
+
+
+    }
+
 }
+
+

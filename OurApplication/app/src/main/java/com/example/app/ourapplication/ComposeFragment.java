@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -32,9 +33,11 @@ import com.example.app.ourapplication.rest.model.response.CompleteFeedModel;
 import com.example.app.ourapplication.rest.model.response.ComposeRespModel;
 import com.example.app.ourapplication.rest.model.response.FeedRespModel;
 import com.example.app.ourapplication.rest.model.response.Person;
+import com.example.app.ourapplication.ui.HomeActivity;
 import com.example.app.ourapplication.util.Helper;
 import com.example.app.ourapplication.util.UI;
 import com.example.app.ourapplication.wss.WebSocketClient;
+import com.roughike.bottombar.BottomBar;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -73,6 +76,7 @@ public class ComposeFragment extends Fragment {
     private Bitmap mBitmap;
     private ImageView img;
     private EditText mMessageBox;
+    //private BottomBar bottomBar;
 
     private WebSocketClient mWebSocketClient;
     private Uri fileUri; // file url to store image/video
@@ -98,6 +102,7 @@ public class ComposeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mWebSocketClient = ((OurApplication)getActivity().getApplicationContext()).getClient();
+
     }
 
     @Override
@@ -109,24 +114,26 @@ public class ComposeFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mMessageBox = (EditText) view.findViewById(R.id.msg_box);
-        UI.showSoftKeyboard(getActivity(),mMessageBox);
 
+        RelativeLayout layout = (RelativeLayout) view.findViewById(R.id.msg_send_lyt);
+        UI.showSoftKeyboard(getActivity(),mMessageBox);
+        HomeActivity.bottomBar.setActivated(false);
         img = (ImageView) view.findViewById(R.id.img);
         Button sendButton = (Button) view.findViewById(R.id.send_button);
 
         ImageButton cameraButton = (ImageButton) view.findViewById(R.id.camera_button);
         ImageButton galleryButton = (ImageButton) view.findViewById(R.id.gallery);
 
-        RelativeLayout layout = (RelativeLayout) view.findViewById(R.id.msg_send_lyt);
 
+/*
         if(img.getDrawable() == null) {
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
                     RelativeLayout.LayoutParams.WRAP_CONTENT);
-            params.addRule(RelativeLayout.CENTER_IN_PARENT);
+            params.addRule(RelativeLayout.SOFT_INPUT_ADJUST_PAN);
             layout.setLayoutParams(params);
 
         }
-
+*/
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -142,7 +149,7 @@ public class ComposeFragment extends Fragment {
                     postFeed(model);
                     mMessageBox.setText(null);
 
-                    getFragmentManager().popBackStackImmediate();
+
                 }
             }
         });
@@ -332,9 +339,15 @@ public class ComposeFragment extends Fragment {
                 Boolean data = response.body().isSuccess();
                 if (data) {
 
-                    Toast.makeText(getActivity(), "Message posted successfully", Toast.LENGTH_LONG).show();
-                }
-                else{
+                    //UI.showSoftKeyboard(getActivity(),mMessageBox);
+
+
+                    HomeActivity.bottomBar.selectTabAtPosition(0);
+
+                    UI.closeKeyboard(getActivity(), mMessageBox.getWindowToken());
+
+
+                } else {
                     Toast.makeText(getActivity(), "Message post failed", Toast.LENGTH_LONG).show();
                 }
 
@@ -342,11 +355,13 @@ public class ComposeFragment extends Fragment {
 
             @Override
             public void onFailure(Throwable t) {
-                Log.d(TAG, "Connection Failed "+ t);
+                Log.d(TAG, "Connection Failed " + t);
                 Toast.makeText(getActivity(), "Connection Failed. Please Try again!", Toast.LENGTH_LONG).show();
             }
         });
 
     }
+
+
 
 }

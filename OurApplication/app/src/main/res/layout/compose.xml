@@ -17,7 +17,7 @@
         android:id="@+id/img"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/msg_box"
+        android:layout_below="@id/msg_box"
         android:adjustViewBounds="true"
 
         />
@@ -28,8 +28,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_msg_send_lyt"
         android:layout_alignParentBottom="true"
-        android:layout_below="@id/img"
-        >
+       >
 
 
         <ImageButton

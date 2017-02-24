@@ -236,7 +236,7 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onFailure(Throwable t) {
-                Log.d(TAG, "Query failed for the reson: " + t);
+                Log.d(TAG, "Query failed for the reason: " + t);
                 Toast.makeText(getActivity(), "Loading Feeds Failed", Toast.LENGTH_LONG).show();
             }
         });
