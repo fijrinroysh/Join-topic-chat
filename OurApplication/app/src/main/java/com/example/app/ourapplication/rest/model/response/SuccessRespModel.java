@@ -10,14 +10,14 @@ import java.util.ArrayList;
  * Created by sarumugam on 15/01/17.
  */
 
-public class FeedRespModel extends Model {
+public class SuccessRespModel extends Model {
 
 
     private boolean mIsSuccess;
     private ArrayList<Person> mData;
 
     @JsonCreator
-    public FeedRespModel(@JsonProperty("success") Boolean success,@JsonProperty("data") ArrayList<Person> data ) {
+    public SuccessRespModel(@JsonProperty("success") Boolean success, @JsonProperty("data") ArrayList<Person> data) {
         this.mIsSuccess = success;
         this.mData = data;
 
