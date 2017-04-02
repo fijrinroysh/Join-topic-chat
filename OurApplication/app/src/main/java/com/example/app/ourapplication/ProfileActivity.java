@@ -1,36 +1,22 @@
 package com.example.app.ourapplication;
 
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.app.ourapplication.database.DBHelper;
-import com.example.app.ourapplication.pref.PreferenceEditor;
 import com.example.app.ourapplication.rest.ApiUrls;
 import com.example.app.ourapplication.rest.model.request.ProfileFeedReqModel;
-import com.example.app.ourapplication.rest.model.request.ProfileUpdateModel;
-import com.example.app.ourapplication.rest.model.response.FeedRespModel;
 import com.example.app.ourapplication.rest.model.response.Person;
-import com.example.app.ourapplication.rest.model.response.ProfileRespModel;
-import com.example.app.ourapplication.util.Helper;
+import com.example.app.ourapplication.rest.model.response.SuccessRespModel;
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,11 +75,11 @@ public class ProfileActivity extends AppCompatActivity{
     private void getUpdatedFeeds(){
         ProfileFeedReqModel reqModel = new ProfileFeedReqModel(mUserId,"2020-12-31 12:00:00");
 
-        Call<FeedRespModel> queryProfileFeeds = ((OurApplication)getApplicationContext())
+        Call<SuccessRespModel> queryProfileFeeds = ((OurApplication)getApplicationContext())
                 .getRestApi().queryProfileFeed(reqModel);
-        queryProfileFeeds.enqueue(new Callback<FeedRespModel>() {
+        queryProfileFeeds.enqueue(new Callback<SuccessRespModel>() {
             @Override
-            public void onResponse(Response<FeedRespModel> response, Retrofit retrofit) {
+            public void onResponse(Response<SuccessRespModel> response, Retrofit retrofit) {
                 if (response.body().isSuccess()) {
                     ArrayList<Person> data = response.body().getData();
 
@@ -116,6 +102,4 @@ public class ProfileActivity extends AppCompatActivity{
             }
         });
     }
-
-
 }

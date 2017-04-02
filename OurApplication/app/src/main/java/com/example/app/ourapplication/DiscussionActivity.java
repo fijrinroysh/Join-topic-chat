@@ -1,11 +1,5 @@
 package com.example.app.ourapplication;
 
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -14,18 +8,14 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.app.ourapplication.database.DBHelper;
 import com.example.app.ourapplication.rest.model.request.CommentFeedReqModel;
-import com.example.app.ourapplication.rest.model.response.FeedRespModel;
 import com.example.app.ourapplication.rest.model.response.Person;
+import com.example.app.ourapplication.rest.model.response.SuccessRespModel;
 import com.example.app.ourapplication.util.Helper;
 import com.example.app.ourapplication.wss.WebSocketClient;
 import com.example.app.ourapplication.wss.WebSocketListener;
@@ -202,11 +192,11 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         reqModel.setLatestDate("2016-12-11 17:00:00");
         reqModel.setPostId(keyid);
         reqModel.setType("C");
-        Call<FeedRespModel> queryComments = ((OurApplication)getApplicationContext())
+        Call<SuccessRespModel> queryComments = ((OurApplication)getApplicationContext())
                 .getRestApi().queryCommentFeed(reqModel);
-        queryComments.enqueue(new Callback<FeedRespModel>() {
+        queryComments.enqueue(new Callback<SuccessRespModel>() {
             @Override
-            public void onResponse(Response<FeedRespModel> response, Retrofit retrofit) {
+            public void onResponse(Response<SuccessRespModel> response, Retrofit retrofit) {
                 mComments.addAll(response.body().getData());
                 mCommentListAdapter.notifyDataSetChanged();
                 mSwipeRefreshLayout.setRefreshing(false);

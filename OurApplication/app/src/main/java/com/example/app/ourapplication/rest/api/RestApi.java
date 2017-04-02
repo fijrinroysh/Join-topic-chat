@@ -7,10 +7,10 @@ import com.example.app.ourapplication.rest.model.request.ProfileUpdateModel;
 import com.example.app.ourapplication.rest.model.request.SignInReqModel;
 import com.example.app.ourapplication.rest.model.response.CompleteFeedModel;
 import com.example.app.ourapplication.rest.model.response.ComposeRespModel;
-import com.example.app.ourapplication.rest.model.response.FeedRespModel;
 import com.example.app.ourapplication.rest.model.response.ProfileRespModel;
 import com.example.app.ourapplication.rest.model.response.SignInRespModel;
 import com.example.app.ourapplication.rest.model.request.SignUpReqModel;
+import com.example.app.ourapplication.rest.model.response.SuccessRespModel;
 
 import retrofit.Call;
 import retrofit.http.Body;
@@ -31,14 +31,14 @@ public interface RestApi {
     Call<ProfileRespModel> updateProfile(@Body ProfileUpdateModel profileReqModel);
 
     @POST("/homefeedquery")
-    Call<FeedRespModel> queryHomeFeed(@Body HomeFeedReqModel homeFeedReqModel);
+    Call<SuccessRespModel> queryHomeFeed(@Body HomeFeedReqModel homeFeedReqModel);
 
     @POST("/postfeed")
     Call<ComposeRespModel> ComposeFeed(@Body CompleteFeedModel completeFeedModel);
 
     @POST("/profilefeedquery")
-    Call<FeedRespModel> queryProfileFeed(@Body ProfileFeedReqModel profileFeedReqModel);
+    Call<SuccessRespModel> queryProfileFeed(@Body ProfileFeedReqModel profileFeedReqModel);
 
     @POST("/commentfeedquery")
-    Call<FeedRespModel> queryCommentFeed(@Body CommentFeedReqModel commentFeedReqModel);
+    Call<SuccessRespModel> queryCommentFeed(@Body CommentFeedReqModel commentFeedReqModel);
 }

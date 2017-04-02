@@ -27,23 +27,18 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.app.ourapplication.pref.PreferenceEditor;
-import com.example.app.ourapplication.rest.model.request.HomeFeedReqModel;
 import com.example.app.ourapplication.rest.model.request.LocationModel;
 import com.example.app.ourapplication.rest.model.response.CompleteFeedModel;
 import com.example.app.ourapplication.rest.model.response.ComposeRespModel;
-import com.example.app.ourapplication.rest.model.response.FeedRespModel;
-import com.example.app.ourapplication.rest.model.response.Person;
 import com.example.app.ourapplication.ui.HomeActivity;
 import com.example.app.ourapplication.util.Helper;
 import com.example.app.ourapplication.util.UI;
 import com.example.app.ourapplication.wss.WebSocketClient;
-import com.roughike.bottombar.BottomBar;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 

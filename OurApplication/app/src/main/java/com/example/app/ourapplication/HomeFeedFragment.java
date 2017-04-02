@@ -6,7 +6,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,7 +14,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,17 +22,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.example.app.ourapplication.database.DBHelper;
 import com.example.app.ourapplication.pref.PreferenceEditor;
 import com.example.app.ourapplication.rest.model.request.HomeFeedReqModel;
 import com.example.app.ourapplication.rest.model.request.LocationModel;
-import com.example.app.ourapplication.rest.model.response.FeedRespModel;
 import com.example.app.ourapplication.rest.model.response.Person;
-import com.example.app.ourapplication.util.Helper;
+import com.example.app.ourapplication.rest.model.response.SuccessRespModel;
 import com.example.app.ourapplication.wss.WebSocketClient;
 import com.example.app.ourapplication.wss.WebSocketListener;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,9 +40,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -295,11 +287,11 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
        // reqModel.setLatestDate(mDBHelper.getFeedDataLatestTime());
         Log.d(TAG, "Latest date :" + mDBHelper.getFeedDataLatestTime() );
 
-        Call<FeedRespModel> queryHomeFeeds = ((OurApplication)getActivity().getApplicationContext())
+        Call<SuccessRespModel> queryHomeFeeds = ((OurApplication)getActivity().getApplicationContext())
                 .getRestApi().queryHomeFeed(reqModel);
-        queryHomeFeeds.enqueue(new Callback<FeedRespModel>() {
+        queryHomeFeeds.enqueue(new Callback<SuccessRespModel>() {
             @Override
-            public void onResponse(Response<FeedRespModel> response, Retrofit retrofit) {
+            public void onResponse(Response<SuccessRespModel> response, Retrofit retrofit) {
 
                 ArrayList<Person> data = response.body().getData();
                 if (data.size() > 0) {

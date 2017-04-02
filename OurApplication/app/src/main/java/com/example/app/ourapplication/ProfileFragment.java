@@ -28,12 +28,11 @@ import android.widget.Toast;
 import com.example.app.ourapplication.database.DBHelper;
 import com.example.app.ourapplication.pref.PreferenceEditor;
 import com.example.app.ourapplication.rest.ApiUrls;
-import com.example.app.ourapplication.rest.model.request.HomeFeedReqModel;
 import com.example.app.ourapplication.rest.model.request.ProfileFeedReqModel;
 import com.example.app.ourapplication.rest.model.request.ProfileUpdateModel;
-import com.example.app.ourapplication.rest.model.response.FeedRespModel;
 import com.example.app.ourapplication.rest.model.response.Person;
 import com.example.app.ourapplication.rest.model.response.ProfileRespModel;
+import com.example.app.ourapplication.rest.model.response.SuccessRespModel;
 import com.example.app.ourapplication.util.Helper;
 import com.squareup.picasso.Picasso;
 
@@ -214,11 +213,11 @@ public class ProfileFragment extends Fragment {
     private void getUpdatedFeeds(){
         ProfileFeedReqModel reqModel = new ProfileFeedReqModel(mUserId,"2020-12-31 12:00:00");
 
-        Call<FeedRespModel> queryProfileFeeds = ((OurApplication)getActivity().getApplicationContext())
+        Call<SuccessRespModel> queryProfileFeeds = ((OurApplication)getActivity().getApplicationContext())
                 .getRestApi().queryProfileFeed(reqModel);
-        queryProfileFeeds.enqueue(new Callback<FeedRespModel>() {
+        queryProfileFeeds.enqueue(new Callback<SuccessRespModel>() {
             @Override
-            public void onResponse(Response<FeedRespModel> response, Retrofit retrofit) {
+            public void onResponse(Response<SuccessRespModel> response, Retrofit retrofit) {
                 if (response.body().isSuccess()) {
                     ArrayList<Person> data = response.body().getData();
 
