@@ -112,7 +112,7 @@ public class ComposeFragment extends Fragment {
 
         RelativeLayout layout = (RelativeLayout) view.findViewById(R.id.msg_send_lyt);
         UI.showSoftKeyboard(getActivity(),mMessageBox);
-        HomeActivity.bottomBar.setActivated(false);
+//        HomeActivity.bottomBar.setActivated(false);
         img = (ImageView) view.findViewById(R.id.img);
         Button sendButton = (Button) view.findViewById(R.id.send_button);
 
@@ -337,7 +337,7 @@ public class ComposeFragment extends Fragment {
                     //UI.showSoftKeyboard(getActivity(),mMessageBox);
 
 
-                    HomeActivity.bottomBar.selectTabAtPosition(0);
+//                    HomeActivity.bottomBar.selectTabAtPosition(0);
 
                     UI.closeKeyboard(getActivity(), mMessageBox.getWindowToken());
 

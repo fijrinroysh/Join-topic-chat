@@ -119,12 +119,10 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public int getItemViewType(int i) {
-       if(mFeeds.get(i).getPhotoMsg().contains("/images/"))
-        {
+       if(mFeeds.get(i).getPhotoMsg().contains("/images/")) {
             return 2;
         }
-        else if(mFeeds.get(i).getPhotoMsg().contains("/video/"))
-        {
+        else if(mFeeds.get(i).getPhotoMsg().contains("/video/")) {
             return 3;
         }
         else {return 1;}
@@ -139,7 +137,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             return new PersonViewHolder1(v);
         } else if (viewType == 2) {
             Log.d(TAG, "PersonViewHolder2 created");
-            View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.card_item1, viewGroup, false);
+            View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.card_item_image, viewGroup, false);
             return new PersonViewHolder2(v);
         } else if (viewType == 3) {
             Log.d(TAG, "PersonViewHolder3 created");
