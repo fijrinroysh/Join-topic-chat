@@ -13,6 +13,7 @@
     </string-array>
 
     <string name="app_name">OurApplication</string>
+    <string name="google_maps_key">AIzaSyBdBIr5R-D7gc3ryaSJ4pSPCj2-xdbPir0</string>
 
     <string name="no_feed">No Feeds for you.</string>
     <string name="send">Send</string>

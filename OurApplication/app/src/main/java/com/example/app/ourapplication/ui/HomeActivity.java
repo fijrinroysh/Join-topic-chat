@@ -1,6 +1,5 @@
 package com.example.app.ourapplication.ui;
 
-
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
@@ -25,21 +24,15 @@ import java.util.List;
  */
 public class HomeActivity extends AppCompatActivity implements OnTabSelectListener, OnTabReselectListener {
 
-
-    private int index = -1;
-
-
     private final String TAG = HomeActivity.class.getSimpleName();
-    private FragmentManager fm;
-    public static BottomBar bottomBar;
-    List<Fragment> fragments = new ArrayList<>(4);
-    private FragmentTransaction fragmentTransaction;
+
+    private BottomBar bottomBar;
+    private List<Fragment> fragments = new ArrayList<>(4);
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
 
         //add fragments to list
         fragments.add(HomeFeedFragment.newInstance());
@@ -48,18 +41,15 @@ public class HomeActivity extends AppCompatActivity implements OnTabSelectListen
         fragments.add(ProfileFragment.newInstance());
 
         //link fragments to container
-
-
         bottomBar = (BottomBar) findViewById(R.id.bottomBar);
         bottomBar.setOnTabSelectListener(this);
         bottomBar.setOnTabReselectListener(this);
-
     }
-
 
     @Override
     public void onTabSelected(@IdRes int tabId) {
 
+        int index = -1;
         switch (tabId) {
             case R.id.add_location:
                 index = 1;
@@ -75,20 +65,14 @@ public class HomeActivity extends AppCompatActivity implements OnTabSelectListen
         }
 
         Log.d(TAG, "onTabSelected : " + tabId);
-        fm = getSupportFragmentManager();
-        fragmentTransaction = fm.beginTransaction();
-        fragmentTransaction.replace(R.id.contentContainer, fragments.get(index));
-      //  fragmentTransaction.addToBackStack(Integer.toString(index));
-        fragmentTransaction.commit();
-
+        FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction().replace(R.id.contentContainer, fragments.get(index)).commit();
     }
 
     @Override
     public void onTabReSelected(@IdRes int tabId) {
         Log.d(TAG, "onTabReSelected : " + tabId);
-
     }
-
 
     @Override
     public void onBackPressed() {
@@ -102,14 +86,8 @@ public class HomeActivity extends AppCompatActivity implements OnTabSelectListen
             Log.i(TAG, "Previous fragment after set Tab:" + fm.getBackStackEntryAt(entry - 2).getName()+"\"");
             Log.i(TAG, "Are they equal after set Tab:" + (Integer.toString(bottomBar.getCurrentTabPosition()).equals(fm.getBackStackEntryAt(entry - 2).getName())));
 */
-        }
-       else {
+        } else {
             moveTaskToBack(true);
         }
-
-
     }
-
 }
-
-

@@ -4,42 +4,49 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.example.app.ourapplication.pref.PreferenceEditor;
 import com.example.app.ourapplication.rest.model.request.LocationModel;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link LocationFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link LocationFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class LocationFragment extends Fragment {
+import java.io.IOException;
+
+public class LocationFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMarkerClickListener,
+        GoogleMap.OnMarkerDragListener, GoogleMap.OnMapClickListener, OnMapReadyCallback {
 
     private final String TAG = LocationFragment.class.getSimpleName();
     private static final int REQ_LOCATION = 7;
 
-    private OnFragmentInteractionListener mListener;
-    private LocationManager locationManager;
-
-    public LocationFragment() {
-        // Required empty public constructor
-    }
+    private GoogleMap mGoogleMap;
+    private LocationManager mLocationManager;
+    private GoogleApiClient mGoogleApiClient;
+    private Circle mCurrLocationMarker;
 
     /**
      * Use this factory method to create a new instance of
@@ -57,7 +64,7 @@ public class LocationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+        mLocationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
     }
 
     @Override
@@ -68,53 +75,8 @@ public class LocationFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        TextView textView = (TextView) view.findViewById(R.id.location);
-
-        if (isLocationEnabled()) {
-            checkInLocation();
-        } else {
-            Snackbar.make(view, "Location is not enabled", Snackbar.LENGTH_LONG).show();
-        }
-        textView.setText(PreferenceEditor.getInstance(getContext()).getLocation().toString());
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-     /*   if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }*/
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        SupportMapFragment mapFragment = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map));
+        mapFragment.getMapAsync(this);
     }
 
     @Override
@@ -123,16 +85,78 @@ public class LocationFragment extends Fragment {
         switch (requestCode) {
             case REQ_LOCATION:
                 if (isLocationEnabled()) {
-                    checkInLocation();
+//                    checkInLocation();
                 } else {
 //                    Snackbar.make(mDrawer, "Location is not enabled", Snackbar.LENGTH_LONG).show();
                 }
         }
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        if(mGoogleApiClient != null && !mGoogleApiClient.isConnected()){
+            mGoogleApiClient.connect();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(mGoogleApiClient != null && mGoogleApiClient.isConnected()){
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        Log.d(TAG,"OnConnected");
+        Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        initCamera(location);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.d(TAG,"OnConnectionSuspended : "+i);
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.d(TAG,"OnConnectionFailed : "+connectionResult.getErrorCode());
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        marker.showInfoWindow();
+        return true;
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mGoogleMap = googleMap;
+        mGoogleMap.setMyLocationEnabled(true);
+        initListeners();
+    }
+
+    @Override
+    public void onMarkerDragStart(Marker marker) {}
+
+    @Override
+    public void onMarkerDrag(Marker marker) {}
+
+    @Override
+    public void onMarkerDragEnd(Marker marker) {}
+
+    @Override
+    public void onMapClick(LatLng latLng) {
+        MarkerOptions options = new MarkerOptions().position(latLng);
+        options.title(getAddress(latLng));
+        drawCircle(latLng);
+    }
+
     private boolean isLocationEnabled() {
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
-                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        return mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
 
     private Location getCurrentLocation() {
@@ -147,10 +171,10 @@ public class LocationFragment extends Fragment {
             // for ActivityCompat#requestPermissions for more details.
             return null;
         }
-        Location currLoc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        Location currLoc = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         Log.d(TAG, "Current GPS location : " + currLoc);
         if (currLoc == null) {
-            currLoc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            currLoc = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             Log.d(TAG,"Current Network location : "+currLoc.toString());
         }
         return currLoc;
@@ -163,5 +187,62 @@ public class LocationFragment extends Fragment {
         }
         LocationModel locationModel = new LocationModel(location);
         PreferenceEditor.getInstance(getContext()).setLocation(locationModel);
+    }
+
+    private void initListeners(){
+        mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+
+        mGoogleMap.setOnMarkerClickListener(this);
+        mGoogleMap.setOnMarkerDragListener(this);
+        mGoogleMap.setOnMapClickListener(this);
+        mGoogleApiClient.connect();
+    }
+
+    private void initCamera(Location location){
+        if(location == null){
+            return;
+        }
+
+        LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
+        CameraPosition position = CameraPosition.builder()
+                .target(latLng)
+                .zoom(16f)
+                .bearing(0.0f)
+                .tilt(0.0f)
+                .build();
+        mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(position));
+        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        mGoogleMap.setMyLocationEnabled(true);
+        mGoogleMap.getUiSettings().setZoomControlsEnabled(true);
+        drawCircle(latLng);
+    }
+
+    private String getAddress(LatLng latLng){
+        Geocoder geocoder = new Geocoder(getActivity());
+        String address = null;
+        try {
+            address = geocoder.getFromLocation(latLng.latitude,latLng.longitude,1).get(0).getAddressLine(0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return address;
+    }
+
+    private void drawCircle(LatLng latLng){
+        if(mCurrLocationMarker != null){
+            mCurrLocationMarker.remove();
+        }
+        CircleOptions options = new CircleOptions();
+        options.center(latLng);
+        Log.d(TAG,"Zoom lvel : "+mGoogleMap.getCameraPosition().zoom);
+        options.radius(1000);
+        options.fillColor(ContextCompat.getColor(getActivity(),R.color.yellow));
+        options.strokeColor(ContextCompat.getColor(getActivity(),R.color.green));
+        options.strokeWidth(10);
+        mCurrLocationMarker = mGoogleMap.addCircle(options);
     }
 }
