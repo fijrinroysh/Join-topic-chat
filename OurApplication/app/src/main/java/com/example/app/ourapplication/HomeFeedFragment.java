@@ -30,6 +30,7 @@ import com.example.app.ourapplication.rest.model.request.HomeFeedReqModel;
 import com.example.app.ourapplication.rest.model.request.LocationModel;
 import com.example.app.ourapplication.rest.model.response.Person;
 import com.example.app.ourapplication.rest.model.response.SuccessRespModel;
+import com.example.app.ourapplication.ui.HomeActivity;
 import com.example.app.ourapplication.wss.WebSocketClient;
 import com.example.app.ourapplication.wss.WebSocketListener;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -128,7 +129,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
         mFeeds = mDBHelper.getFeedDataAll();
         mFeedListAdapter = new FeedRVAdapter(getContext(),mFeeds);
-
+        HomeActivity.bottomBar.setVisibility(View.VISIBLE);
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar_homefeed);
        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
 

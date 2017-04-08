@@ -26,7 +26,7 @@ public class HomeActivity extends AppCompatActivity implements OnTabSelectListen
 
     private final String TAG = HomeActivity.class.getSimpleName();
 
-    private BottomBar bottomBar;
+    public static BottomBar bottomBar;
     private List<Fragment> fragments = new ArrayList<>(4);
 
     @Override
