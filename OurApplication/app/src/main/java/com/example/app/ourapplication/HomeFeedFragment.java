@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import com.example.app.ourapplication.database.DBHelper;
 import com.example.app.ourapplication.pref.PreferenceEditor;
+import com.example.app.ourapplication.rest.model.request.CommentFeedReqModel;
 import com.example.app.ourapplication.rest.model.request.HomeFeedReqModel;
 import com.example.app.ourapplication.rest.model.request.LocationModel;
 import com.example.app.ourapplication.rest.model.response.Person;
@@ -282,11 +283,12 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     @Override
     public void onClose() {}
 
+
     private void getUpdatedFeeds(){
         HomeFeedReqModel reqModel = new HomeFeedReqModel("F","5",location.getLongitude(),
                 location.getLatitude(),mDBHelper.getFeedDataLatestTime());
        // reqModel.setLatestDate(mDBHelper.getFeedDataLatestTime());
-        Log.d(TAG, "Latest date :" + mDBHelper.getFeedDataLatestTime() );
+        Log.d(TAG, "Latest date :" + mDBHelper.getFeedDataLatestTime());
 
         Call<SuccessRespModel> queryHomeFeeds = ((OurApplication)getActivity().getApplicationContext())
                 .getRestApi().queryHomeFeed(reqModel);
@@ -317,4 +319,9 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
         });
         mSwipeRefreshLayout.setRefreshing(false);
     }
+
+
+
+
+
 }

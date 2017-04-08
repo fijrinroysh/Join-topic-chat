@@ -29,7 +29,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 
+import com.example.app.ourapplication.pref.PreferenceEditor;
 import com.example.app.ourapplication.rest.model.response.Person;
+import com.example.app.ourapplication.ui.HomeActivity;
 import com.example.app.ourapplication.util.Helper;
 import com.squareup.picasso.Picasso;
 
@@ -42,6 +44,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private final String TAG = FeedRVAdapter.class.getSimpleName();
 
+
     private int lastPosition = -1;
     private List<Person> mFeeds;
     private Context mContext;
@@ -50,6 +53,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         this.mContext = context;
         this.mFeeds = mFeeds;
     }
+    String userId = PreferenceEditor.getInstance(mContext).getLoggedInUserName();
 
     public class PersonViewHolder1 extends RecyclerView.ViewHolder {
         CardView cv;
@@ -112,6 +116,24 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
+    public class PersonViewHolder4 extends RecyclerView.ViewHolder {
+
+        TextView senderName;
+        TextView senderMessage;
+        ImageView senderPhoto;
+        TextView messageTime;
+
+        PersonViewHolder4(View itemView) {
+            super(itemView);
+            senderName = (TextView) itemView.findViewById(R.id.sender_name);
+            senderMessage = (TextView) itemView.findViewById(R.id.sender_message);
+            senderPhoto = (ImageView) itemView.findViewById(R.id.sender_photo);
+            messageTime = (TextView) itemView.findViewById(R.id.message_time);
+        }
+    }
+
+
+
     @Override
     public int getItemCount() {
         return mFeeds.size();
@@ -119,13 +141,22 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public int getItemViewType(int i) {
-       if(mFeeds.get(i).getPhotoMsg().contains("/images/")) {
-            return 2;
+        if (mFeeds.get(i).getType().equals("F")){
+            if(mFeeds.get(i).getPhotoMsg().contains("/images/"))
+            {
+                return 2;
+            }
+            else if(mFeeds.get(i).getPhotoMsg().contains("/video/"))
+            {
+                return 3;
+            }
+            else {return 1;}
+        }else if (mFeeds.get(i).getType().equals("C"))
+        {
+            return 4;
         }
-        else if(mFeeds.get(i).getPhotoMsg().contains("/video/")) {
-            return 3;
-        }
-        else {return 1;}
+
+        else return 0;
     }
 
     @Override
@@ -144,9 +175,12 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.card_item_video, viewGroup, false);
             return new PersonViewHolder3(v);
         }
-        else {
-            return null;
+        else if (viewType == 4) {
+            Log.d(TAG, "PersonViewHolder4 created");
+            View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.card_item_comment, viewGroup, false);
+            return new PersonViewHolder4(v);
         }
+        else {return null;}
     }
 
     @Override
@@ -158,35 +192,12 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 vh1.senderName.setText(item.getSenderName());
                 vh1.senderMessage.setText(item.getMessage());
                 vh1.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
-                vh1.senderPhoto.setImageResource(R.drawable.profile);
                 // Picasso.with(mContext).load(item.getPhotoId()).resize(50, 50).into(vh1.senderPhoto);
                 Picasso(item.getPhotoId(), vh1.senderPhoto);
 
+                openProfile(item, vh1.senderPhoto);
 
-
-                vh1.senderPhoto.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-          /* Below code is to open the Profile of the sender  */
-
-                        final Intent profileIntent = new Intent(v.getContext(), ProfileActivity.class);
-                        profileIntent.putExtra(Keys.KEY_ID, item.getPostId());
-                        v.getContext().startActivity(profileIntent);
-
-
-                    }
-                });
-
-
-                vh1.cv.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        final Intent discussionIntent = new Intent(v.getContext(), DiscussionActivity.class);
-                        discussionIntent.putExtra(Keys.KEY_ID, item.getPostId());
-                        v.getContext().startActivity(discussionIntent);
-                    }
-                });
+                openDiscussion(item, vh1.cv);
 
                 setAnimation(vh1.cv, i);
                 break;
@@ -204,30 +215,10 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 //vh2.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
                 // Picasso.with(mContext).load(item.getPhotoId()).resize(50, 50).into(vh2.senderPhoto);
                 Picasso(item.getPhotoId(), vh2.senderPhoto);
-
-                vh2.senderPhoto.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        // Below code is to open the Profile of the sender
-
-                        final Intent profileIntent = new Intent(v.getContext(), ProfileActivity.class);
-                        profileIntent.putExtra(Keys.KEY_ID, item.getPostId());
-                        v.getContext().startActivity(profileIntent);
+                openProfile(item, vh2.senderPhoto);
 
 
-                    }
-                });
-
-
-                vh2.cv.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        final Intent discussionIntent = new Intent(v.getContext(), DiscussionActivity.class);
-                        discussionIntent.putExtra(Keys.KEY_ID, item.getPostId());
-                        v.getContext().startActivity(discussionIntent);
-                    }
-                });
+                openDiscussion(item, vh2.cv);
 
                 vh2.messagePhoto.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -265,6 +256,13 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 vh3.senderMessage.setText(item.getMessage());
                 vh3.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
                 vh3.videoThumbnail.setImageResource(R.drawable.mickey);
+                Uri video = Uri.parse(item.getPhotoMsg());
+                vh3.messageVideo.setVideoURI(video);
+                vh3.messageVideo.requestFocus();
+                vh3.videoLoaderProgressBar.setVisibility(View.VISIBLE);
+                vh3.videoThumbnail.setVisibility(View.VISIBLE);
+                vh3.playIcon.setVisibility(View.VISIBLE);
+                Log.d(TAG, "Video Url" + ": " + item.getPhotoMsg());
 
 
 /*                    byte[] art = metaRetriver.getEmbeddedPicture();
@@ -272,25 +270,6 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     vh3.videoThumbnail.setImageBitmap(thumbnailImage);
                     Bitmap thumbnailImage = metaRetriver.getFrameAtTime(2 * 1000000, MediaMetadataRetriever.OPTION_CLOSEST);
                     vh3.videoThumbnail.setImageBitmap(thumbnailImage);*/
-                vh3.playIcon.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        try {
-                            vh3.videoLoaderProgressBar.setVisibility(View.VISIBLE);
-                            vh3.playIcon.setVisibility(View.INVISIBLE);
-                            Uri video = Uri.parse(item.getPhotoMsg());
-                            vh3.messageVideo.setVideoURI(video);
-                            vh3.messageVideo.requestFocus();
-                            Log.d(TAG, "Video Url" + ": " + item.getPhotoMsg());
-
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                });
-
 
                 vh3.messageVideo.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                     // Close the progress bar and play the video
@@ -301,9 +280,23 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         vh3.messageVideo.seekTo(0);
                         vh3.videoLoaderProgressBar.setVisibility(View.INVISIBLE);
                         vh3.videoThumbnail.setVisibility(View.INVISIBLE);
-                        mediacontroller.setAnchorView(vh3.messageVideo);
-                        vh3.messageVideo.setMediaController(mediacontroller);
-                        vh3.messageVideo.start();
+                        vh3.playIcon.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                try {
+
+                                    vh3.playIcon.setVisibility(View.INVISIBLE);
+                                    mediacontroller.setAnchorView(vh3.messageVideo);
+                                    vh3.messageVideo.setMediaController(mediacontroller);
+                                    vh3.messageVideo.start();
+
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+
+                            }
+                        });
+
 
                     }
                 });
@@ -331,33 +324,28 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 // Picasso.with(mContext).load(item.getPhotoId()).resize(50, 50).into(vh3.senderPhoto);
                 Picasso(item.getPhotoId(), vh3.senderPhoto);
 
-                vh3.senderPhoto.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // Below code is to open the Profile of the sender
-                        final Intent profileIntent = new Intent(v.getContext(), ProfileActivity.class);
-                        profileIntent.putExtra(Keys.KEY_ID, item.getPostId());
-                        v.getContext().startActivity(profileIntent);
-
-
-                    }
-                });
-
-                vh3.cv.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        final Intent discussionIntent = new Intent(v.getContext(), DiscussionActivity.class);
-                        discussionIntent.putExtra(Keys.KEY_ID, item.getPostId());
-                        v.getContext().startActivity(discussionIntent);
-                    }
-                });
-
-
+                openProfile(item, vh3.senderPhoto);
+                openDiscussion(item, vh3.cv);
 
 
                 setAnimation(vh3.cv, i);
 
                 break;
+
+
+            case 4:
+                PersonViewHolder4 vh4 = (PersonViewHolder4) viewHolder;
+                vh4.senderName.setText(item.getSenderName());
+                vh4.senderMessage.setText(item.getMessage());
+                vh4.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
+
+                // Picasso.with(mContext).load(item.getPhotoId()).resize(50, 50).into(vh1.senderPhoto);
+                Picasso(item.getPhotoId(), vh4.senderPhoto);
+
+
+
+                break;
+
         }
     }
 
@@ -393,5 +381,36 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 .placeholder(R.drawable.mickey)
                 .error(R.drawable.mickey)
                 .into(imageView);
+    }
+
+
+    void openProfile(final Person person, ImageView senderPhoto) {
+        senderPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+          /* Below code is to open the Profile of the sender  */
+
+                final Intent profileIntent = new Intent(v.getContext(), ProfileActivity.class);
+                profileIntent.putExtra(Keys.KEY_ID, person.getPostId());
+                if (!person.getUserId().equals(userId)) {
+                    v.getContext().startActivity(profileIntent);
+                }
+
+            }
+        });
+
+    }
+
+    void openDiscussion(final Person person, CardView cv) {
+
+        cv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Intent discussionIntent = new Intent(v.getContext(), DiscussionActivity.class);
+                discussionIntent.putExtra(Keys.KEY_ID, person.getPostId());
+                v.getContext().startActivity(discussionIntent);
+            }
+        });
     }
 }

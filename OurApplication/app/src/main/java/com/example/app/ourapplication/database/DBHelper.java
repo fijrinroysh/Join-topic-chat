@@ -36,7 +36,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private SQLiteDatabase mydatabase;
 
     public DBHelper(Context context) {
-        super(context, "FEED" , null, 24); //24 is the database version
+        super(context, "FEED", null, 25); //24 is the database version
     }
 
     @Override
@@ -60,7 +60,6 @@ public class DBHelper extends SQLiteOpenHelper {
                         MESSAGE_USER_NAME_COLUMN+" VARCHAR,"+
                         MESSAGE_COLUMN+" VARCHAR,"+
                         PROFILE_IMAGE_COLUMN +" VARCHAR,"+
-                        MESSAGE_LIKES_COLUMN+" VARCHAR,"+
                         MESSAGE_TIME_COLUMN+" VARCHAR)"
 
         );
@@ -100,37 +99,18 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(MESSAGE_IMAGE_COLUMN, message.getPhotoMsg());
         contentValues.put(MESSAGE_TIME_COLUMN, message.getTimeMsg());
         contentValues.put(MESSAGE_PROTOCOL_COLUMN, protocol);
-        mydatabase.insert("MESSAGE_DATA", null , contentValues);
+        mydatabase.insert("MESSAGE_DATA", null, contentValues);
         return true;
     }
 
-    public boolean insertCommentData (String message) {
-        JSONObject msgObject = null;
-        try {
-            msgObject = new JSONObject(message);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        mydatabase = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MESSAGE_ID_COLUMN, msgObject.optString(Keys.KEY_ID));
-        contentValues.put(MESSAGE_USER_ID_COLUMN, msgObject.optString(Keys.KEY_USERID));
-        contentValues.put(MESSAGE_USER_NAME_COLUMN, msgObject.optString(Keys.KEY_NAME));
-        contentValues.put(MESSAGE_COLUMN, msgObject.optString(Keys.KEY_MESSAGE));
-        contentValues.put(PROFILE_IMAGE_COLUMN, msgObject.optString(Keys.KEY_PROFIMG));
-        //contentValues.put(MESSAGE_IMAGE_COLUMN_NAME, msgObject.optString(Keys.KEY_IMAGE));
-        //contentValues.put(MESSAGE_LIKES_COLUMN_NAME, msgObject.optString(Keys.KEY_LIKES));
-        contentValues.put(MESSAGE_TIME_COLUMN, msgObject.optString(Keys.KEY_TIME));
-        mydatabase.insert("COMMENT_DATA", null, contentValues);
-        return true;
-    }
+
 
     public ArrayList<Person> getFeedDataAll() {
         ArrayList<Person> array_list = new ArrayList<Person>();
 
         SQLiteDatabase db = this.getReadableDatabase();
         //Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " +MESSAGE_FROM_COLUMN+ " = \"" + id + "\" or " +MESSAGE_TO_COLUMN_NAME+ " = \""+id+"\" ORDER BY "+ MESSAGE_TIME_COLUMN_NAME+" DESC", null );
-        Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " + MESSAGE_PROTOCOL_COLUMN + " = \"HTTP\" ORDER BY "+ MESSAGE_TIME_COLUMN+" DESC", null );
+        Cursor msg_res =  db.rawQuery("select * from MESSAGE_DATA where " + MESSAGE_PROTOCOL_COLUMN + " = \"HTTP\" ORDER BY " + MESSAGE_TIME_COLUMN + " DESC", null);
         msg_res.moveToFirst();
 
         while(msg_res.isAfterLast() == false){
@@ -171,7 +151,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public String getFeedDataColumn(String id, Integer columnnumber ) {
         String  columndata;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " +MESSAGE_ID_COLUMN+ " = \"" + id +"\"" , null );
+        Cursor msg_res =  db.rawQuery("select * from MESSAGE_DATA where " + MESSAGE_ID_COLUMN + " = \"" + id + "\"", null);
 
         msg_res.moveToFirst();
 
@@ -196,10 +176,47 @@ public class DBHelper extends SQLiteOpenHelper {
         if (msg_res.getCount() != 0){
             //msg_res.moveToFirst();
             columndata = msg_res.getString(6);
-            Log.d(TAG, "getFeedDataColumn: " + columndata);}
+        }
         else{
             columndata="2000-12-31 12:00:00";
         }
+        Log.d(TAG, "getFeedDataLatestTime: " + columndata);
+        return columndata;
+    }
+
+
+    public boolean insertCommentData (Person message) {
+
+        mydatabase = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MESSAGE_ID_COLUMN, message.getPostId());
+        contentValues.put(MESSAGE_USER_ID_COLUMN, message.getUserId());
+        contentValues.put(MESSAGE_USER_NAME_COLUMN, message.getSenderName());
+        contentValues.put(MESSAGE_COLUMN, message.getMessage());
+        contentValues.put(PROFILE_IMAGE_COLUMN, message.getPhotoId());
+        //contentValues.put(MESSAGE_IMAGE_COLUMN_NAME, msgObject.optString(Keys.KEY_IMAGE));
+        //contentValues.put(MESSAGE_LIKES_COLUMN_NAME, msgObject.optString(Keys.KEY_LIKES));
+        contentValues.put(MESSAGE_TIME_COLUMN, message.getTimeMsg());
+        mydatabase.insert("COMMENT_DATA", null, contentValues);
+        return true;
+    }
+
+
+    public String getCommentDataLatestTime(String id) {
+        String  columndata;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor msg_res =  db.rawQuery( "select * from COMMENT_DATA where " +MESSAGE_ID_COLUMN+ " = \"" + id +"\"  ORDER BY "+ MESSAGE_TIME_COLUMN+" DESC" , null );
+
+        msg_res.moveToFirst();
+
+        if (msg_res.getCount() != 0) {
+            //msg_res.moveToFirst();
+            columndata = msg_res.getString(5);
+        }
+        else{
+            columndata="2000-12-31 12:00:00";
+        }
+        Log.d(TAG, "getCommentDataColumn: " + columndata);
         return columndata;
     }
 
@@ -207,7 +224,7 @@ public class DBHelper extends SQLiteOpenHelper {
         ArrayList<Person> array_list = new ArrayList<Person>();
 
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor msg_res =  db.rawQuery( "select * from COMMENT_DATA where " +MESSAGE_ID_COLUMN+ " = \"" + id +"\" ORDER BY "+ MESSAGE_TIME_COLUMN+" DESC", null );
+        Cursor msg_res =  db.rawQuery( "select * from COMMENT_DATA where " +MESSAGE_ID_COLUMN+ " = \"" + id +"\" ORDER BY "+ MESSAGE_TIME_COLUMN+" ASC", null );
         //Cursor res =  db.rawQuery( "select * from MESSAGE_DATA" , null );
         msg_res.moveToFirst();
 
@@ -246,42 +263,8 @@ public class DBHelper extends SQLiteOpenHelper {
         return columndata;
     }
 
-    /*
-    public String getProfileId(String id) {
-        String columndata;
-        SQLiteDatabase db = this.getReadableDatabase();
 
-        //String Query = "SELECT * FROM PROFILE_DATA WHERE PROFILE_USER = 'Fiji' ";
-        Cursor prof_res = db.rawQuery("SELECT * FROM PROFILE_DATA WHERE " + PROFILE_USER_COLUMN + " = \"" + id + "\"", null);
-        Log.d(TAG, "getProfileIdCount: " + prof_res.getCount());
-        Log.d(TAG, "getProfileId ID: " + id);
 
-        if (prof_res.getCount() != 0){
-            prof_res.moveToFirst();
-            columndata = prof_res.getString(0);
-            Log.d(TAG, "getProfileIDInfo: " + columndata);}
-        else{
-            columndata="no id";
-        }
-
-        return columndata;
-    }  */
-
-    public boolean insertProfile (String profile) {
-        JSONObject msgObject = null;
-        try {
-            msgObject = new JSONObject(profile);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        mydatabase = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(PROFILE_ID_COLUMN, msgObject.optString("phonenumber"));
-        contentValues.put(PROFILE_USER_COLUMN, msgObject.optString("username"));
-        contentValues.put(PROFILE_IMAGE_COLUMN, msgObject.optString(Keys.KEY_PROFIMG));
-        mydatabase.insertWithOnConflict("PROFILE_DATA", null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
-        return true;
-    }
 
     public boolean updateProfile (String profile) {
         JSONObject msgObject = null;
