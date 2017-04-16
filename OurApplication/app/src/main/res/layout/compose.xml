@@ -13,14 +13,15 @@
         android:hint="Add a comment"
         android:textStyle="italic"/>
 
-    <ImageView
-        android:id="@+id/img"
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/compose_lyt"
         android:layout_below="@id/msg_box"
-        android:adjustViewBounds="true"
+        android:layout_alignParentBottom="true"
+        >
 
-        />
 
     <RelativeLayout
         android:id="@+id/msg_send_lyt"
@@ -59,8 +60,7 @@
             android:background="@color/white"
             />
     </RelativeLayout>
-
-
+    </RelativeLayout>
 </RelativeLayout>
 
 

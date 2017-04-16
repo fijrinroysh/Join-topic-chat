@@ -146,7 +146,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             {
                 return 2;
             }
-            else if(mFeeds.get(i).getPhotoMsg().contains("/video/"))
+            else if(mFeeds.get(i).getPhotoMsg().contains("/videos/"))
             {
                 return 3;
             }
@@ -255,7 +255,19 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 vh3.senderName.setText(item.getSenderName());
                 vh3.senderMessage.setText(item.getMessage());
                 vh3.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
-                vh3.videoThumbnail.setImageResource(R.drawable.mickey);
+
+                Log.d(TAG, "IMAGE URL :" + item.getPhotoMsg());
+                int index=item.getPhotoMsg().lastIndexOf('/');
+                String Thumbnail_URL=item.getPhotoMsg().substring(0, index);
+                String Thumbnail_filename=item.getPhotoMsg().substring(index + 1);
+                Log.d(TAG, "Thumbnail_URL" + Thumbnail_URL);
+                Log.d(TAG, "Thumbnail_filename" + Thumbnail_filename.substring(0, Thumbnail_filename.indexOf('.')) + ".jpg");
+                String thumbnailfilename=Thumbnail_URL.concat("/video_thumbnail_").concat(Thumbnail_filename.substring(0, Thumbnail_filename.indexOf('.')) + ".jpg");
+                Log.d(TAG, "Video Thumbnail file name :" + thumbnailfilename);
+                Picasso(thumbnailfilename, vh3.videoThumbnail);
+
+
+               // vh3.videoThumbnail.setImageResource(R.drawable.mickey);
                 Uri video = Uri.parse(item.getPhotoMsg());
                 vh3.messageVideo.setVideoURI(video);
                 vh3.messageVideo.requestFocus();
@@ -271,6 +283,27 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     Bitmap thumbnailImage = metaRetriver.getFrameAtTime(2 * 1000000, MediaMetadataRetriever.OPTION_CLOSEST);
                     vh3.videoThumbnail.setImageBitmap(thumbnailImage);*/
 
+/*Code added instead of earlier code commented below -- start of code */
+        /*        vh3.playIcon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        try {
+                            vh3.videoLoaderProgressBar.setVisibility(View.VISIBLE);
+                            vh3.playIcon.setVisibility(View.INVISIBLE);
+                            Uri video = Uri.parse(item.getPhotoMsg());
+                            vh3.messageVideo.setVideoURI(video);
+                            vh3.messageVideo.requestFocus();
+                            Log.d(TAG, "Video Url" + ": " + item.getPhotoMsg());
+
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                });
+
+
                 vh3.messageVideo.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                     // Close the progress bar and play the video
                     public void onPrepared(MediaPlayer mp) {
@@ -280,6 +313,25 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         vh3.messageVideo.seekTo(0);
                         vh3.videoLoaderProgressBar.setVisibility(View.INVISIBLE);
                         vh3.videoThumbnail.setVisibility(View.INVISIBLE);
+                        mediacontroller.setAnchorView(vh3.messageVideo);
+                        vh3.messageVideo.setMediaController(mediacontroller);
+                        //vh3.messageVideo.start();
+
+                    }
+                });*/
+   // -- end of code
+
+/*-- Earlier Code*/
+                vh3.messageVideo.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    // Close the progress bar and play the video
+                    public void onPrepared(MediaPlayer mp) {
+                        Log.d(TAG, "Video is prepared");
+                        //vh3.messageVideo.bringToFront();
+                        //vh3.messageVideo.setFocusable(true);
+                        vh3.messageVideo.seekTo(0);
+                        vh3.videoLoaderProgressBar.setVisibility(View.INVISIBLE);
+                        vh3.videoThumbnail.setVisibility(View.INVISIBLE);
+
                         vh3.playIcon.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -300,6 +352,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
                     }
                 });
+                //--end of comment */
 
 
 

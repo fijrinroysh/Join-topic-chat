@@ -12,7 +12,6 @@
         android:layout_height="match_parent"
         android:elevation="100dp"
         android:layout_margin="1dp"
-
         >
 
         <RelativeLayout
@@ -42,7 +41,6 @@
                 android:textColor="@color/text_color"/>
 
 
-
             <TextView
                 android:id="@+id/message_time"
                 android:layout_width="wrap_content"
@@ -50,7 +48,6 @@
                 android:layout_below="@+id/sender_name"
                 android:layout_toRightOf="@+id/sender_photo"
                 android:textSize="12sp"
-
                 />
 
             <TextView
@@ -62,50 +59,46 @@
                 android:textColor="@color/text_color"
                 />
 
-        <RelativeLayout
-            android:id="@+id/relative_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/sender_message">
-
-            <VideoView
-                android:id="@+id/message_video"
-                android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:clickable="true"/>
-
-
-            <ImageView
-                android:id="@+id/thumbnail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
-                android:layout_centerInParent="true"
-                android:scaleType="centerCrop"
-                android:visibility="visible"/>
-
-            <ProgressBar
-                android:id="@+id/video_loader_progress_bar"
-                style="?android:attr/progressBarStyleLarge"
+            <RelativeLayout
+                android:id="@+id/relative_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:visibility="invisible" />
+                android:layout_below="@+id/sender_message">
+                <VideoView
+                    android:id="@+id/message_video"
+                    android:layout_width="match_parent"
+                    android:layout_height="500dp"
+                    android:clickable="true"/>
+                <ImageView
+                    android:id="@+id/thumbnail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:layout_centerInParent="true"
+                    android:scaleType="centerCrop"
+                    android:visibility="visible"/>
+
+                <ProgressBar
+                    android:id="@+id/video_loader_progress_bar"
+                    style="?android:attr/progressBarStyleLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:visibility="invisible" />
 
 
-            <ImageView
-                android:id="@+id/video_play_img_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:clickable="true"
-                android:padding="1dp"
-                android:src="@mipmap/video_play"
-                android:tint="@android:color/holo_red_dark"
-                android:visibility="visible"/>
+                <ImageView
+                    android:id="@+id/video_play_img_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:clickable="true"
+                    android:padding="1dp"
+                    android:src="@mipmap/video_play"
+                    android:tint="@android:color/holo_red_dark"
+                    android:visibility="visible"/>
 
-
-        </RelativeLayout>
+            </RelativeLayout>
 
         </RelativeLayout>
 

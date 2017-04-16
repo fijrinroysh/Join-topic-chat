@@ -29,8 +29,10 @@ public class CompleteFeedModel extends Model {
     private String mPhotoMsg;
     @JsonProperty("time")
     private String mTimeMsg;
+    @JsonProperty("filetype")
+    private String mfiletype;
 
-    public CompleteFeedModel(String type, String token, String message, LocationModel locationModel, String bitmap) {
+    public CompleteFeedModel(String type, String token, String message, LocationModel locationModel, String bitmap,String filetype) {
         this.mType = type;
         this.mToken = token;
         this.mMessage = message;
@@ -38,6 +40,8 @@ public class CompleteFeedModel extends Model {
         this.mLatitude = locationModel.getLatitude();
         this.mPhotoMsg = bitmap;
         this.mTimeMsg = Helper.getCurrentTimeStamp();
+        this.mfiletype = filetype;
+
     }
 
     public String getType() {
@@ -66,5 +70,9 @@ public class CompleteFeedModel extends Model {
 
     public String getTimeMsg() {
         return mTimeMsg;
+    }
+
+    public String getFileType() {
+        return mfiletype;
     }
 }

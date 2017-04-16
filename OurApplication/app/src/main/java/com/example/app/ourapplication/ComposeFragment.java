@@ -2,10 +2,23 @@ package com.example.app.ourapplication;
 
 import android.Manifest;
 import android.app.Activity;
+import android.media.ThumbnailUtils;
+import android.provider.MediaStore.Video.Thumbnails;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.logging.HttpLoggingInterceptor;
+import okhttp3.OkHttpClient;
+import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -15,7 +28,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -23,10 +38,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.example.app.ourapplication.pref.PreferenceEditor;
+import com.example.app.ourapplication.rest.api.FileUploadApi;
+import com.example.app.ourapplication.rest.ApiUrls;
 import com.example.app.ourapplication.rest.model.request.LocationModel;
 import com.example.app.ourapplication.rest.model.response.CompleteFeedModel;
 import com.example.app.ourapplication.rest.model.response.ComposeRespModel;
@@ -40,12 +59,50 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
-import retrofit.Call;
+/*import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
-import retrofit.Retrofit;
+import retrofit.Retrofit;*/
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import android.view.Display;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.MediaController;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
+import android.widget.VideoView;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
+import android.app.ProgressDialog;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -75,6 +132,20 @@ public class ComposeFragment extends Fragment {
 
     private WebSocketClient mWebSocketClient;
     private Uri fileUri; // file url to store image/video
+    private static Uri filePath;
+    private static String AbsolutefilePath;
+    private static Bitmap bmThumbnail;
+    private static String pathtype;
+   // private Map<String, RequestBody> map = new HashMap<>();
+
+   // private WebSocketClient mWebSocketClient;
+   // private Uri fileUri; // file url to store image/video
+    //RestApi service;
+    private static ProgressDialog pDialog;
+    private  ImageView iv ;
+    private VideoView vv ;
+    private RelativeLayout msg_send_lyt;
+    private static String filetype;
 
     public ComposeFragment() {
         // Required empty public constructor
@@ -114,9 +185,9 @@ public class ComposeFragment extends Fragment {
         HomeActivity.bottomBar.setVisibility(View.INVISIBLE);
         UI.showSoftKeyboard(getActivity(),mMessageBox);
 //        HomeActivity.bottomBar.setActivated(false);
-        img = (ImageView) view.findViewById(R.id.img);
+       // img = (ImageView) view.findViewById(R.id.img);
         Button sendButton = (Button) view.findViewById(R.id.send_button);
-
+        msg_send_lyt = (RelativeLayout) view.findViewById(R.id.msg_send_lyt);
         ImageButton cameraButton = (ImageButton) view.findViewById(R.id.camera_button);
         ImageButton galleryButton = (ImageButton) view.findViewById(R.id.gallery);
 
@@ -138,11 +209,21 @@ public class ComposeFragment extends Fragment {
                     String token = ((OurApplication)getActivity().getApplicationContext()).getUserToken();
                     LocationModel location = PreferenceEditor.getInstance(getContext()).getLocation();
 
-                    CompleteFeedModel model = new CompleteFeedModel("F", token, msg,location,Helper.getStringImage(mBitmap));
-
+                    CompleteFeedModel model ;
+                    //new CompleteFeedModel("F", token, msg,location,Helper.getStringImage(mBitmap));
+                    if(filetype=="image")
+                    {
+                        model = new CompleteFeedModel("F", token, msg, location, null,filetype);}
+                    else
+                    {
+                        model = new CompleteFeedModel("F", token, msg, location, Helper.getStringImage(bmThumbnail),filetype);
+                    }
                     Log.d(TAG, "Form feed message:" + model.toString());
+
                   //  mWebSocketClient.sendMessage(model.toString());
-                    postFeed(model);
+                    //postFeed(model);
+                    Log.d(TAG, "filePath:" + filePath);
+                    fileupload(filePath, model, pathtype, AbsolutefilePath, filetype);
                     mMessageBox.setText(null);
 
 
@@ -209,9 +290,15 @@ public class ComposeFragment extends Fragment {
     private void showFileChooser() {
 
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.setType("image/*, video/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*"});
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+
+       /* Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);*/
     }
 
     private void captureImage() {
@@ -266,15 +353,46 @@ public class ComposeFragment extends Fragment {
 
     private void previewCapturedImage() {
         try {
-            final Bitmap bitmap = BitmapFactory.decodeFile(fileUri.getPath());
+         /*   final Bitmap bitmap = BitmapFactory.decodeFile(fileUri.getPath());
             Log.d(TAG, "Image bitmap value is : " + bitmap);
             img.setImageBitmap(bitmap);
-
             //mBitmap=BITMAP_RESIZER(bitmap,200,200);
             mBitmap=Helper.scaleBitmap(bitmap);
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             // mBitmap.compress(Bitmap.CompressFormat.JPEG, 20, bytes);
+            String imageMessage = Helper.getStringImage(mBitmap);*/
+            Log.d(TAG, "getPath1_preview:" +fileUri.getPath());
+            AbsolutefilePath=fileUri.getPath();
+            pathtype="path";
+            filetype="image";
+            ImageView iv = new ImageView(getContext());
+            final RelativeLayout layout = (RelativeLayout) getView().findViewById(R.id.compose_lyt);
+            ImageButton gallery = (ImageButton) getView().findViewById(R.id.gallery);
+            iv.setImageResource(R.drawable.location);
+            final Bitmap bitmap = BitmapFactory.decodeFile(fileUri.getPath());
+            Bitmap mBitmap=bitmap;
+            Log.d(TAG, "Image bitmap value is : " + mBitmap);
+            mBitmap = Helper.scaleBitmap(mBitmap);
+            ByteArrayOutputStream bytes1 = new ByteArrayOutputStream();
+            mBitmap.compress(Bitmap.CompressFormat.JPEG, 50, bytes1);
+            img.setImageBitmap(mBitmap);
+            img.setVisibility(View.VISIBLE);
+            mBitmap = Helper.scaleBitmap(bitmap);
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             String imageMessage = Helper.getStringImage(mBitmap);
+            iv.setImageBitmap(mBitmap);
+            layout.addView(iv);
+            iv.setVisibility(View.VISIBLE);
+            Display display = getActivity().getWindowManager().getDefaultDisplay();
+            int width = display.getWidth();
+            int height = ((display.getHeight()*40)/100);
+            RelativeLayout.LayoutParams lp1 = new RelativeLayout.LayoutParams(width, height);
+            mMessageBox.setVisibility(View.VISIBLE);
+            lp1.addRule(RelativeLayout.BELOW, mMessageBox.getId());
+            lp1.addRule(RelativeLayout.ABOVE, gallery.getId());
+            iv.setLayoutParams(lp1);
+            iv.setScaleType(ImageView.ScaleType.FIT_XY);
+            msg_send_lyt.setVisibility(View.VISIBLE);
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
@@ -287,17 +405,121 @@ public class ComposeFragment extends Fragment {
             case PICK_IMAGE_REQUEST:
                 if (resultCode == Activity.RESULT_OK && data != null
                         && data.getData() != null) {
-                    Uri filePath = data.getData();
+                     filePath = data.getData();
+                    ContentResolver cR = getContext().getContentResolver();
+                    pathtype="uri";
+                    String type=cR.getType(filePath);
+                    ImageView iv = new ImageView(getContext());
+                    final RelativeLayout layout = (RelativeLayout) getView().findViewById(R.id.compose_lyt);
+                    ImageButton gallery = (ImageButton) getView().findViewById(R.id.gallery);
+                    iv.setImageResource(R.drawable.location);
+                    layout.addView(iv);
                     try {
+
+                        if(type.toString().contains("image")) {
+                            filetype="image";
+                            Log.d(TAG, "image file path is:" + getContext().getFilesDir().getAbsolutePath() + "," +
+                                    Environment.getDataDirectory() + "," + Environment.getExternalStorageState());
+                            //  Log.d(TAG, "getRealPathFromURI_API19:" + getFileName(filePath));
+                            Log.d(TAG, "getPath1:" + getFilePath(filePath,type));
+                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), filePath);
+                            mBitmap = Helper.scaleBitmap(bitmap);
+                            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                            mBitmap.compress(Bitmap.CompressFormat.JPEG, 50, bytes);
+                            //img.setImageBitmap(mBitmap);
+                            iv.setImageBitmap(mBitmap);
+                            String imageMessage = Helper.getStringImage(mBitmap);
+                            iv.setVisibility(View.VISIBLE);
+                            Display display = getActivity().getWindowManager().getDefaultDisplay();
+                            int width = display.getWidth();
+                            int height = ((display.getHeight()*40)/100);
+                            RelativeLayout.LayoutParams lp1 = new RelativeLayout.LayoutParams(width, height);
+                            lp1.addRule(RelativeLayout.BELOW, mMessageBox.getId());
+                            lp1.addRule(RelativeLayout.ABOVE, gallery.getId());
+                            iv.setLayoutParams(lp1);
+                            iv.setVisibility(View.VISIBLE);
+                            iv.setScaleType(ImageView.ScaleType.FIT_XY);
+                            msg_send_lyt.setVisibility(View.VISIBLE);
+                        }
+                        else{
+                            filetype="video";
+                            Log.d(TAG, "video file path is:" + getContext().getFilesDir().getAbsolutePath() + "," +
+                                    Environment.getDataDirectory() + "," + Environment.getExternalStorageState());
+                            Log.d(TAG, "getPath1:" + getFilePath(filePath,type));
+                            final VideoView videoView = new VideoView(getContext());
+                            final RelativeLayout layout1 = (RelativeLayout) getView().findViewById(R.id.compose_lyt);
+                            layout1.addView(videoView);
+                            // Create a progressbar
+                            pDialog = new ProgressDialog(getContext());
+                            // Set progressbar title
+                            pDialog.setTitle("Video is loading");
+                            // Set progressbar message
+                            pDialog.setMessage("Buffering...");
+                            pDialog.setIndeterminate(false);
+                            pDialog.setCancelable(false);
+                            // Show progressbar
+                            pDialog.show();
+                            //Creating MediaController
+                            videoView.setVisibility(View.VISIBLE);
+                            iv.setVisibility(View.INVISIBLE);
+                            bmThumbnail = ThumbnailUtils.createVideoThumbnail(getFilePath(filePath, "video"), MediaStore.Video.Thumbnails.MICRO_KIND);
+                            Log.d(TAG,"Video Thumbnail"+bmThumbnail);
+                            try {
+                                // Start the MediaController
+                                MediaController mediacontroller = new MediaController(
+                                        getContext());
+                                mediacontroller.setAnchorView(videoView);
+                                // Get the URL from String VideoURL
+                                // Uri video = Uri.parse("http://ec2-54-254-164-222.ap-southeast-1.compute.amazonaws.com/video/testvideo.mp4");
+                                videoView.setMediaController(mediacontroller);
+                                //videoView.setVideoURI(video);
+                                videoView.setVideoURI(filePath);
+
+                            } catch (Exception e) {
+                                Log.d(TAG,"Error"+ e.getMessage());
+                                e.printStackTrace();
+                            }
+
+                            videoView.requestFocus();
+                            videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                                // Close the progress bar and play the video
+                                public void onPrepared(MediaPlayer mp) {
+                                    pDialog.dismiss();
+                                    videoView.requestFocus();
+                                    videoView.setZOrderOnTop(false);
+                                    videoView.seekTo(100);
+                                    // videoView.start();
+                                    // mp.setLooping(true);
+                                }
+                            });
+
+                            videoView.setOnTouchListener(new View.OnTouchListener() {
+                                @Override
+                                public boolean onTouch(View v, MotionEvent event) {
+                                    //  videoView.start();
+                                    return false;
+                                }
+                            });
+
+                            Display display = getActivity().getWindowManager().getDefaultDisplay();
+                            int width = display.getWidth();
+                            int height = ((display.getHeight()*40)/100);
+                            RelativeLayout.LayoutParams lp1 = new RelativeLayout.LayoutParams(width, height);
+                            lp1.addRule(RelativeLayout.BELOW, mMessageBox.getId());
+                            lp1.addRule(RelativeLayout.ABOVE, gallery.getId());
+                            videoView.setLayoutParams(lp1);
+                            videoView.setVisibility(View.VISIBLE);
+                            msg_send_lyt.setVisibility(View.VISIBLE);
+                        }
                         //Getting the Bitmap from Gallery
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), filePath);
+                      /*  Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), filePath);
                         mBitmap=Helper.scaleBitmap(bitmap);
                         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                         mBitmap.compress(Bitmap.CompressFormat.JPEG, 50, bytes);
                         img.setImageBitmap(mBitmap);
                         String imageMessage = Helper.getStringImage(mBitmap);
                         Log.d(TAG, "Image message value length : " + imageMessage.length());
-                        Log.d(TAG, "Image message value is : " + imageMessage);
+                        Log.d(TAG, "Image message value is : " + imageMessage);*/
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -323,7 +545,7 @@ public class ComposeFragment extends Fragment {
 
 
 
-    private void postFeed(CompleteFeedModel postModel){
+   /* private void postFeed(CompleteFeedModel postModel){
 
 
         Call<ComposeRespModel> composeFeed = ((OurApplication)getActivity().getApplicationContext())
@@ -356,8 +578,82 @@ public class ComposeFragment extends Fragment {
             }
         });
 
+    }*/
+
+    public String getFilePath(Uri uri,String type) {
+        Cursor cursor = getContext().getContentResolver().query(uri, null, null, null, null);
+        cursor.moveToFirst();
+        String document_id = cursor.getString(0);
+        String path="";
+        document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
+        cursor.close();
+        if(type=="image")
+        {
+            cursor = getContext().getContentResolver().query(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null,
+                    MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
+            cursor.moveToFirst();
+            path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            cursor.close();
+        }
+        else if(type=="video")
+        {
+            cursor = getContext().getContentResolver().query(android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI, null,
+                    MediaStore.Video.Media._ID + " = ? ", new String[]{document_id}, null);
+            cursor.moveToFirst();
+            path = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
+            cursor.close();
+        }
+        return path;
     }
 
+    private void fileupload(Uri uri,CompleteFeedModel completeFeedModel,String pathtype,String AbsolutefilePath,String type) {
+        Log.d(TAG, "pathtype==" + pathtype);
+        String filePath="";
+        if(pathtype== "uri")
+        { filePath= getFilePath(uri,type);}
+        else if(pathtype=="path")
+        {filePath=AbsolutefilePath;
+        }
+        Log.d(TAG, "filePath:" + filePath);
+        if (filePath != null && !filePath.isEmpty()) {
+            File file = new File(filePath);
 
+            HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+            interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+            OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+
+            // Change base URL to your upload server URL.
+            FileUploadApi service = new Retrofit.Builder().baseUrl(ApiUrls.HTTP_URL).client(client).build().create(FileUploadApi.class);
+            String descriptionString = "Sample description";
+            if (file.exists()) {
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl(ApiUrls.HTTP_URL)
+
+                        .build();
+
+                RequestBody fileBody = RequestBody.create(MediaType.parse("video/*"), file);
+                MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), fileBody);
+                RequestBody name = RequestBody.create(MediaType.parse("text/plain"), file.getName());
+                RequestBody completefeedmodel = RequestBody.create(MediaType.parse("text/plain"), completeFeedModel.toString());
+                Log.d(TAG, "RequestBody is " + fileBody);
+
+                retrofit2.Call<okhttp3.ResponseBody> req = service.postImage(body, name,completefeedmodel);
+                req.enqueue(new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        Toast.makeText(getContext(), "File Upload Success", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        t.printStackTrace();
+                        Toast.makeText(getContext(), "File Upload Failed", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+            }
+
+        }
+    }
 
 }
