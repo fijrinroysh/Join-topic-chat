@@ -14,4 +14,8 @@
     <color name="background_color">#888888</color>
     <color name="text_color">#000000</color>
     <color name="bbInactive">#D3D3D3</color>
+
+    <color name="map_highlight">#300091EA</color>
+    <color name="map_highlight_border">#C00091EA</color>
+
 </resources>

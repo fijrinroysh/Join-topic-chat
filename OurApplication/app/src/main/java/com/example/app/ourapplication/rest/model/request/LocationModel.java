@@ -15,6 +15,8 @@ public class LocationModel extends Model implements Serializable{
     private double longitude;
     @JsonProperty("latitude")
     private double latitude;
+    @JsonProperty("radius")
+    private double radius;
 
     public LocationModel(){}
 
@@ -42,5 +44,13 @@ public class LocationModel extends Model implements Serializable{
 
     public void setLatitude(double latitude) {
         this.latitude = latitude;
+    }
+
+    public double getRadius() {
+        return radius;
+    }
+
+    public void setRadius(double radius) {
+        this.radius = radius;
     }
 }

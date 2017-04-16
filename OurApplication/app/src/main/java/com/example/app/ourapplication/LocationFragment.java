@@ -12,11 +12,11 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SeekBar;
 
 import com.example.app.ourapplication.pref.PreferenceEditor;
 import com.example.app.ourapplication.rest.model.request.LocationModel;
@@ -42,6 +42,9 @@ public class LocationFragment extends Fragment implements GoogleApiClient.Connec
 
     private final String TAG = LocationFragment.class.getSimpleName();
     private static final int REQ_LOCATION = 7;
+    private static final int DEF_RADIUS = 100;
+
+    private double mRadius = DEF_RADIUS;
 
     private GoogleMap mGoogleMap;
     private LocationManager mLocationManager;
@@ -77,6 +80,27 @@ public class LocationFragment extends Fragment implements GoogleApiClient.Connec
         super.onViewCreated(view, savedInstanceState);
         SupportMapFragment mapFragment = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map));
         mapFragment.getMapAsync(this);
+        SeekBar seekBar = (SeekBar) view.findViewById(R.id.seekBar);
+        seekBar.setMax(100);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                mRadius = DEF_RADIUS + seekBar.getProgress();
+                LocationModel model = PreferenceEditor.getInstance(getContext()).getLocation();
+
+                drawCircle(new LatLng(model.getLatitude(),model.getLongitude()));
+            }
+        });
     }
 
     @Override
@@ -236,12 +260,17 @@ public class LocationFragment extends Fragment implements GoogleApiClient.Connec
         if(mCurrLocationMarker != null){
             mCurrLocationMarker.remove();
         }
+        LocationModel locationModel = new LocationModel();
+        locationModel.setLatitude(latLng.latitude);
+        locationModel.setLongitude(latLng.longitude);
+        locationModel.setRadius(mRadius);
+        PreferenceEditor.getInstance(getContext()).setLocation(locationModel);
         CircleOptions options = new CircleOptions();
         options.center(latLng);
-        Log.d(TAG,"Zoom lvel : "+mGoogleMap.getCameraPosition().zoom);
-        options.radius(1000);
-        options.fillColor(ContextCompat.getColor(getActivity(),R.color.yellow));
-        options.strokeColor(ContextCompat.getColor(getActivity(),R.color.green));
+        Log.d(TAG,"Zoom level : "+mGoogleMap.getCameraPosition().zoom);
+        options.radius(mRadius);
+        options.fillColor(ContextCompat.getColor(getActivity(),R.color.map_highlight));
+        options.strokeColor(ContextCompat.getColor(getActivity(),R.color.map_highlight_border));
         options.strokeWidth(10);
         mCurrLocationMarker = mGoogleMap.addCircle(options);
     }
