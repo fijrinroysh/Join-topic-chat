@@ -2,6 +2,7 @@ package com.example.app.ourapplication;
 
 import android.Manifest;
 import android.app.Activity;
+import android.media.MediaMetadataRetriever;
 import android.media.ThumbnailUtils;
 import android.provider.MediaStore.Video.Thumbnails;
 import okhttp3.RequestBody;
@@ -462,7 +463,11 @@ public class ComposeFragment extends Fragment {
                             //Creating MediaController
                             videoView.setVisibility(View.VISIBLE);
                             iv.setVisibility(View.INVISIBLE);
-                            bmThumbnail = ThumbnailUtils.createVideoThumbnail(getFilePath(filePath, "video"), MediaStore.Video.Thumbnails.MICRO_KIND);
+                            MediaMetadataRetriever metaRetriver = new MediaMetadataRetriever();
+                            metaRetriver.setDataSource(getContext(), filePath);
+                            bmThumbnail = metaRetriver.getFrameAtTime(2 * 1000000, MediaMetadataRetriever.OPTION_CLOSEST);
+                            //bmThumbnail = ThumbnailUtils.createVideoThumbnail(getFilePath(filePath, "video"), MediaStore.Video.Thumbnails.MINI_KIND);
+                            //ffmpeg -itsoffset -1 -i (getFilePath(filePath, "video") -vframes 1 -filter:v scale="280:-1"  bmThumbnail;
                             Log.d(TAG,"Video Thumbnail"+bmThumbnail);
                             try {
                                 // Start the MediaController
@@ -641,6 +646,10 @@ public class ComposeFragment extends Fragment {
                 req.enqueue(new Callback<ResponseBody>() {
                     @Override
                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                        HomeActivity.bottomBar.selectTabAtPosition(0);
+
+                        UI.closeKeyboard(getActivity(), mMessageBox.getWindowToken());
                         Toast.makeText(getContext(), "File Upload Success", Toast.LENGTH_SHORT).show();
                     }
 

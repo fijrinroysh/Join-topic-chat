@@ -250,7 +250,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
                 final PersonViewHolder3 vh3 = (PersonViewHolder3) viewHolder;
                 final MediaController mediacontroller = new MediaController(mContext);
-                MediaMetadataRetriever metaRetriver = new MediaMetadataRetriever();;
+                MediaMetadataRetriever metaRetriver = new MediaMetadataRetriever();
 
                 vh3.senderName.setText(item.getSenderName());
                 vh3.senderMessage.setText(item.getMessage());

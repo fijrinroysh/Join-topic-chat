@@ -87,7 +87,7 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
 
                     msg = Helper.formCommentMessage("C", keyid, token, msg);
 
-                    Log.d(TAG, "Formfeedmessage" + msg);
+                    Log.d(TAG, "Formcommentmessage" + msg);
                     mWebSocketClient.sendMessage(msg);
                     UI.closeKeyboard(getApplicationContext(), mMessageBox.getWindowToken());
                     mSwipeRefreshLayout.post(new Runnable() {
@@ -137,21 +137,19 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
 
     @Override
     public void onTextMessage(String message) {
-        JSONObject commentObject = null;
-        try {
 
-            commentObject = new JSONObject(message);
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            Person person = objectMapper.readValue(message, Person.class);
+
             Log.d(TAG, message);
 
-            if (commentObject.optString(Keys.KEY_TYPE).equals("C")) {
-                Log.d(TAG, "I am message type C:" + ":" + commentObject.optString(Keys.KEY_NAME));
-                Log.d(TAG, commentObject.optString(Keys.KEY_ID) + ":" + keyid);
+            if (person.getType().equals("C")) {
+                Log.d(TAG, "I am message type C:" );
+                Log.d(TAG,person.getPostId());
 
-                if (commentObject.optString(Keys.KEY_ID).equals(keyid)) {
+                if (person.getPostId().equals(keyid)) {
                     //Add to Comment array if it belongs to same post id and notify dataset changed
-                    Log.d(TAG, "I am here" + ":" + commentObject.optString(Keys.KEY_NAME));
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    Person person = objectMapper.readValue(message, Person.class);
                     mComments.add(person);
                     mCommentListAdapter.notifyDataSetChanged();
                 }
@@ -162,9 +160,7 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
                 //    mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 2));
             }
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (JsonParseException e) {
+        }  catch (JsonParseException e) {
             e.printStackTrace();
         } catch (JsonMappingException e) {
             e.printStackTrace();
