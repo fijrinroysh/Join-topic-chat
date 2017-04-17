@@ -215,10 +215,16 @@ public class ComposeFragment extends Fragment {
                     if(filetype=="image")
                     {
                         model = new CompleteFeedModel("F", token, msg, location, null,filetype);}
-                    else
+                    else if(filetype=="video")
                     {
                         model = new CompleteFeedModel("F", token, msg, location, Helper.getStringImage(bmThumbnail),filetype);
                     }
+                    else
+
+                    {  filetype="text";
+                        filePath=null;
+                        AbsolutefilePath="";
+                        model = new CompleteFeedModel("F", token, msg, location, null,filetype);}
                     Log.d(TAG, "Form feed message:" + model.toString());
 
                   //  mWebSocketClient.sendMessage(model.toString());
@@ -611,45 +617,46 @@ public class ComposeFragment extends Fragment {
         return path;
     }
 
-    private void fileupload(Uri uri,CompleteFeedModel completeFeedModel,String pathtype,String AbsolutefilePath,String type) {
-        Log.d(TAG, "pathtype==" + pathtype);
-        String filePath="";
-        if(pathtype== "uri")
-        { filePath= getFilePath(uri,type);}
-        else if(pathtype=="path")
-        {filePath=AbsolutefilePath;
+    private void fileupload(Uri uri,CompleteFeedModel completeFeedModel,String filepathtype,String AbsolutefilePath,String type) {
+        Log.d(TAG, "pathtype==" + filepathtype);
+         String DevicefilePath="";
+        if(filepathtype != null && !filepathtype.isEmpty() && filepathtype== "uri")
+        { DevicefilePath= getFilePath(uri,type);}
+        else if(filepathtype != null && !filepathtype.isEmpty() && filepathtype=="path")
+        {DevicefilePath=AbsolutefilePath;
         }
-        Log.d(TAG, "filePath:" + filePath);
-        if (filePath != null && !filePath.isEmpty()) {
-            File file = new File(filePath);
+        Log.d(TAG, "filePath:" + DevicefilePath);
 
-            HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-            interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-            OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+        RequestBody completefeedmodel = RequestBody.create(MediaType.parse("text/plain"), completeFeedModel.toString());
+        // Change base URL to your upload server URL.
+        FileUploadApi service = new Retrofit.Builder().baseUrl(ApiUrls.HTTP_URL).client(client).build().create(FileUploadApi.class);
+        String descriptionString = "Sample description";
 
-            // Change base URL to your upload server URL.
-            FileUploadApi service = new Retrofit.Builder().baseUrl(ApiUrls.HTTP_URL).client(client).build().create(FileUploadApi.class);
-            String descriptionString = "Sample description";
+        if (DevicefilePath != null && !DevicefilePath.isEmpty()) {
+            File file = new File(DevicefilePath);
             if (file.exists()) {
                 Retrofit retrofit = new Retrofit.Builder()
                         .baseUrl(ApiUrls.HTTP_URL)
-
                         .build();
 
                 RequestBody fileBody = RequestBody.create(MediaType.parse("video/*"), file);
                 MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), fileBody);
                 RequestBody name = RequestBody.create(MediaType.parse("text/plain"), file.getName());
-                RequestBody completefeedmodel = RequestBody.create(MediaType.parse("text/plain"), completeFeedModel.toString());
+
                 Log.d(TAG, "RequestBody is " + fileBody);
 
                 retrofit2.Call<okhttp3.ResponseBody> req = service.postImage(body, name,completefeedmodel);
                 req.enqueue(new Callback<ResponseBody>() {
                     @Override
                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-
-                        HomeActivity.bottomBar.selectTabAtPosition(0);
-
                         UI.closeKeyboard(getActivity(), mMessageBox.getWindowToken());
+                        HomeActivity.bottomBar.selectTabAtPosition(0);
+                        filetype="";
+                        filePath=null;
+                        pathtype="";
                         Toast.makeText(getContext(), "File Upload Success", Toast.LENGTH_SHORT).show();
                     }
 
@@ -663,6 +670,24 @@ public class ComposeFragment extends Fragment {
             }
 
         }
+
+        else
+        {
+            retrofit2.Call<okhttp3.ResponseBody> req = service.postImage(null,null ,completefeedmodel);
+            req.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    HomeActivity.bottomBar.selectTabAtPosition(0);
+                    UI.closeKeyboard(getActivity(), mMessageBox.getWindowToken());
+                    Toast.makeText(getContext(), "Message Sent", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    t.printStackTrace();
+                    Toast.makeText(getContext(), "Message Not Sent", Toast.LENGTH_SHORT).show();
+                }
+            });}
     }
 
 }
