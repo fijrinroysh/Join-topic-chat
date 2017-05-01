@@ -8,45 +8,27 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.media.MediaMetadataRetriever;
+import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Handler;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import com.example.app.ourapplication.pref.PreferenceEditor;
 import com.example.app.ourapplication.rest.model.response.Person;
 import com.example.app.ourapplication.util.Helper;
-import com.example.app.ourapplication.wss.WebSocketListener;
-import com.google.android.exoplayer2.DefaultLoadControl;
-import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.decoder.DecoderCounters;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.extractor.ExtractorsFactory;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
-import com.google.android.exoplayer2.ui.PlaybackControlView;
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -54,16 +36,16 @@ import java.util.List;
 /**
  * Created by ROYSH on 6/23/2016.
  */
-public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class FeedRVAdapter_mediaplayer extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final String TAG = FeedRVAdapter.class.getSimpleName();
+    private final String TAG = FeedRVAdapter_mediaplayer.class.getSimpleName();
 
 
     private int lastPosition = -1;
     private List<Person> mFeeds;
     private Context mContext;
 
-    FeedRVAdapter(Context context, List<Person> mFeeds) {
+    FeedRVAdapter_mediaplayer(Context context, List<Person> mFeeds) {
         this.mContext = context;
         this.mFeeds = mFeeds;
     }
@@ -110,10 +92,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         TextView senderName;
         TextView senderMessage;
         ImageView senderPhoto;
-        private SurfaceView mSurfaceView;
-        private SimpleExoPlayer mPlayer;
-        //private AspectRatioFrameLayout mAspectRatioLayout;
-        private PlaybackControlView mPlaybackControlView;
+        VideoView messageVideo;
         TextView messageTime;
         ProgressBar videoLoaderProgressBar;
         ImageView videoThumbnail;
@@ -126,9 +105,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             senderMessage = (TextView) itemView.findViewById(R.id.sender_message);
             senderPhoto = (ImageView) itemView.findViewById(R.id.sender_photo);
             messageTime = (TextView) itemView.findViewById(R.id.message_time);
-            mSurfaceView = (SurfaceView) itemView.findViewById(R.id.surface_view);
-          //  mAspectRatioLayout = (AspectRatioFrameLayout) itemView.findViewById(R.id.aspect_ratio_layout);
-            mPlaybackControlView = (PlaybackControlView) itemView.findViewById(R.id.player_view);
+            messageVideo = (VideoView) itemView.findViewById(R.id.message_video);
             videoLoaderProgressBar = (ProgressBar) itemView.findViewById(R.id.video_loader_progress_bar);
             videoThumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
             playIcon = (ImageView) itemView.findViewById(R.id.video_play_img_btn);
@@ -191,7 +168,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             return new PersonViewHolder2(v);
         } else if (viewType == 3) {
             Log.d(TAG, "PersonViewHolder3 created");
-            View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.card_item_exo_video, viewGroup, false);
+            View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.card_item_video, viewGroup, false);
             return new PersonViewHolder3(v);
         }
         else if (viewType == 4) {
@@ -268,150 +245,138 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             case 3:
 
                 final PersonViewHolder3 vh3 = (PersonViewHolder3) viewHolder;
+                final MediaController mediacontroller = new MediaController(mContext);
+                MediaMetadataRetriever metaRetriver = new MediaMetadataRetriever();
 
                 vh3.senderName.setText(item.getSenderName());
                 vh3.senderMessage.setText(item.getMessage());
                 vh3.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
 
                 Log.d(TAG, "IMAGE URL :" + item.getPhotoMsg());
-                int index = item.getPhotoMsg().lastIndexOf('/');
-                String Thumbnail_URL = item.getPhotoMsg().substring(0, index);
-                String Thumbnail_filename = item.getPhotoMsg().substring(index + 1);
+                int index=item.getPhotoMsg().lastIndexOf('/');
+                String Thumbnail_URL=item.getPhotoMsg().substring(0, index);
+                String Thumbnail_filename=item.getPhotoMsg().substring(index + 1);
                 Log.d(TAG, "Thumbnail_URL" + Thumbnail_URL);
                 Log.d(TAG, "Thumbnail_filename" + Thumbnail_filename.substring(0, Thumbnail_filename.indexOf('.')) + ".jpg");
-                String thumbnailfilename = Thumbnail_URL.concat("/video_thumbnail_").concat(Thumbnail_filename.substring(0, Thumbnail_filename.indexOf('.')) + ".jpg");
+                String thumbnailfilename=Thumbnail_URL.concat("/video_thumbnail_").concat(Thumbnail_filename.substring(0, Thumbnail_filename.indexOf('.')) + ".jpg");
                 Log.d(TAG, "Video Thumbnail file name :" + thumbnailfilename);
                 Picasso(thumbnailfilename, vh3.videoThumbnail);
 
 
-                // initialize player
-                Handler handler = new Handler();
-                ExtractorsFactory extractor = new DefaultExtractorsFactory();
-                DefaultHttpDataSourceFactory dataSourceFactory = new DefaultHttpDataSourceFactory("ExoPlayer Demo");
-                vh3.mPlayer = ExoPlayerFactory.newSimpleInstance(
-                        mContext,
-                        new DefaultTrackSelector(handler),
-                        new DefaultLoadControl()
-                );
-
-                //vh3.mPlaybackControlView.requestFocus();
-                vh3.mPlaybackControlView.setPlayer(vh3.mPlayer);
-
-                // initialize source
-                MediaSource videoSource = new ExtractorMediaSource(
-                        Uri.parse(item.getPhotoMsg()),
-                        dataSourceFactory,
-                        extractor,
-                        null,
-                        null
-                );
-                vh3.mPlayer.prepare(videoSource);
-
+               // vh3.videoThumbnail.setImageResource(R.drawable.mickey);
+                Uri video = Uri.parse(item.getPhotoMsg());
+                vh3.messageVideo.setVideoURI(video);
+                vh3.messageVideo.requestFocus();
                 vh3.videoLoaderProgressBar.setVisibility(View.VISIBLE);
                 vh3.videoThumbnail.setVisibility(View.VISIBLE);
                 vh3.playIcon.setVisibility(View.VISIBLE);
                 Log.d(TAG, "Video Url" + ": " + item.getPhotoMsg());
 
-                SurfaceHolder.Callback mSurfaceHolderCallback = new SurfaceHolder.Callback() {
 
+/*                    byte[] art = metaRetriver.getEmbeddedPicture();
+                    Bitmap thumbnailImage = BitmapFactory.decodeByteArray(art, 0, art.length);
+                    vh3.videoThumbnail.setImageBitmap(thumbnailImage);
+                    Bitmap thumbnailImage = metaRetriver.getFrameAtTime(2 * 1000000, MediaMetadataRetriever.OPTION_CLOSEST);
+                    vh3.videoThumbnail.setImageBitmap(thumbnailImage);*/
+
+/*Code added instead of earlier code commented below -- start of code */
+        /*        vh3.playIcon.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void surfaceCreated(SurfaceHolder surfaceHolder) {
-                        if (vh3.mPlayer != null) {
-                            vh3.mPlayer.setVideoSurfaceHolder(surfaceHolder);
+                    public void onClick(View v) {
+                        try {
+                            vh3.videoLoaderProgressBar.setVisibility(View.VISIBLE);
+                            vh3.playIcon.setVisibility(View.INVISIBLE);
+                            Uri video = Uri.parse(item.getPhotoMsg());
+                            vh3.messageVideo.setVideoURI(video);
+                            vh3.messageVideo.requestFocus();
+                            Log.d(TAG, "Video Url" + ": " + item.getPhotoMsg());
+
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                    }
-
-                    @Override
-                    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 
                     }
+                });
 
 
-                    @Override
-                    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-                        if (vh3.mPlayer != null) {
-                            vh3.mPlayer.setVideoSurfaceHolder(null);
-                        }
+                vh3.messageVideo.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    // Close the progress bar and play the video
+                    public void onPrepared(MediaPlayer mp) {
+                        Log.d(TAG, "Video is prepared");
+                        //vh3.messageVideo.bringToFront();
+                        //vh3.messageVideo.setFocusable(true);
+                        vh3.messageVideo.seekTo(0);
+                        vh3.videoLoaderProgressBar.setVisibility(View.INVISIBLE);
+                        vh3.videoThumbnail.setVisibility(View.INVISIBLE);
+                        mediacontroller.setAnchorView(vh3.messageVideo);
+                        vh3.messageVideo.setMediaController(mediacontroller);
+                        //vh3.messageVideo.start();
+
                     }
+                });*/
+   // -- end of code
 
-                };
-                vh3.mSurfaceView.getHolder().addCallback(mSurfaceHolderCallback);
+/*-- Earlier Code*/
+                vh3.messageVideo.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    // Close the progress bar and play the video
+                    public void onPrepared(MediaPlayer mp) {
+                        Log.d(TAG, "Video is prepared");
+                        //vh3.messageVideo.bringToFront();
+                        //vh3.messageVideo.setFocusable(true);
+                        vh3.messageVideo.seekTo(0);
+                        vh3.videoLoaderProgressBar.setVisibility(View.INVISIBLE);
+                        vh3.videoThumbnail.setVisibility(View.INVISIBLE);
 
+                        vh3.playIcon.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                try {
 
-                SimpleExoPlayer.VideoListener mVideoListener = new SimpleExoPlayer.VideoListener() {
-                    @Override
-                    public void onVideoSizeChanged ( int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio){
+                                    vh3.playIcon.setVisibility(View.INVISIBLE);
+                                    mediacontroller.setAnchorView(vh3.messageVideo);
+                                    vh3.messageVideo.setMediaController(mediacontroller);
+                                    vh3.messageVideo.start();
 
-                        vh3.mSurfaceView.getHolder().setFixedSize(vh3.cv.getWidth(),(int) (((double) height / width) * vh3.cv.getWidth()));
-                        Log.d(TAG, "Surface view params: " + width + " " + height + " " + vh3.cv.getWidth() + " " + (((double) height / width) * vh3.cv.getWidth()) + " " + (int) (((double) height / width) * vh3.cv.getWidth()) );
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
 
-              //  vh3.mAspectRatioLayout.setAspectRatio(pixelWidthHeightRatio);
-            }
-
-                @Override
-                public void onRenderedFirstFrame (Surface surface){
-                    //ViewGroup.LayoutParams layPar= vh3.videoThumbnail.getLayoutParams();
-
-                    vh3.videoLoaderProgressBar.setVisibility(View.INVISIBLE);
-                    vh3.playIcon.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            try {
-                                vh3.mPlayer.setPlayWhenReady(true);
-                                vh3.videoThumbnail.setVisibility(View.INVISIBLE);
-                                vh3.playIcon.setVisibility(View.INVISIBLE);
-                            } catch (Exception e) {
-                                e.printStackTrace();
                             }
+                        });
 
-                        }
-                    });
-
-
-            }
-
-            @Override
-                public void onVideoDisabled (DecoderCounters counters){
-
-            }
-        };
-
-                vh3.mPlayer.setVideoListener(mVideoListener);
-                ExoPlayer.EventListener mEventListener = new ExoPlayer.EventListener() {
-                    @Override
-                    public void onLoadingChanged(boolean isLoading) {
 
                     }
+                });
+                //--end of comment */
+
+
+
+
+                vh3.messageVideo.setOnErrorListener(new MediaPlayer.OnErrorListener() {
 
                     @Override
-                    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+                    public boolean onError(MediaPlayer mp, int what, int extra) {
 
+                        Log.d(TAG, "Error What" + ": " + what);
+                        Log.d(TAG, "Error Extra" + ": " + extra);
+
+
+                        return false;
                     }
+                });
 
-                    @Override
-                    public void onTimelineChanged(Timeline timeline, Object manifest) {
-
-                    }
-
-                    @Override
-                    public void onPlayerError(ExoPlaybackException error) {
-
-                    }
-
-                    @Override
-                    public void onPositionDiscontinuity() {
-
-                    }
-                };
-                vh3.mPlayer.addListener(mEventListener);
 
 
 
                 //vh3.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
                 // Picasso.with(mContext).load(item.getPhotoId()).resize(50, 50).into(vh3.senderPhoto);
                 Picasso(item.getPhotoId(), vh3.senderPhoto);
+
                 openProfile(item, vh3.senderPhoto);
                 openDiscussion(item, vh3.cv);
+
+
                 setAnimation(vh3.cv, i);
 
                 break;
@@ -450,28 +415,14 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
         super.onViewDetachedFromWindow(holder);
         holder.itemView.clearAnimation();
-        switch (holder.getItemViewType()) {
-            case 3:
-                PersonViewHolder3 vh3 = (PersonViewHolder3) holder;
-                vh3.mPlayer.setPlayWhenReady(false);
-                break;
-        }
     }
 
 
     @Override
     public void onViewRecycled(RecyclerView.ViewHolder holder) {
+
         super.onViewRecycled(holder);
 
-        switch (holder.getItemViewType()) {
-            case 3:
-                PersonViewHolder3 vh3 = (PersonViewHolder3) holder;
-                if (vh3.mPlayer != null) {
-                    vh3.mPlayer.release();
-                    vh3.mPlayer = null;
-                }
-                break;
-        }
     }
 
     void Picasso(String URL, ImageView imageView) {
@@ -516,8 +467,4 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             }
         });
     }
-
-
-
-
 }
