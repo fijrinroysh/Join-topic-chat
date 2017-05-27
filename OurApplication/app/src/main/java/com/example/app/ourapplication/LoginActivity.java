@@ -1,10 +1,8 @@
 package com.example.app.ourapplication;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -18,20 +16,10 @@ import com.example.app.ourapplication.rest.model.request.SignInReqModel;
 import com.example.app.ourapplication.rest.model.request.SignUpReqModel;
 import com.example.app.ourapplication.rest.model.response.SignInRespModel;
 import com.example.app.ourapplication.ui.HomeActivity;
-import com.example.app.ourapplication.util.Helper;
-import com.example.app.ourapplication.util.UI;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.util.ArrayList;
-
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.Response;
-import retrofit.Retrofit;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by sarumugam on 17/04/16.
@@ -118,7 +106,7 @@ public class LoginActivity extends AppCompatActivity {
 
         login.enqueue(new Callback<SignInRespModel>() {
             @Override
-            public void onResponse(Response<SignInRespModel> response, Retrofit retrofit) {
+            public void onResponse(Call<SignInRespModel> call, Response<SignInRespModel> response) {
                 if(response.body().isSuccess()){
                     PreferenceEditor.getInstance(LoginActivity.this).setLoggedInUserName(mUserIdBox.getText().toString(),
                             mPasswordBox.getText().toString());
@@ -132,7 +120,7 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Call<SignInRespModel> call,Throwable t) {
                 t.printStackTrace();
                 Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_SHORT).show();
             }
@@ -148,12 +136,12 @@ public class LoginActivity extends AppCompatActivity {
 
         login.enqueue(new Callback<Void>() {
             @Override
-            public void onResponse(Response<Void> response, Retrofit retrofit) {
+            public void onResponse(Call<Void> call,Response<Void> response) {
                 login(userId,password);
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Call<Void> call,Throwable t) {
                 t.printStackTrace();
                 Toast.makeText(LoginActivity.this, getString(R.string.sign_up_failed), Toast.LENGTH_SHORT).show();
             }

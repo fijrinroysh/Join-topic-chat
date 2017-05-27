@@ -26,7 +26,6 @@ import android.widget.Toast;
 
 import com.example.app.ourapplication.database.DBHelper;
 import com.example.app.ourapplication.pref.PreferenceEditor;
-import com.example.app.ourapplication.rest.model.request.CommentFeedReqModel;
 import com.example.app.ourapplication.rest.model.request.HomeFeedReqModel;
 import com.example.app.ourapplication.rest.model.request.LocationModel;
 import com.example.app.ourapplication.rest.model.response.Person;
@@ -45,10 +44,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.Response;
-import retrofit.Retrofit;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -294,7 +292,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                 .getRestApi().queryHomeFeed(reqModel);
         queryHomeFeeds.enqueue(new Callback<SuccessRespModel>() {
             @Override
-            public void onResponse(Response<SuccessRespModel> response, Retrofit retrofit) {
+            public void onResponse(Call<SuccessRespModel> call, Response<SuccessRespModel> response) {
 
                 ArrayList<Person> data = response.body().getData();
                 if (data.size() > 0) {
@@ -312,16 +310,11 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                     }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Call<SuccessRespModel> call,Throwable t) {
                 Log.d(TAG, "Query failed: "+ t);
                 Toast.makeText(getActivity(), "Loading feeds failed", Toast.LENGTH_LONG).show();
             }
         });
         mSwipeRefreshLayout.setRefreshing(false);
     }
-
-
-
-
-
 }

@@ -5,17 +5,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 
-import com.example.app.ourapplication.database.DBHelper;
 import com.example.app.ourapplication.pref.PreferenceEditor;
 import com.example.app.ourapplication.rest.model.request.SignInReqModel;
 import com.example.app.ourapplication.rest.model.response.SignInRespModel;
 import com.example.app.ourapplication.ui.HomeActivity;
 import com.example.app.ourapplication.wss.WebSocketClient;
 
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.Response;
-import retrofit.Retrofit;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.example.app.ourapplication.rest.ApiUrls.WS_URL;
 
@@ -41,7 +39,7 @@ public class SplashActivity extends Activity {
             Call<SignInRespModel> signInRequest = ((OurApplication)getApplicationContext()).getRestApi().signIn(signInModel);
             signInRequest.enqueue(new Callback<SignInRespModel>() {
                 @Override
-                public void onResponse(Response<SignInRespModel> response, Retrofit retrofit) {
+                public void onResponse(Call<SignInRespModel> call,Response<SignInRespModel> response) {
                     if(response.body().isSuccess()) {
                         ((OurApplication)getApplicationContext()).setUserToken(response.body().getToken());
                         goToHomeScreen();
@@ -51,7 +49,7 @@ public class SplashActivity extends Activity {
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Call<SignInRespModel> call,Throwable t) {
                     t.printStackTrace();
                     goToSignInScreen();
                 }

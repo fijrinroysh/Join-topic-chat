@@ -20,10 +20,9 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.Response;
-import retrofit.Retrofit;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by ROYSH on 8/8/2016.
@@ -79,7 +78,7 @@ public class ProfileActivity extends AppCompatActivity{
                 .getRestApi().queryProfileFeed(reqModel);
         queryProfileFeeds.enqueue(new Callback<SuccessRespModel>() {
             @Override
-            public void onResponse(Response<SuccessRespModel> response, Retrofit retrofit) {
+            public void onResponse(Call<SuccessRespModel> call,Response<SuccessRespModel> response) {
                 if (response.body().isSuccess()) {
                     ArrayList<Person> data = response.body().getData();
 
@@ -96,7 +95,7 @@ public class ProfileActivity extends AppCompatActivity{
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Call<SuccessRespModel> call,Throwable t) {
                 Log.d(TAG, "Query failed for the reson: " + t);
                 Toast.makeText(getApplicationContext(), "Loading Feeds Failed", Toast.LENGTH_LONG).show();
             }

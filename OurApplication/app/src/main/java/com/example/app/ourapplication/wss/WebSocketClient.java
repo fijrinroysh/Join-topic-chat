@@ -2,22 +2,23 @@ package com.example.app.ourapplication.wss;
 
 import android.util.Log;
 
-import java.net.URI;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
-import de.tavendo.autobahn.WebSocket;
-import de.tavendo.autobahn.WebSocketConnection;
-import de.tavendo.autobahn.WebSocketException;
-import de.tavendo.autobahn.WebSocketOptions;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.WebSocket;
+
 /**
  * Created by sarumugam on 20/03/16.
  */
-public class WebSocketClient implements WebSocket.WebSocketConnectionObserver {
+public class WebSocketClient extends okhttp3.WebSocketListener {
 
     private final String TAG = WebSocketClient.class.getSimpleName();
-    private URI mWssUri;
+    private String mSocketUrl;
+    private WebSocket mWebSocket;
 
-    private WebSocketConnection mWebSocketConnection;
     private ArrayList<WebSocketListener> mWebSocketListeners = new ArrayList<>();
 
     public void addWebSocketListener(WebSocketListener webSocketListener){
@@ -32,98 +33,76 @@ public class WebSocketClient implements WebSocket.WebSocketConnectionObserver {
         }
     }
 
-    public void connectToWSS(String wssUrl) {
-        mWebSocketConnection = new WebSocketConnection();
-        try {
-			/*forming the chat-URL.*/
-            try{
-                URI chatUrl = new URI(wssUrl);
-                Log.d(TAG, "url recieved from Token Manager: "+chatUrl);
-
-                //String path=chatUrl.getPath();
-                String scheme=chatUrl.getScheme();
-                String schemeSpecificPart=chatUrl.getSchemeSpecificPart();
-
-                //Log.d(TAG, "path from the url: "+path);
-                Log.d(TAG, "scheme specific part: "+schemeSpecificPart);
-                Log.d(TAG, "scheme from the url: "+scheme);
-
-                if(scheme!=null){
-                    if(scheme.equals("https")){
-                        scheme="wss";
-                    }else if(scheme.equals("http")){
-                        scheme="ws";
-                    }
-                }
-
-                  //this.mWssUri = new URI(wssUrl);
-                this.mWssUri = new URI(scheme,schemeSpecificPart,null);
-                Log.i(TAG, "Connecting to the URL : " + mWssUri);
-            }catch (Exception e) {
-                Log.i(TAG, "Connecting failed.");
-                e.printStackTrace();
-            }
-            WebSocketOptions webSocketOptions=new WebSocketOptions();
-            webSocketOptions.setReconnectInterval(1000);
-            webSocketOptions.setReceiveTextMessagesRaw(false);
-            Log.e(TAG, "MaxFramePayloadSize:" + webSocketOptions.getMaxFramePayloadSize());
-
-
-            String echoMsg[] = {"echo-protocol"};
-            mWebSocketConnection.connect(mWssUri,echoMsg, this, webSocketOptions);
-
-
-        } catch (WebSocketException e) {
-            String message = e.getLocalizedMessage();
-            Log.e(TAG, message);
-        }
-
+    public void connectToWSS(){
+        connectToWSS(mSocketUrl);
     }
 
-    /**
-     * Disconnecting the chat connection.
-     */
-    public void disconnect() {
-        if(mWebSocketConnection != null)
-            mWebSocketConnection.disconnect();
+    public void connectToWSS(String socketUrl) {
+        OkHttpClient client = new OkHttpClient.Builder()
+                .retryOnConnectionFailure(true)
+                .connectTimeout(30, TimeUnit.SECONDS) // TODO these values are picked randomly, need to be verified.
+                .pingInterval(5,  TimeUnit.SECONDS)
+                .readTimeout(30,  TimeUnit.SECONDS)
+                .writeTimeout(30,TimeUnit.SECONDS)
+                .build();
+        mSocketUrl = socketUrl;
+
+        Log.d(TAG,"Connecting to the socket url : "+mSocketUrl);
+
+        Request request = new Request.Builder()
+                .url(mSocketUrl)
+                .build();
+        client.newWebSocket(request, this);
+
+        // Trigger shutdown of the dispatcher's executor so this process can exit cleanly.
+        client.dispatcher().executorService().shutdown();
     }
 
     @Override
-    public void onOpen() {
+    public void onOpen(WebSocket webSocket, Response response) {
+        super.onOpen(webSocket, response);
+        mWebSocket = webSocket;
         for (WebSocketListener listener : mWebSocketListeners) {
             listener.onOpen();
         }
 //        String echoMsg = "echo-protocol";
-//
 //        mWebSocketConnection.sendTextMessage(echoMsg);
     }
 
     @Override
-    public void onClose(WebSocketCloseNotification code, String reason) {
+    public void onMessage(WebSocket webSocket, String message) {
+        super.onMessage(webSocket, message);
+        Log.d(TAG, "Message is :" + message);
+        for (WebSocketListener listener : mWebSocketListeners) {
+            listener.onTextMessage(message);
+        }
+    }
+
+    @Override
+    public void onClosed(WebSocket webSocket, int code, String reason) {
+        super.onClosed(webSocket, code, reason);
         for (WebSocketListener listener : mWebSocketListeners) {
             listener.onClose();
         }
     }
 
     @Override
-    public void onTextMessage(String payload) {
-        Log.d(TAG, "Message is :" + payload);
-        for (WebSocketListener listener : mWebSocketListeners) {
-            listener.onTextMessage(payload);
-        }
-    }
-
-    @Override
-    public void onRawTextMessage(byte[] payload) {
-        Log.d(TAG,"Raw message : "+payload);
-    }
-
-    @Override
-    public void onBinaryMessage(byte[] payload) {
-        Log.d(TAG,"Binary message : "+payload);
+    public void onClosing(WebSocket webSocket, int code, String reason) {
+        super.onClosing(webSocket, code, reason);
     }
 
     public void sendMessage(String message) {
-        mWebSocketConnection.sendTextMessage(message);
+        if(mWebSocket == null){
+            return;
+        }
+        mWebSocket.send(message);
+    }
+
+    /**
+     * Disconnecting the chat connection.
+     */
+    public void disconnect() {
+        if(mWebSocket != null)
+            mWebSocket.cancel();
     }
 }

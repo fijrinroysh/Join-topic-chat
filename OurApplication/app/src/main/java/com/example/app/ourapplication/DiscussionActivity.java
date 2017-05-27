@@ -24,17 +24,13 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.Response;
-import retrofit.Retrofit;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by ROYSH on 8/3/2016.
@@ -188,7 +184,7 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
                 .getRestApi().queryCommentFeed(reqModel);
         queryComments.enqueue(new Callback<SuccessRespModel>() {
             @Override
-            public void onResponse(Response<SuccessRespModel> response, Retrofit retrofit) {
+            public void onResponse(Call<SuccessRespModel> call,Response<SuccessRespModel> response) {
 
                 ArrayList<Person> data = response.body().getData();
                 if (data.size() > 0) {
@@ -207,13 +203,11 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Call<SuccessRespModel> call,Throwable t) {
                 Log.d(TAG, "Query failed");
                 Toast.makeText(getApplicationContext(), "Loading Comments Failed", Toast.LENGTH_LONG).show();
             }
         });
         mSwipeRefreshLayout.setRefreshing(false);
     }
-
-
 }

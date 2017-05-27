@@ -40,10 +40,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.Response;
-import retrofit.Retrofit;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -190,7 +189,7 @@ public class ProfileFragment extends Fragment {
         Call<ProfileRespModel> profileUpdater = ((OurApplication)getActivity().getApplicationContext()).getRestApi().updateProfile(reqModel);
         profileUpdater.enqueue(new Callback<ProfileRespModel>() {
             @Override
-            public void onResponse(Response<ProfileRespModel> response, Retrofit retrofit) {
+            public void onResponse(Call<ProfileRespModel> call, Response<ProfileRespModel> response) {
                 if (response.body().isSuccess()) {
                     Log.d(TAG, response.body() + "Profile information Updated");
                     Snackbar.make(profileImgView, "Profile information Updated", Snackbar.LENGTH_LONG).setAction("Action", null).show();
@@ -201,7 +200,7 @@ public class ProfileFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Call<ProfileRespModel> call,Throwable t) {
                 t.printStackTrace();
                 Snackbar.make(profileImgView, "Profile information not Updated", Snackbar.LENGTH_LONG).setAction("Action", null).show();
                 Log.d(TAG, "Profile information not Updated");
@@ -217,7 +216,7 @@ public class ProfileFragment extends Fragment {
                 .getRestApi().queryProfileFeed(reqModel);
         queryProfileFeeds.enqueue(new Callback<SuccessRespModel>() {
             @Override
-            public void onResponse(Response<SuccessRespModel> response, Retrofit retrofit) {
+            public void onResponse(Call<SuccessRespModel> call,Response<SuccessRespModel> response) {
                 if (response.body().isSuccess()) {
                     ArrayList<Person> data = response.body().getData();
 
@@ -234,7 +233,7 @@ public class ProfileFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Call<SuccessRespModel> call,Throwable t) {
                 Log.d(TAG, "Query failed for the reason: " + t);
                 Toast.makeText(getActivity(), "Loading Feeds Failed", Toast.LENGTH_LONG).show();
             }

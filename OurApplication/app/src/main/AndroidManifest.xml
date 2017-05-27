@@ -3,6 +3,7 @@
     package="com.example.app.ourapplication">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -37,6 +38,12 @@
         <activity android:name=".ui.HomeActivity" android:theme="@style/AppTheme.NoActionBar" android:screenOrientation="portrait" android:windowSoftInputMode="stateHidden|adjustPan"/>
 
         <activity android:name=".DiscussionActivity" android:screenOrientation="portrait" android:theme="@style/AppTheme.NoActionBar"/>
+
+        <receiver android:name=".util.NetworkReceiver">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
 
     </application>
 

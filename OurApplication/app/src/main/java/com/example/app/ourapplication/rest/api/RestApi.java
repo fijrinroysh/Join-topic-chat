@@ -12,9 +12,9 @@ import com.example.app.ourapplication.rest.model.response.SignInRespModel;
 import com.example.app.ourapplication.rest.model.request.SignUpReqModel;
 import com.example.app.ourapplication.rest.model.response.SuccessRespModel;
 
-import retrofit.Call;
-import retrofit.http.Body;
-import retrofit.http.POST;
+import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.POST;
 
 /**
  * Created by sarumugam on 15/01/17.
