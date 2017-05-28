@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import com.example.app.ourapplication.OurApplication;
+
 import java.util.ArrayList;
 
 /**
@@ -18,7 +20,16 @@ public class NetworkReceiver extends BroadcastReceiver {
         void onDisconnected();
     }
 
-    private ArrayList<NetworkIntf> mNetworkIntfs = new ArrayList<>();
+    private ArrayList<NetworkIntf> mNetworkIntfs;
+
+    public NetworkReceiver() {
+        this(null);
+    }
+
+    public NetworkReceiver(NetworkIntf intf) {
+        mNetworkIntfs = new ArrayList<>();
+        addNetworkIntf(intf);
+    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -31,6 +42,9 @@ public class NetworkReceiver extends BroadcastReceiver {
     }
 
     public void addNetworkIntf(NetworkIntf intf){
+        if(intf == null){
+            return;
+        }
         if(!mNetworkIntfs.contains(intf)){
             mNetworkIntfs.add(intf);
         }

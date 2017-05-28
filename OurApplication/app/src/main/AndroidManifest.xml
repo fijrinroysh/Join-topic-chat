@@ -39,12 +39,6 @@
 
         <activity android:name=".DiscussionActivity" android:screenOrientation="portrait" android:theme="@style/AppTheme.NoActionBar"/>
 
-        <receiver android:name=".util.NetworkReceiver">
-            <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-            </intent-filter>
-        </receiver>
-
     </application>
 
 </manifest>

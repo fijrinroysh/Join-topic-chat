@@ -58,6 +58,10 @@ public class WebSocketClient extends okhttp3.WebSocketListener {
         client.dispatcher().executorService().shutdown();
     }
 
+    public boolean isConnected(){
+        return mWebSocket != null;
+    }
+
     @Override
     public void onOpen(WebSocket webSocket, Response response) {
         super.onOpen(webSocket, response);
