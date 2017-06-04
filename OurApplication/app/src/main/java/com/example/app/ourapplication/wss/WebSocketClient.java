@@ -106,7 +106,9 @@ public class WebSocketClient extends okhttp3.WebSocketListener {
      * Disconnecting the chat connection.
      */
     public void disconnect() {
-        if(mWebSocket != null)
+        if(mWebSocket != null) {
             mWebSocket.cancel();
+            mWebSocket = null;
+        }
     }
 }

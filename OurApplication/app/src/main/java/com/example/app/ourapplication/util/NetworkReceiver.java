@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-import com.example.app.ourapplication.OurApplication;
-
 import java.util.ArrayList;
 
 /**
@@ -37,8 +35,9 @@ public class NetworkReceiver extends BroadcastReceiver {
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
             dispatchConnected();
+        }else {
+            displatchDisconnected();
         }
-        displatchDisconnected();
     }
 
     public void addNetworkIntf(NetworkIntf intf){
