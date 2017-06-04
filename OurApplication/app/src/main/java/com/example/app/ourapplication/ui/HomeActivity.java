@@ -5,9 +5,10 @@ import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+
 import com.example.app.ourapplication.ComposeFragment;
 import com.example.app.ourapplication.HomeFeedFragment;
 import com.example.app.ourapplication.LocationFragment;
@@ -26,7 +27,7 @@ public class HomeActivity extends AppCompatActivity implements OnTabSelectListen
 
     private final String TAG = HomeActivity.class.getSimpleName();
 
-    public static BottomBar bottomBar;
+    private BottomBar bottomBar;
     private List<Fragment> fragments = new ArrayList<>(4);
 
     @Override
@@ -48,20 +49,23 @@ public class HomeActivity extends AppCompatActivity implements OnTabSelectListen
 
     @Override
     public void onTabSelected(@IdRes int tabId) {
-
-        int index = -1;
+        int index = 0;
         switch (tabId) {
             case R.id.add_location:
                 index = 1;
+                bottomBar.setVisibility(View.VISIBLE);
                 break;
             case R.id.add_message:
                 index = 2;
+                bottomBar.setVisibility(View.GONE);
                 break;
             case R.id.add_profile:
                 index = 3;
+                bottomBar.setVisibility(View.VISIBLE);
                 break;
             default:
-                index = 0;
+                bottomBar.setVisibility(View.VISIBLE);
+                break;
         }
 
         Log.d(TAG, "onTabSelected : " + tabId);
@@ -76,7 +80,6 @@ public class HomeActivity extends AppCompatActivity implements OnTabSelectListen
 
     @Override
     public void onBackPressed() {
-
         if ( bottomBar.getCurrentTabPosition()!=0) {
             bottomBar.selectTabAtPosition(0);
 /*

@@ -3,8 +3,6 @@ package com.example.app.ourapplication;
 import android.Manifest;
 import android.app.Activity;
 import android.media.MediaMetadataRetriever;
-import android.media.ThumbnailUtils;
-import android.provider.MediaStore.Video.Thumbnails;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import okhttp3.MediaType;
@@ -13,13 +11,11 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.OkHttpClient;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -34,7 +30,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -49,70 +44,22 @@ import com.example.app.ourapplication.rest.api.FileUploadApi;
 import com.example.app.ourapplication.rest.ApiUrls;
 import com.example.app.ourapplication.rest.model.request.LocationModel;
 import com.example.app.ourapplication.rest.model.response.CompleteFeedModel;
-import com.example.app.ourapplication.rest.model.response.ComposeRespModel;
 import com.example.app.ourapplication.ui.HomeActivity;
 import com.example.app.ourapplication.util.Helper;
 import com.example.app.ourapplication.util.UI;
-import com.example.app.ourapplication.wss.WebSocketClient;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
-
-/*import retrofit.Call;
-import retrofit.Callback;
-import retrofit.Response;
-import retrofit.Retrofit;*/
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import android.view.Display;
-import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.MediaController;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
-import android.widget.VideoView;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import android.widget.RelativeLayout;
-import android.widget.RelativeLayout.LayoutParams;
-import android.app.ProgressDialog;
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link ComposeFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link ComposeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class ComposeFragment extends Fragment {
 
     private final String TAG = ComposeFragment.class.getSimpleName();
@@ -125,28 +72,25 @@ public class ComposeFragment extends Fragment {
     // directory name to store captured images and videos
     private static final String IMAGE_DIRECTORY_NAME = "Hello Camera";
 
-    private OnFragmentInteractionListener mListener;
     private Bitmap mBitmap;
     private ImageView img;
     private EditText mMessageBox;
-    //private BottomBar bottomBar;
 
-    private WebSocketClient mWebSocketClient;
     private Uri fileUri; // file url to store image/video
-    private static Uri filePath;
-    private static String AbsolutefilePath;
-    private static Bitmap bmThumbnail;
-    private static String pathtype;
+    private Uri filePath;
+    private String AbsolutefilePath;
+    private Bitmap bmThumbnail;
+    private String pathtype;
    // private Map<String, RequestBody> map = new HashMap<>();
 
    // private WebSocketClient mWebSocketClient;
    // private Uri fileUri; // file url to store image/video
     //RestApi service;
     private static ProgressDialog pDialog;
-    private  ImageView iv ;
+    private ImageView iv ;
     private VideoView vv ;
     private RelativeLayout msg_send_lyt;
-    private static String filetype;
+    private String filetype;
 
     public ComposeFragment() {
         // Required empty public constructor
@@ -166,13 +110,6 @@ public class ComposeFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mWebSocketClient = ((OurApplication)getActivity().getApplicationContext()).getClient();
-
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.compose, container, false);
     }
@@ -182,24 +119,18 @@ public class ComposeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         mMessageBox = (EditText) view.findViewById(R.id.msg_box);
 
-        RelativeLayout layout = (RelativeLayout) view.findViewById(R.id.msg_send_lyt);
-        HomeActivity.bottomBar.setVisibility(View.INVISIBLE);
         UI.showSoftKeyboard(getActivity(),mMessageBox);
-//        HomeActivity.bottomBar.setActivated(false);
        // img = (ImageView) view.findViewById(R.id.img);
         Button sendButton = (Button) view.findViewById(R.id.send_button);
         msg_send_lyt = (RelativeLayout) view.findViewById(R.id.msg_send_lyt);
         ImageButton cameraButton = (ImageButton) view.findViewById(R.id.camera_button);
         ImageButton galleryButton = (ImageButton) view.findViewById(R.id.gallery);
-
-
 /*
         if(img.getDrawable() == null) {
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
                     RelativeLayout.LayoutParams.WRAP_CONTENT);
             params.addRule(RelativeLayout.SOFT_INPUT_ADJUST_PAN);
             layout.setLayoutParams(params);
-
         }
 */
         sendButton.setOnClickListener(new View.OnClickListener() {
@@ -212,16 +143,12 @@ public class ComposeFragment extends Fragment {
 
                     CompleteFeedModel model ;
                     //new CompleteFeedModel("F", token, msg,location,Helper.getStringImage(mBitmap));
-                    if(filetype=="image")
-                    {
+                    if(filetype.equals("image")) {
                         model = new CompleteFeedModel("F", token, msg, location, null,filetype);}
-                    else if(filetype=="video")
-                    {
+                    else if(filetype.equals("video")) {
                         model = new CompleteFeedModel("F", token, msg, location, Helper.getStringImage(bmThumbnail),filetype);
-                    }
-                    else
-
-                    {  filetype="text";
+                    } else {
+                        filetype="text";
                         filePath=null;
                         AbsolutefilePath="";
                         model = new CompleteFeedModel("F", token, msg, location, null,filetype);}
@@ -232,8 +159,6 @@ public class ComposeFragment extends Fragment {
                     Log.d(TAG, "filePath:" + filePath);
                     fileupload(filePath, model, pathtype, AbsolutefilePath, filetype);
                     mMessageBox.setText(null);
-
-
                 }
             }
         });
@@ -256,44 +181,6 @@ public class ComposeFragment extends Fragment {
         });
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-      /*  if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }*/
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
     private void showFileChooser() {
 
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -598,16 +485,14 @@ public class ComposeFragment extends Fragment {
         String path="";
         document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
         cursor.close();
-        if(type=="image")
-        {
+        if(type.equals("image")) {
             cursor = getContext().getContentResolver().query(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null,
                     MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
             cursor.moveToFirst();
             path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
             cursor.close();
         }
-        else if(type=="video")
-        {
+        else if(type.equals("video")) {
             cursor = getContext().getContentResolver().query(android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI, null,
                     MediaStore.Video.Media._ID + " = ? ", new String[]{document_id}, null);
             cursor.moveToFirst();
@@ -620,10 +505,10 @@ public class ComposeFragment extends Fragment {
     private void fileupload(Uri uri,CompleteFeedModel completeFeedModel,String filepathtype,String AbsolutefilePath,String type) {
         Log.d(TAG, "pathtype==" + filepathtype);
          String DevicefilePath="";
-        if(filepathtype != null && !filepathtype.isEmpty() && filepathtype== "uri")
-        { DevicefilePath= getFilePath(uri,type);}
-        else if(filepathtype != null && !filepathtype.isEmpty() && filepathtype=="path")
-        {DevicefilePath=AbsolutefilePath;
+        if(filepathtype != null && !filepathtype.isEmpty() && filepathtype.equals("uri")) {
+            DevicefilePath= getFilePath(uri,type);
+        } else if(filepathtype != null && !filepathtype.isEmpty() && filepathtype.equals("path")) {
+            DevicefilePath=AbsolutefilePath;
         }
         Log.d(TAG, "filePath:" + DevicefilePath);
 
@@ -653,7 +538,7 @@ public class ComposeFragment extends Fragment {
                     @Override
                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                         UI.closeKeyboard(getActivity(), mMessageBox.getWindowToken());
-                        HomeActivity.bottomBar.selectTabAtPosition(0);
+                        getActivity().onBackPressed(); // TODO hack
                         filetype="";
                         filePath=null;
                         pathtype="";
@@ -666,15 +551,13 @@ public class ComposeFragment extends Fragment {
                         Toast.makeText(getContext(), "File Upload Failed", Toast.LENGTH_SHORT).show();
                     }
                 });
-
             }
-
         } else {
             Call<okhttp3.ResponseBody> req = service.postImage(null,null ,completefeedmodel);
             req.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    HomeActivity.bottomBar.selectTabAtPosition(0);
+                    getActivity().onBackPressed(); // TODO hack
                     UI.closeKeyboard(getActivity(), mMessageBox.getWindowToken());
                     Toast.makeText(getContext(), "Message Sent", Toast.LENGTH_SHORT).show();
                 }
@@ -686,5 +569,4 @@ public class ComposeFragment extends Fragment {
                 }
             });}
     }
-
 }

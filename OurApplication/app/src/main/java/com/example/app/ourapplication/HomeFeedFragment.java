@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -32,7 +31,6 @@ import com.example.app.ourapplication.rest.model.request.HomeFeedReqModel;
 import com.example.app.ourapplication.rest.model.request.LocationModel;
 import com.example.app.ourapplication.rest.model.response.Person;
 import com.example.app.ourapplication.rest.model.response.SuccessRespModel;
-import com.example.app.ourapplication.ui.HomeActivity;
 import com.example.app.ourapplication.wss.WebSocketClient;
 import com.example.app.ourapplication.wss.WebSocketListener;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,37 +48,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link HomeFeedFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link HomeFeedFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class HomeFeedFragment extends Fragment implements WebSocketListener{
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
 
     private final String TAG = HomeFeedFragment.class.getSimpleName();
 
     private WebSocketClient mWebSocketClient;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
-    private OnFragmentInteractionListener mListener;
     /*Views*/
     private List<Person> mFeeds = new ArrayList<>();
     private FeedRVAdapter mFeedListAdapter;
@@ -120,18 +94,15 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_home_feed, container, false);
-
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         mFeeds = mDBHelper.getFeedDataAll();
         mFeedListAdapter = new FeedRVAdapter(getContext(),mFeeds);
-        HomeActivity.bottomBar.setVisibility(View.VISIBLE);
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar_homefeed);
-       ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv);
         LinearLayoutManager llm = new LinearLayoutManager(getContext().getApplicationContext());
@@ -151,7 +122,6 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
         });
 
-
         /**
          * Showing Swipe Refresh animation on activity create
          * As animation won't start on onCreate, post runnable is used
@@ -167,34 +137,11 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
         });
 
         Log.d(TAG, "Length of Feed Array" + ": " + mFeeds.size());
-
-       //Log.d(TAG, "First item in Feed Array" + ": " + mFeeds.get(0).getPhotoMsg());
-
-
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-     /*   if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }*/
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
+    public void onDestroy() {
+        super.onDestroy();
         mWebSocketClient.removeWebSocketListener(this);
     }
 
@@ -242,39 +189,35 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
 
         final Notification.Builder mBuilder = new Notification.Builder(getContext())
-                                .setAutoCancel(true)
-                                .setContentTitle(notificationTitle)
-                                .setContentText(notificationMessage)
-                                .setSmallIcon(R.mipmap.app_icon)
+                .setAutoCancel(true)
+                .setContentTitle(notificationTitle)
+                .setContentText(notificationMessage)
+                .setSmallIcon(R.mipmap.app_icon)
 
-                                .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
-                                .setStyle(new Notification.BigTextStyle()
-                                        .bigText(notificationMessage))
-                                        // .setSmallIcon(setImageBitmap(Helper.decodeImageString(notificationIcon)))
-                                .setContentIntent(pendingIntent);
-                        // hide the notification after its selected
-                        // notification.flags |= Notification.FLAG_AUTO_CANCEL;
-            Picasso.with(getContext())
-                    .load(notificationIcon)
-                    .placeholder(R.drawable.mickey)
-                    .error(R.drawable.mickey)
-                    .into(new Target() {
-                        @Override
-                        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                            mBuilder.setLargeIcon(bitmap);
-                            notificationManager.notify(0, mBuilder.build());
-                        }
+                .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
+                .setStyle(new Notification.BigTextStyle()
+                        .bigText(notificationMessage))
+                // .setSmallIcon(setImageBitmap(Helper.decodeImageString(notificationIcon)))
+                .setContentIntent(pendingIntent);
+        // hide the notification after its selected
+        // notification.flags |= Notification.FLAG_AUTO_CANCEL;
+        Picasso.with(getContext())
+                .load(notificationIcon)
+                .placeholder(R.drawable.mickey)
+                .error(R.drawable.mickey)
+                .into(new Target() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        mBuilder.setLargeIcon(bitmap);
+                        notificationManager.notify(0, mBuilder.build());
+                    }
 
-                        @Override
-                        public void onBitmapFailed(Drawable errorDrawable) {
+                    @Override
+                    public void onBitmapFailed(Drawable errorDrawable) {}
 
-                        }
-
-                        @Override
-                        public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                        }
-                    });
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {}
+                });
     }
 
     @Override
@@ -283,11 +226,10 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     @Override
     public void onClose() {}
 
-
     private void getUpdatedFeeds(){
         HomeFeedReqModel reqModel = new HomeFeedReqModel("F","5",location.getLongitude(),
                 location.getLatitude(),mDBHelper.getFeedDataLatestTime());
-       // reqModel.setLatestDate(mDBHelper.getFeedDataLatestTime());
+        // reqModel.setLatestDate(mDBHelper.getFeedDataLatestTime());
         Log.d(TAG, "Latest date :" + mDBHelper.getFeedDataLatestTime());
 
         Call<SuccessRespModel> queryHomeFeeds = ((OurApplication)getActivity().getApplicationContext())
@@ -304,12 +246,11 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                         mFeedListAdapter.notifyItemInserted(0);
                     }
                     Toast.makeText(getActivity(), "New feeds", Toast.LENGTH_LONG).show();
+                } else{
+                    Toast.makeText(getActivity(), "No more feeds to load", Toast.LENGTH_LONG).show();
                 }
-                    else{
-                        Toast.makeText(getActivity(), "No more feeds to load", Toast.LENGTH_LONG).show();
-                    }
 
-                    }
+            }
 
             @Override
             public void onFailure(Call<SuccessRespModel> call,Throwable t) {
