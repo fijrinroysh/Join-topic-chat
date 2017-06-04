@@ -34,6 +34,9 @@ public class WebSocketClient extends okhttp3.WebSocketListener {
     }
 
     public void connectToWSS(){
+        if(mSocketUrl == null){
+            return;
+        }
         connectToWSS(mSocketUrl);
     }
 

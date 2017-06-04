@@ -669,11 +669,8 @@ public class ComposeFragment extends Fragment {
 
             }
 
-        }
-
-        else
-        {
-            retrofit2.Call<okhttp3.ResponseBody> req = service.postImage(null,null ,completefeedmodel);
+        } else {
+            Call<okhttp3.ResponseBody> req = service.postImage(null,null ,completefeedmodel);
             req.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {

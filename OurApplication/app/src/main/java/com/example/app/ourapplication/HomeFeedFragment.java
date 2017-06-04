@@ -9,6 +9,8 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
@@ -113,7 +115,6 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
         mWebSocketClient.addWebSocketListener(this);
 
         mDBHelper = new DBHelper(getContext());
-
     }
 
     @Override
@@ -198,28 +199,33 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     }
 
     @Override
-    public void onTextMessage(String message) {
-        JSONObject msgObject = null;
-        try {
-            msgObject = new JSONObject(message);
-            Log.d(TAG, "TYPE:" + msgObject.optString(Keys.KEY_TYPE) + ":");
-
-            if (msgObject.optString(Keys.KEY_TYPE).equals("F")) {
-                Log.d(TAG, "I am message type F:" + ":" + msgObject.optString(Keys.KEY_NAME) );
+    public void onTextMessage(final String message) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                JSONObject msgObject = null;
                 try {
-                    Person person = new ObjectMapper().readValue(message,Person.class);
-                    //mFeeds.add(0, person);
-                    mFeedListAdapter.notifyDataSetChanged();
-                    mDBHelper.insertFeedData(person, "WS");
-                    notify(person.getSenderName(), person.getMessage(), person.getPhotoId(), person.getPostId());
+                    msgObject = new JSONObject(message);
+                    Log.d(TAG, "TYPE:" + msgObject.optString(Keys.KEY_TYPE) + ":");
 
-                } catch (IOException e) {
+                    if (msgObject.optString(Keys.KEY_TYPE).equals("F")) {
+                        Log.d(TAG, "I am message type F:" + ":" + msgObject.optString(Keys.KEY_NAME));
+                        try {
+                            Person person = new ObjectMapper().readValue(message, Person.class);
+                            //mFeeds.add(0, person);
+                            mFeedListAdapter.notifyDataSetChanged();
+                            mDBHelper.insertFeedData(person, "WS");
+                            HomeFeedFragment.this.notify(person.getSenderName(), person.getMessage(), person.getPhotoId(), person.getPostId());
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        });
     }
 
     private void notify(String notificationTitle, String notificationMessage, String notificationIcon , String postid) {
@@ -269,11 +275,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
                         }
                     });
-
     }
-
-
-
 
     @Override
     public void onOpen() {}

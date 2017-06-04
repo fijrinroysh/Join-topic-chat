@@ -1,6 +1,8 @@
 package com.example.app.ourapplication;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -132,37 +134,41 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
     public void onClose() {}
 
     @Override
-    public void onTextMessage(String message) {
+    public void onTextMessage(final String message) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    Person person = objectMapper.readValue(message, Person.class);
 
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            Person person = objectMapper.readValue(message, Person.class);
+                    Log.d(TAG, message);
 
-            Log.d(TAG, message);
+                    if (person.getType().equals("C")) {
+                        Log.d(TAG, "I am message type C:");
+                        Log.d(TAG, person.getPostId());
 
-            if (person.getType().equals("C")) {
-                Log.d(TAG, "I am message type C:" );
-                Log.d(TAG,person.getPostId());
+                        if (person.getPostId().equals(keyid)) {
+                            //Add to Comment array if it belongs to same post id and notify dataset changed
+                            mComments.add(person);
+                            mCommentListAdapter.notifyDataSetChanged();
+                        }
 
-                if (person.getPostId().equals(keyid)) {
-                    //Add to Comment array if it belongs to same post id and notify dataset changed
-                    mComments.add(person);
-                    mCommentListAdapter.notifyDataSetChanged();
+                        //Notify using Inbox style
+                        //Notify(mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 1),
+                        //      msgObject.optString(Keys.KEY_MESSAGE),
+                        //    mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 2));
+                    }
+
+                } catch (JsonParseException e) {
+                    e.printStackTrace();
+                } catch (JsonMappingException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-
-                //Notify using Inbox style
-                //Notify(mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 1),
-                //      msgObject.optString(Keys.KEY_MESSAGE),
-                //    mDBHelper.getProfileInfo(msgObject.optString(Keys.KEY_NAME), 2));
             }
-
-        }  catch (JsonParseException e) {
-            e.printStackTrace();
-        } catch (JsonMappingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        });
     }
 
     @Override
