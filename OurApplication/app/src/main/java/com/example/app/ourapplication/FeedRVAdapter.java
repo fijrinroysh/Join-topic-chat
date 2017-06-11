@@ -282,7 +282,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 String thumbnailfilename = Thumbnail_URL.concat("/video_thumbnail_").concat(Thumbnail_filename.substring(0, Thumbnail_filename.indexOf('.')) + ".jpg");
                 Log.d(TAG, "Video Thumbnail file name :" + thumbnailfilename);
                 Picasso(thumbnailfilename, vh3.videoThumbnail);
-
+                vh3.playIcon.setVisibility(View.VISIBLE);
 
                 // initialize player
                 Handler handler = new Handler();
@@ -294,8 +294,9 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         new DefaultLoadControl()
                 );
 
-                //vh3.mPlaybackControlView.requestFocus();
+                vh3.mPlaybackControlView.requestFocus();
                 vh3.mPlaybackControlView.setPlayer(vh3.mPlayer);
+
 
                 // initialize source
                 MediaSource videoSource = new ExtractorMediaSource(
@@ -309,7 +310,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
                 vh3.videoLoaderProgressBar.setVisibility(View.VISIBLE);
                 vh3.videoThumbnail.setVisibility(View.VISIBLE);
-                vh3.playIcon.setVisibility(View.VISIBLE);
+
                 Log.d(TAG, "Video Url" + ": " + item.getPhotoMsg());
 
                 SurfaceHolder.Callback mSurfaceHolderCallback = new SurfaceHolder.Callback() {
@@ -353,13 +354,17 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     //ViewGroup.LayoutParams layPar= vh3.videoThumbnail.getLayoutParams();
 
                     vh3.videoLoaderProgressBar.setVisibility(View.INVISIBLE);
+                    vh3.videoThumbnail.setVisibility(View.INVISIBLE);
+                    vh3.playIcon.setVisibility(View.INVISIBLE);
+                    vh3.mPlaybackControlView.hide();
+                    vh3.mPlayer.setPlayWhenReady(true);
+
                     vh3.playIcon.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             try {
-                                vh3.mPlayer.setPlayWhenReady(true);
-                                vh3.videoThumbnail.setVisibility(View.INVISIBLE);
-                                vh3.playIcon.setVisibility(View.INVISIBLE);
+
+
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -377,6 +382,8 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         };
 
                 vh3.mPlayer.setVideoListener(mVideoListener);
+
+
                 ExoPlayer.EventListener mEventListener = new ExoPlayer.EventListener() {
                     @Override
                     public void onLoadingChanged(boolean isLoading) {
@@ -405,7 +412,13 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 };
                 vh3.mPlayer.addListener(mEventListener);
 
+                vh3.mSurfaceView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        vh3.mPlaybackControlView.show();
 
+                    }
+                });
 
                 //vh3.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
                 // Picasso.with(mContext).load(item.getPhotoId()).resize(50, 50).into(vh3.senderPhoto);

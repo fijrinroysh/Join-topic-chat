@@ -115,7 +115,7 @@
                     android:padding="1dp"
                     android:src="@mipmap/video_play"
                     android:tint="@android:color/holo_red_dark"
-                    android:visibility="visible"/>
+                    />
 
             </RelativeLayout>
 
