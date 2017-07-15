@@ -8,12 +8,12 @@
     <android.support.design.widget.AppBarLayout
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        >
+        android:layout_height="218dp"
+        android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.design.widget.CollapsingToolbarLayout
             android:id="@+id/profile_collapse"
+
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:contentScrim="?attr/colorPrimary"
@@ -46,17 +46,36 @@
         android:scrollbars="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/edit_profile"
-        app:layout_anchor="@id/app_bar"
-        app:layout_anchorGravity="bottom|end" />
+        android:layout_gravity="top|right">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fabeditprofile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/edit_profile"
+            app:backgroundTint="#FFFFFF"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fabsubscribe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/subscribe_icon"
+            app:backgroundTint="#FFFFFF" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fabunsubscribe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/unsubscribe_icon"
+            app:backgroundTint="#FFFFFF"
+            android:visibility="gone"/>
 
 
-    />
+    </LinearLayout>
 
 </android.support.design.widget.CoordinatorLayout>

@@ -162,6 +162,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                             //mFeeds.add(0, person);
                             mFeedListAdapter.notifyDataSetChanged();
                             mDBHelper.insertFeedData(person, "WS");
+                            mDBHelper.insertCommentData(person);
                             HomeFeedFragment.this.notify(person.getSenderName(), person.getMessage(), person.getPhotoId(), person.getPostId());
 
                         } catch (IOException e) {
@@ -242,6 +243,8 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                 if (data.size() > 0) {
                     for (int i = 0; i < data.size(); i++) {
                         mDBHelper.insertFeedData(data.get(i), "HTTP");
+                       // mDBHelper.insertCommentData(data.get(i));
+                        Log.d(TAG, "insertFeedData :" + data.get(i));
                         mFeeds.add(0, data.get(i));
                         mFeedListAdapter.notifyItemInserted(0);
                     }

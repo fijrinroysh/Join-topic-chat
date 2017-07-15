@@ -11,7 +11,7 @@ import com.example.app.ourapplication.rest.model.response.ProfileRespModel;
 import com.example.app.ourapplication.rest.model.response.SignInRespModel;
 import com.example.app.ourapplication.rest.model.request.SignUpReqModel;
 import com.example.app.ourapplication.rest.model.response.SuccessRespModel;
-
+import com.example.app.ourapplication.rest.model.request.SubscribeReqModel;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.POST;
@@ -41,4 +41,10 @@ public interface RestApi {
 
     @POST("/commentfeedquery")
     Call<SuccessRespModel> queryCommentFeed(@Body CommentFeedReqModel commentFeedReqModel);
+
+    @POST("/subscribefeedquery")
+    Call<SuccessRespModel> SubscribeFeed(@Body SubscribeReqModel subscribereqmodel);
+
+    @POST("/unsubscribefeedquery")
+    Call<SuccessRespModel> UnSubscribeFeed(@Body SubscribeReqModel subscribereqmodel);
 }

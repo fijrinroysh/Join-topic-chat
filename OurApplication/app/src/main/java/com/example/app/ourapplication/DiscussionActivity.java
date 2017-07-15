@@ -13,9 +13,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
+import android.view.LayoutInflater;
 import com.example.app.ourapplication.database.DBHelper;
 import com.example.app.ourapplication.rest.model.request.CommentFeedReqModel;
+import com.example.app.ourapplication.rest.model.request.SubscribeReqModel;
 import com.example.app.ourapplication.rest.model.response.Person;
 import com.example.app.ourapplication.rest.model.response.SuccessRespModel;
 import com.example.app.ourapplication.util.Helper;
@@ -47,12 +48,13 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
     private String token;
     private DBHelper mDBHelper = new DBHelper(this);
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    private static View view;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.discussion);
-
-
+        LayoutInflater inflater=getLayoutInflater();
+        view=(View) inflater.inflate(R.layout.discussion,null);
         Button  mSendButton = (Button) findViewById(R.id.send_button);
         final EditText  mMessageBox = (EditText) findViewById(R.id.msg_box);
         mWebSocketClient = ((OurApplication)getApplicationContext()).getClient();
@@ -64,6 +66,7 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         // mWebSocketClient.sendMessage(Helper.formSubscribeMessage("S", keyid, token));
 
         keyid = getIntent().getStringExtra(Keys.KEY_ID);
+        Log.d(TAG, "keyid:" + keyid);
         if (keyid != null) {
 
             mComments.clear();
@@ -71,6 +74,7 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
             mComments.addAll(mDBHelper.getCommentData(keyid));
             mCommentListAdapter = new FeedRVAdapter(DiscussionActivity.this,mComments);
             recyclerView.setAdapter(mCommentListAdapter);
+            PostSubscription(view,keyid, mComments.get(0).getUserId(),"Y");
         }
 
 
@@ -176,6 +180,7 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         super.onDestroy();
         //mWebSocketClient.sendMessage(Helper.formSubscribeMessage("U", keyid, token));
         mWebSocketClient.removeWebSocketListener(this);
+        PostSubscription(view,keyid, mComments.get(0).getUserId(),"N");
 
     }
 
@@ -190,12 +195,12 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
                 .getRestApi().queryCommentFeed(reqModel);
         queryComments.enqueue(new Callback<SuccessRespModel>() {
             @Override
-            public void onResponse(Call<SuccessRespModel> call,Response<SuccessRespModel> response) {
+            public void onResponse(Call<SuccessRespModel> call, Response<SuccessRespModel> response) {
 
                 ArrayList<Person> data = response.body().getData();
                 if (data.size() > 0) {
                     for (int i = 0; i < data.size(); i++) {
-                        mDBHelper.insertCommentData(data.get(i));
+                        //  mDBHelper.insertCommentData(data.get(i));
                         mComments.add(data.get(i));
                         //mComments.addAll(response.body().getData());
                         mCommentListAdapter.notifyDataSetChanged();
@@ -209,11 +214,51 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
             }
 
             @Override
-            public void onFailure(Call<SuccessRespModel> call,Throwable t) {
+            public void onFailure(Call<SuccessRespModel> call, Throwable t) {
                 Log.d(TAG, "Query failed");
                 Toast.makeText(getApplicationContext(), "Loading Comments Failed", Toast.LENGTH_LONG).show();
             }
         });
         mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+    private void PostSubscription(View view,String postid,String userid,String subscriptionflag){
+        final View v=view;
+        final String successmessage;
+        final String failuremessage;
+        SubscribeReqModel model = new SubscribeReqModel(postid,userid,subscriptionflag);
+        Call<SuccessRespModel> postsubscription;
+        if(subscriptionflag.equals("Y")){
+        postsubscription = ((OurApplication) v.getContext().getApplicationContext()).getRestApi().
+                SubscribeFeed(model);
+            successmessage="Post Subscription successful";
+            failuremessage="Post Subscription failed";
+
+        }
+        else
+        { postsubscription = ((OurApplication) v.getContext().getApplicationContext()).getRestApi().
+                UnSubscribeFeed(model);
+            successmessage="Post UnSubscription successful";
+            failuremessage="Post UnSubscription failed";
+        }
+        postsubscription.enqueue(new Callback<SuccessRespModel>() {
+            @Override
+            public void onResponse(Call<SuccessRespModel> call, Response<SuccessRespModel> response) {
+                if (response.body().isSuccess()) {
+                    Log.d(TAG, response.body() + successmessage);
+                    Toast.makeText(v.getContext(), successmessage, Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.d(TAG, response.body() + failuremessage);
+                    Toast.makeText(v.getContext(), failuremessage, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SuccessRespModel> call, Throwable t) {
+                t.printStackTrace();
+                Log.d(TAG, failuremessage);
+                Toast.makeText(v.getContext(), failuremessage, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

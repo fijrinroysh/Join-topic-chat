@@ -7,15 +7,20 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
+import android.support.design.widget.FloatingActionButton;
 import android.widget.Toast;
 
 import com.example.app.ourapplication.database.DBHelper;
+import com.example.app.ourapplication.pref.PreferenceEditor;
 import com.example.app.ourapplication.rest.ApiUrls;
 import com.example.app.ourapplication.rest.model.request.ProfileFeedReqModel;
+import com.example.app.ourapplication.rest.model.request.SubscribeReqModel;
 import com.example.app.ourapplication.rest.model.response.Person;
 import com.example.app.ourapplication.rest.model.response.SuccessRespModel;
 import com.squareup.picasso.Picasso;
+import com.example.app.ourapplication.util.Helper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,18 +41,22 @@ public class ProfileActivity extends AppCompatActivity{
     private DBHelper mDBHelper = new DBHelper(this);
     private String mUserId;
     private String mPostId;
+    private FloatingActionButton fabsubscribe;
+    private FloatingActionButton fabunsubscribe;
+   // private String token = ((OurApplication)getActivity().getApplicationContext()).getUserToken();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
+        setContentView(R.layout.activity_profile_new);
+        fabsubscribe= (FloatingActionButton) findViewById(R.id.fabsubscribe);
+        fabunsubscribe= (FloatingActionButton) findViewById(R.id.fabunsubscribe);
 
         mPostId = getIntent().getStringExtra(Keys.KEY_ID);
         Log.d(TAG, "Post ID : " + mPostId);
         mUserId = mDBHelper.getFeedDataColumn(mPostId,1);
         String ImageURL = ApiUrls.HTTP_URL +"/images/"+mUserId+".jpg";
-
 
         mFeedListAdapter = new FeedRVAdapter(getApplicationContext(),mFeeds);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv);
@@ -68,8 +77,6 @@ public class ProfileActivity extends AppCompatActivity{
         getUpdatedFeeds();
 
     }
-
-
 
     private void getUpdatedFeeds(){
         ProfileFeedReqModel reqModel = new ProfileFeedReqModel(mUserId,"2020-12-31 12:00:00");
@@ -92,6 +99,25 @@ public class ProfileActivity extends AppCompatActivity{
 
                     Toast.makeText(getApplicationContext(), "No more Feeds to Load", Toast.LENGTH_LONG).show();
                 }
+
+                fabsubscribe.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Helper.PostSubscription(v, mFeeds.get(0).getUserId(), "Y");
+                        fabsubscribe.setVisibility(View.INVISIBLE);
+                        fabunsubscribe.setVisibility(View.VISIBLE);
+                    }
+
+                });
+
+                fabunsubscribe.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    Helper.PostSubscription(v, mFeeds.get(0).getUserId(), "N");
+                    fabsubscribe.setVisibility(View.VISIBLE);
+                    fabunsubscribe.setVisibility(View.INVISIBLE);
+                    }
+                });
             }
 
             @Override
@@ -101,4 +127,6 @@ public class ProfileActivity extends AppCompatActivity{
             }
         });
     }
+
+
 }

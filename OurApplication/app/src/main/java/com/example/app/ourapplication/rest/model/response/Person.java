@@ -19,9 +19,10 @@ public class Person extends Model implements Serializable {
     private String mPhotoId;
     private String mPhotoMsg;
     private String mTimeMsg;
+    private String mSubscriptionFlag;
 
     @JsonCreator
-    public Person(@JsonProperty("type") String type,@JsonProperty("postid") String id,@JsonProperty("userid") String userid,@JsonProperty("name") String name,@JsonProperty("message") String msg,@JsonProperty("profileimage") String photoId,@JsonProperty("image") String photoMsg,@JsonProperty("time") String time) {
+    public Person(@JsonProperty("type") String type,@JsonProperty("postid") String id,@JsonProperty("userid") String userid,@JsonProperty("name") String name,@JsonProperty("message") String msg,@JsonProperty("profileimage") String photoId,@JsonProperty("image") String photoMsg,@JsonProperty("time") String time,@JsonProperty("subscriptionflag") String subscriptionflag) {
         this.mType = type;
         this.mPostId = id;
         this.mUserId = userid;
@@ -30,6 +31,7 @@ public class Person extends Model implements Serializable {
         this.mPhotoId = photoId;
         this.mPhotoMsg = photoMsg;
         this.mTimeMsg = time;
+        this.mSubscriptionFlag = subscriptionflag;
     }
 
 
@@ -94,5 +96,13 @@ public class Person extends Model implements Serializable {
 
     public void setTimeMsg(String timeMsg) {
         this.mTimeMsg = timeMsg;
+    }
+
+    public String getSubscriptionFlag() {
+        return mSubscriptionFlag;
+    }
+
+    public void setSubscriptionFlag(String subscriptionflag) {
+        this.mSubscriptionFlag = subscriptionflag;
     }
 }

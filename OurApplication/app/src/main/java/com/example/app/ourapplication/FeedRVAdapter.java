@@ -10,6 +10,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Handler;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -26,9 +27,13 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.app.ourapplication.pref.PreferenceEditor;
+import com.example.app.ourapplication.rest.model.request.LocationModel;
+import com.example.app.ourapplication.rest.model.request.SubscribeReqModel;
 import com.example.app.ourapplication.rest.model.response.Person;
+import com.example.app.ourapplication.rest.model.response.SuccessRespModel;
 import com.example.app.ourapplication.util.Helper;
 import com.example.app.ourapplication.wss.WebSocketListener;
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -48,8 +53,13 @@ import com.google.android.exoplayer2.ui.PlaybackControlView;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.squareup.picasso.Picasso;
+import com.example.app.ourapplication.util.Helper;
 
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by ROYSH on 6/23/2016.
@@ -62,6 +72,8 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private int lastPosition = -1;
     private List<Person> mFeeds;
     private Context mContext;
+    private String userid;
+
 
     FeedRVAdapter(Context context, List<Person> mFeeds) {
         this.mContext = context;
@@ -75,6 +87,8 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         TextView senderMessage;
         ImageView senderPhoto;
         TextView messageTime;
+        ImageView subscribe;
+        ImageView unsubscribe;
 
         PersonViewHolder1(View itemView) {
             super(itemView);
@@ -83,6 +97,8 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             senderMessage = (TextView) itemView.findViewById(R.id.sender_message);
             senderPhoto = (ImageView) itemView.findViewById(R.id.sender_photo);
             messageTime = (TextView) itemView.findViewById(R.id.message_time);
+            subscribe = (ImageView) itemView.findViewById(R.id.subscribe);
+            unsubscribe = (ImageView) itemView.findViewById(R.id.unsubscribe);
         }
     }
 
@@ -93,6 +109,8 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         ImageView senderPhoto;
         ImageView messagePhoto;
         TextView messageTime;
+        ImageView subscribe;
+        ImageView unsubscribe;
 
         PersonViewHolder2(View itemView) {
             super(itemView);
@@ -102,6 +120,8 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             senderPhoto = (ImageView) itemView.findViewById(R.id.sender_photo);
             messageTime = (TextView) itemView.findViewById(R.id.message_time);
             messagePhoto = (ImageView) itemView.findViewById(R.id.message_photo);
+            subscribe = (ImageView) itemView.findViewById(R.id.subscribe);
+            unsubscribe = (ImageView) itemView.findViewById(R.id.unsubscribe);
         }
     }
 
@@ -118,6 +138,8 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         ProgressBar videoLoaderProgressBar;
         ImageView videoThumbnail;
         ImageView playIcon;
+        ImageView subscribe;
+        ImageView unsubscribe;
 
         PersonViewHolder3(View itemView) {
             super(itemView);
@@ -132,6 +154,8 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             videoLoaderProgressBar = (ProgressBar) itemView.findViewById(R.id.video_loader_progress_bar);
             videoThumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
             playIcon = (ImageView) itemView.findViewById(R.id.video_play_img_btn);
+            subscribe = (ImageView) itemView.findViewById(R.id.subscribe);
+            unsubscribe = (ImageView) itemView.findViewById(R.id.unsubscribe);
         }
     }
 
@@ -141,6 +165,8 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         TextView senderMessage;
         ImageView senderPhoto;
         TextView messageTime;
+        ImageView subscribe;
+        ImageView unsubscribe;
 
         PersonViewHolder4(View itemView) {
             super(itemView);
@@ -148,6 +174,8 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             senderMessage = (TextView) itemView.findViewById(R.id.sender_message);
             senderPhoto = (ImageView) itemView.findViewById(R.id.sender_photo);
             messageTime = (TextView) itemView.findViewById(R.id.message_time);
+            subscribe = (ImageView) itemView.findViewById(R.id.subscribe);
+            unsubscribe = (ImageView) itemView.findViewById(R.id.unsubscribe);
         }
     }
 
@@ -207,11 +235,18 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         final Person item = mFeeds.get(i);
         switch (viewHolder.getItemViewType()) {
             case 1:
-                PersonViewHolder1 vh1 = (PersonViewHolder1) viewHolder;
+                final PersonViewHolder1 vh1 = (PersonViewHolder1) viewHolder;
+
                 vh1.senderName.setText(item.getSenderName());
                 vh1.senderMessage.setText(item.getMessage());
                 vh1.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
                 // Picasso.with(mContext).load(item.getPhotoId()).resize(50, 50).into(vh1.senderPhoto);
+                Log.d(TAG, "SUBSCRIPTION :" + item.getSubscriptionFlag());
+                if(item.getSubscriptionFlag().equals("N")) {vh1.subscribe.setVisibility(View.VISIBLE);
+                    vh1.unsubscribe.setVisibility(View.INVISIBLE);}
+                else {vh1.unsubscribe.setVisibility(View.VISIBLE);
+                    vh1.subscribe.setVisibility(View.INVISIBLE);}
+
                 Picasso(item.getPhotoId(), vh1.senderPhoto);
 
                 openProfile(item, vh1.senderPhoto);
@@ -219,6 +254,26 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 openDiscussion(item, vh1.cv);
 
                 setAnimation(vh1.cv, i);
+
+                vh1.subscribe.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
+                        Helper.PostSubscription(v, item.getPostId(), "Y");
+                        vh1.subscribe.setVisibility(View.INVISIBLE);
+                        vh1.unsubscribe.setVisibility(View.VISIBLE);
+                    }
+                });
+
+                vh1.unsubscribe.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
+                        Helper.PostSubscription(v, item.getPostId(), "N");
+                        vh1.subscribe.setVisibility(View.VISIBLE);
+                        vh1.unsubscribe.setVisibility(View.INVISIBLE);
+                    }
+                });
                 break;
 
             case 2:
@@ -532,5 +587,71 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
 
 
+/*
+   private void PostSubscription(View view,String postid,String vuserid,String subscriptionflag){
+       final View v=view;
+       final String successmessage;
+       final String failuremessage;
+       final String userid =  PreferenceEditor.getInstance(v.getContext()).getLoggedInUserName();
+       SubscribeReqModel model = new SubscribeReqModel(postid,userid,subscriptionflag);
+       Call<SuccessRespModel> postsubscription;
+       if(subscriptionflag.equals("Y")) {
+          postsubscription = ((OurApplication) v.getContext().getApplicationContext()).getRestApi().
+                   SubscribeFeed(model);
+           successmessage="Post Subscription successful";
+           failuremessage="Post Subscription failed";}
+       else
+       { postsubscription = ((OurApplication) v.getContext().getApplicationContext()).getRestApi().
+               UnSubscribeFeed(model);
+           successmessage="Post UnSubscription successful";
+           failuremessage="Post UnSubscription failed";}
+        postsubscription.enqueue(new Callback<SuccessRespModel>() {
+            @Override
+            public void onResponse(Call<SuccessRespModel> call, Response<SuccessRespModel> response) {
+                if (response.body().isSuccess()) {
+                    Log.d(TAG, response.body() + successmessage);
+                    Toast.makeText(v.getContext(), successmessage, Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.d(TAG, response.body() + failuremessage);
+                    Toast.makeText(v.getContext(), failuremessage, Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onFailure(Call<SuccessRespModel> call, Throwable t) {
+                t.printStackTrace();
+                Log.d(TAG, failuremessage);
+                        Toast.makeText(v.getContext(), failuremessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }*/
+
+     /*   private void PostSubscription(View v,String postid,String userid){
+
+
+        Call<SuccessRespModel> composeFeed = ((OurApplication) v.getContext().getApplicationContext())
+                .getRestApi().SubscribeFeed(postid, userid);
+        composeFeed.enqueue(new Callback<SuccessRespModel>() {
+            @Override
+            public void onResponse(Response<SuccessRespModel> response, Retrofit retrofit) {
+
+                Boolean data = response.body().isSuccess();
+                if (data) {
+
+                   Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
+
+
+                } else {
+                     Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                 Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }*/
 
 }

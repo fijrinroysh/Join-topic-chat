@@ -15,13 +15,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import com.example.app.ourapplication.DiscussionActivity;
 import com.example.app.ourapplication.Keys;
+import com.example.app.ourapplication.OurApplication;
 import com.example.app.ourapplication.R;
 import com.example.app.ourapplication.Util;
+import com.example.app.ourapplication.pref.PreferenceEditor;
 import com.example.app.ourapplication.rest.ApiUrls;
 import com.example.app.ourapplication.rest.model.request.SignInReqModel;
+import com.example.app.ourapplication.rest.model.request.SubscribeReqModel;
+import com.example.app.ourapplication.rest.model.response.SuccessRespModel;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -35,6 +41,10 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by sarumugam on 16/07/16.
@@ -173,5 +183,41 @@ public class Helper extends AppCompatActivity{
         canvas.setMatrix(scaleMatrix);
         canvas.drawBitmap(bitmap, middleX - bitmap.getWidth() / 2, middleY - bitmap.getHeight() / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
         return scaledBitmap;
+    }
+
+    public static void PostSubscription(View view,String postid,String subscriptionflag){
+        final View v=view;
+        final String successmessage;
+        final String failuremessage;
+        final String userid =  PreferenceEditor.getInstance(v.getContext()).getLoggedInUserName();
+        SubscribeReqModel model = new SubscribeReqModel(postid,userid,subscriptionflag);
+        Call<SuccessRespModel> postsubscription;
+        if(subscriptionflag.equals("Y")) {
+            postsubscription = ((OurApplication) v.getContext().getApplicationContext()).getRestApi().
+                    SubscribeFeed(model);
+            successmessage="Post Subscription successful";
+            failuremessage="Post Subscription failed";}
+        else
+        { postsubscription = ((OurApplication) v.getContext().getApplicationContext()).getRestApi().
+                UnSubscribeFeed(model);
+            successmessage="Post UnSubscription successful";
+            failuremessage="Post UnSubscription failed";}
+        postsubscription.enqueue(new Callback<SuccessRespModel>() {
+            @Override
+            public void onResponse(Call<SuccessRespModel> call, Response<SuccessRespModel> response) {
+                if (response.body().isSuccess()) {
+                    Toast.makeText(v.getContext(), successmessage, Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(v.getContext(), failuremessage, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SuccessRespModel> call, Throwable t) {
+                t.printStackTrace();
+                //Log.d(TAG, failuremessage);
+                Toast.makeText(v.getContext(), failuremessage, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

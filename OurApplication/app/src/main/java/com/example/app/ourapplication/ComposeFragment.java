@@ -143,9 +143,9 @@ public class ComposeFragment extends Fragment {
 
                     CompleteFeedModel model ;
                     //new CompleteFeedModel("F", token, msg,location,Helper.getStringImage(mBitmap));
-                    if(filetype.equals("image")) {
+                    if(filetype!=null && filetype.equals("image")) {
                         model = new CompleteFeedModel("F", token, msg, location, null,filetype);}
-                    else if(filetype.equals("video")) {
+                    else if(filetype!=null && filetype.equals("video")) {
                         model = new CompleteFeedModel("F", token, msg, location, Helper.getStringImage(bmThumbnail),filetype);
                     } else {
                         filetype="text";

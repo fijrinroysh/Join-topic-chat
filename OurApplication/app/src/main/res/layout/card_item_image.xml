@@ -38,7 +38,30 @@
                 android:textStyle="bold"
                 android:textColor="@color/text_color"/>
 
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:gravity="top|right"
+                android:layout_toRightOf="@+id/sender_name"
+                >
 
+                <ImageView
+                    android:id="@+id/subscribe"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@mipmap/subscribe_icon"
+                    />
+
+                <ImageView
+                    android:id="@+id/unsubscribe"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@mipmap/unsubscribe_icon"
+                    android:layout_toRightOf="@+id/subscribe"
+                    android:visibility="gone"
+                    />
+            </RelativeLayout>
 
             <TextView
                 android:id="@+id/message_time"

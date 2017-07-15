@@ -104,8 +104,6 @@ public class ProfileFragment extends Fragment {
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(mFeedListAdapter);
 
-
-
         mUserId = PreferenceEditor.getInstance((getActivity().getApplicationContext())).getLoggedInUserName();
 
         Log.d(TAG, "User ID is" + mUserId);
@@ -186,7 +184,8 @@ public class ProfileFragment extends Fragment {
     }
 
     private void updateProfile(ProfileUpdateModel reqModel){
-        Call<ProfileRespModel> profileUpdater = ((OurApplication)getActivity().getApplicationContext()).getRestApi().updateProfile(reqModel);
+        Call<ProfileRespModel> profileUpdater = ((OurApplication)getActivity().getApplicationContext()).getRestApi().
+                updateProfile(reqModel);
         profileUpdater.enqueue(new Callback<ProfileRespModel>() {
             @Override
             public void onResponse(Call<ProfileRespModel> call, Response<ProfileRespModel> response) {
