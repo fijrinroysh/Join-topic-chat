@@ -74,7 +74,8 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
             mComments.addAll(mDBHelper.getCommentData(keyid));
             mCommentListAdapter = new FeedRVAdapter(DiscussionActivity.this,mComments);
             recyclerView.setAdapter(mCommentListAdapter);
-            PostSubscription(view,keyid, mComments.get(0).getUserId(),"Y");
+            //PostSubscription(view,keyid, mComments.get(0).getUserId(),"Y");
+            Helper.PostSubscription(view, keyid, "Y");
         }
 
 
@@ -180,8 +181,8 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         super.onDestroy();
         //mWebSocketClient.sendMessage(Helper.formSubscribeMessage("U", keyid, token));
         mWebSocketClient.removeWebSocketListener(this);
-        PostSubscription(view,keyid, mComments.get(0).getUserId(),"N");
-
+        //PostSubscription(view,keyid, mComments.get(0).getUserId(),"N");
+        Helper.PostSubscription(view, keyid, "N");
     }
 
     private void getUpdatedComments(){
@@ -222,43 +223,5 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         mSwipeRefreshLayout.setRefreshing(false);
     }
 
-    private void PostSubscription(View view,String postid,String userid,String subscriptionflag){
-        final View v=view;
-        final String successmessage;
-        final String failuremessage;
-        SubscribeReqModel model = new SubscribeReqModel(postid,userid,subscriptionflag);
-        Call<SuccessRespModel> postsubscription;
-        if(subscriptionflag.equals("Y")){
-        postsubscription = ((OurApplication) v.getContext().getApplicationContext()).getRestApi().
-                SubscribeFeed(model);
-            successmessage="Post Subscription successful";
-            failuremessage="Post Subscription failed";
 
-        }
-        else
-        { postsubscription = ((OurApplication) v.getContext().getApplicationContext()).getRestApi().
-                UnSubscribeFeed(model);
-            successmessage="Post UnSubscription successful";
-            failuremessage="Post UnSubscription failed";
-        }
-        postsubscription.enqueue(new Callback<SuccessRespModel>() {
-            @Override
-            public void onResponse(Call<SuccessRespModel> call, Response<SuccessRespModel> response) {
-                if (response.body().isSuccess()) {
-                    Log.d(TAG, response.body() + successmessage);
-                    Toast.makeText(v.getContext(), successmessage, Toast.LENGTH_SHORT).show();
-                } else {
-                    Log.d(TAG, response.body() + failuremessage);
-                    Toast.makeText(v.getContext(), failuremessage, Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<SuccessRespModel> call, Throwable t) {
-                t.printStackTrace();
-                Log.d(TAG, failuremessage);
-                Toast.makeText(v.getContext(), failuremessage, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
 }

@@ -229,7 +229,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
     private void getUpdatedFeeds(){
         HomeFeedReqModel reqModel = new HomeFeedReqModel("F","5",location.getLongitude(),
-                location.getLatitude(),mDBHelper.getFeedDataLatestTime());
+                location.getLatitude(),mDBHelper.getFeedDataLatestTime(),PreferenceEditor.getInstance(getContext()).getLoggedInUserName());
         // reqModel.setLatestDate(mDBHelper.getFeedDataLatestTime());
         Log.d(TAG, "Latest date :" + mDBHelper.getFeedDataLatestTime());
 

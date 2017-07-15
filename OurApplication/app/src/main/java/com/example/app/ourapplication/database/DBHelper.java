@@ -176,7 +176,8 @@ public class DBHelper extends SQLiteOpenHelper {
     public String getFeedDataLatestTime() {
         String  columndata;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " + MESSAGE_PROTOCOL_COLUMN + " = \"HTTP\"  ORDER BY "+ MESSAGE_TIME_COLUMN+" DESC" , null );
+       // Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " + MESSAGE_PROTOCOL_COLUMN + " = \"HTTP\"  ORDER BY "+ MESSAGE_TIME_COLUMN+" DESC" , null );
+        Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA   ORDER BY "+ MESSAGE_TIME_COLUMN+" DESC" , null );
 
         msg_res.moveToFirst();
 

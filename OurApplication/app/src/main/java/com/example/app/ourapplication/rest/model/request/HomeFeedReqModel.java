@@ -18,13 +18,16 @@ public class HomeFeedReqModel extends Model {
     private double mLatitude;
     @JsonProperty("latestdate")
     private String mLatestDate;
+    @JsonProperty("userid")
+    private String mUserid;
 
-    public HomeFeedReqModel(String type, String range, double longitude, double latitude, String latestDate) {
+    public HomeFeedReqModel(String type, String range, double longitude, double latitude, String latestDate,String userid) {
         this.mType = type;
         this.mRange = range;
         this.mLongitude = longitude;
         this.mLatitude = latitude;
         this.mLatestDate = latestDate;
+        this.mUserid = userid;
     }
 
     public String getType() {
@@ -66,4 +69,13 @@ public class HomeFeedReqModel extends Model {
     public void setLatestDate(String latestDate) {
         this.mLatestDate = latestDate;
     }
+
+    public String getUserId() {
+        return mUserid;
+    }
+
+    public void setUserId(String userid) {
+        this.mUserid = userid;
+    }
+
 }

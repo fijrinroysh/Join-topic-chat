@@ -278,7 +278,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             case 2:
 
-                PersonViewHolder2 vh2 = (PersonViewHolder2) viewHolder;
+                final PersonViewHolder2 vh2 = (PersonViewHolder2) viewHolder;
                 vh2.senderName.setText(item.getSenderName());
                 vh2.senderMessage.setText(item.getMessage());
                 vh2.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
@@ -289,6 +289,12 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 //vh2.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
                 // Picasso.with(mContext).load(item.getPhotoId()).resize(50, 50).into(vh2.senderPhoto);
                 Picasso(item.getPhotoId(), vh2.senderPhoto);
+
+                Log.d(TAG, "SUBSCRIPTION :" + item.getSubscriptionFlag());
+                if(item.getSubscriptionFlag().equals("N")) {vh2.subscribe.setVisibility(View.VISIBLE);
+                    vh2.unsubscribe.setVisibility(View.INVISIBLE);}
+                else {vh2.unsubscribe.setVisibility(View.VISIBLE);
+                    vh2.subscribe.setVisibility(View.INVISIBLE);}
                 openProfile(item, vh2.senderPhoto);
 
 
@@ -318,6 +324,26 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     }
                 });
                 setAnimation(vh2.cv, i);
+
+                vh2.subscribe.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
+                        Helper.PostSubscription(v, item.getPostId(), "Y");
+                        vh2.subscribe.setVisibility(View.INVISIBLE);
+                        vh2.unsubscribe.setVisibility(View.VISIBLE);
+                    }
+                });
+
+                vh2.unsubscribe.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
+                        Helper.PostSubscription(v, item.getPostId(), "N");
+                        vh2.subscribe.setVisibility(View.VISIBLE);
+                        vh2.unsubscribe.setVisibility(View.INVISIBLE);
+                    }
+                });
                 break;
 
             case 3:
@@ -327,6 +353,11 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 vh3.senderName.setText(item.getSenderName());
                 vh3.senderMessage.setText(item.getMessage());
                 vh3.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
+                Log.d(TAG, "SUBSCRIPTION :" + item.getSubscriptionFlag());
+                if(item.getSubscriptionFlag().equals("N")) {vh3.subscribe.setVisibility(View.VISIBLE);
+                    vh3.unsubscribe.setVisibility(View.INVISIBLE);}
+                else {vh3.unsubscribe.setVisibility(View.VISIBLE);
+                    vh3.subscribe.setVisibility(View.INVISIBLE);}
 
                 Log.d(TAG, "IMAGE URL :" + item.getPhotoMsg());
                 int index = item.getPhotoMsg().lastIndexOf('/');
@@ -481,20 +512,62 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 openProfile(item, vh3.senderPhoto);
                 openDiscussion(item, vh3.cv);
                 setAnimation(vh3.cv, i);
+                vh3.subscribe.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
+                        Helper.PostSubscription(v, item.getPostId(), "Y");
+                        vh3.subscribe.setVisibility(View.INVISIBLE);
+                        vh3.unsubscribe.setVisibility(View.VISIBLE);
+                    }
+                });
+
+                vh3.unsubscribe.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
+                        Helper.PostSubscription(v, item.getPostId(), "N");
+                        vh3.subscribe.setVisibility(View.VISIBLE);
+                        vh3.unsubscribe.setVisibility(View.INVISIBLE);
+                    }
+                });
 
                 break;
 
 
             case 4:
-                PersonViewHolder4 vh4 = (PersonViewHolder4) viewHolder;
+               final PersonViewHolder4 vh4 = (PersonViewHolder4) viewHolder;
                 vh4.senderName.setText(item.getSenderName());
                 vh4.senderMessage.setText(item.getMessage());
                 vh4.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
+                Log.d(TAG, "SUBSCRIPTION :" + item.getSubscriptionFlag());
+                if(item.getSubscriptionFlag().equals("N")) {vh4.subscribe.setVisibility(View.VISIBLE);
+                    vh4.unsubscribe.setVisibility(View.INVISIBLE);}
+                else {vh4.unsubscribe.setVisibility(View.VISIBLE);
+                    vh4.subscribe.setVisibility(View.INVISIBLE);}
+
 
                 // Picasso.with(mContext).load(item.getPhotoId()).resize(50, 50).into(vh1.senderPhoto);
                 Picasso(item.getPhotoId(), vh4.senderPhoto);
+                vh4.subscribe.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
+                        Helper.PostSubscription(v, item.getPostId(), "Y");
+                        vh4.subscribe.setVisibility(View.INVISIBLE);
+                        vh4.unsubscribe.setVisibility(View.VISIBLE);
+                    }
+                });
 
-
+                vh4.unsubscribe.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
+                        Helper.PostSubscription(v, item.getPostId(), "N");
+                        vh4.subscribe.setVisibility(View.VISIBLE);
+                        vh4.unsubscribe.setVisibility(View.INVISIBLE);
+                    }
+                });
 
                 break;
 
@@ -584,74 +657,5 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             }
         });
     }
-
-
-
-/*
-   private void PostSubscription(View view,String postid,String vuserid,String subscriptionflag){
-       final View v=view;
-       final String successmessage;
-       final String failuremessage;
-       final String userid =  PreferenceEditor.getInstance(v.getContext()).getLoggedInUserName();
-       SubscribeReqModel model = new SubscribeReqModel(postid,userid,subscriptionflag);
-       Call<SuccessRespModel> postsubscription;
-       if(subscriptionflag.equals("Y")) {
-          postsubscription = ((OurApplication) v.getContext().getApplicationContext()).getRestApi().
-                   SubscribeFeed(model);
-           successmessage="Post Subscription successful";
-           failuremessage="Post Subscription failed";}
-       else
-       { postsubscription = ((OurApplication) v.getContext().getApplicationContext()).getRestApi().
-               UnSubscribeFeed(model);
-           successmessage="Post UnSubscription successful";
-           failuremessage="Post UnSubscription failed";}
-        postsubscription.enqueue(new Callback<SuccessRespModel>() {
-            @Override
-            public void onResponse(Call<SuccessRespModel> call, Response<SuccessRespModel> response) {
-                if (response.body().isSuccess()) {
-                    Log.d(TAG, response.body() + successmessage);
-                    Toast.makeText(v.getContext(), successmessage, Toast.LENGTH_SHORT).show();
-                } else {
-                    Log.d(TAG, response.body() + failuremessage);
-                    Toast.makeText(v.getContext(), failuremessage, Toast.LENGTH_SHORT).show();
-                }
-            }
-            @Override
-            public void onFailure(Call<SuccessRespModel> call, Throwable t) {
-                t.printStackTrace();
-                Log.d(TAG, failuremessage);
-                        Toast.makeText(v.getContext(), failuremessage, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }*/
-
-     /*   private void PostSubscription(View v,String postid,String userid){
-
-
-        Call<SuccessRespModel> composeFeed = ((OurApplication) v.getContext().getApplicationContext())
-                .getRestApi().SubscribeFeed(postid, userid);
-        composeFeed.enqueue(new Callback<SuccessRespModel>() {
-            @Override
-            public void onResponse(Response<SuccessRespModel> response, Retrofit retrofit) {
-
-                Boolean data = response.body().isSuccess();
-                if (data) {
-
-                   Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
-
-
-                } else {
-                     Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
-                }
-
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                 Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-    }*/
 
 }

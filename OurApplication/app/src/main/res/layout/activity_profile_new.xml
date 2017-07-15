@@ -53,14 +53,6 @@
         android:layout_gravity="top|right">
 
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fabeditprofile"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
-            android:src="@drawable/edit_profile"
-            app:backgroundTint="#FFFFFF"/>
-
-        <android.support.design.widget.FloatingActionButton
             android:id="@+id/fabsubscribe"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
