@@ -90,7 +90,7 @@ public class ComposeFragment extends Fragment {
     private ImageView iv ;
     private VideoView vv ;
     private RelativeLayout msg_send_lyt;
-    private String filetype;
+    private String filetype = "text";
 
     public ComposeFragment() {
         // Required empty public constructor

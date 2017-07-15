@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'siva'
+            keyPassword '123456'
+            storeFile file('/Users/sarumugam/Storage/projects/KK/OurApplication/app/ourappkey.jks')
+            storePassword '123456'
+        }
+    }
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
     defaultConfig {
@@ -25,7 +33,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile 'com.google.android.gms:play-services-location:8.1.0'
@@ -34,9 +42,7 @@ dependencies {
     compile 'com.android.support:cardview-v7:23.4.0'
     compile 'com.android.support:recyclerview-v7:23.4.0'
     compile 'com.android.support:support-v4:23.4.0'
-
     compile 'com.roughike:bottom-bar:2.0.2'
-
     // For the Rest layer.
     compile 'com.squareup.retrofit2:retrofit:2.0.2'
     compile 'com.squareup.retrofit2:converter-jackson:2.2.0'
@@ -45,6 +51,5 @@ dependencies {
     compile 'com.android.support:multidex:1.0.1'
     //For file upload
     compile 'com.squareup.picasso:picasso:2.5.2'
-
     compile 'com.google.android.exoplayer:exoplayer:r2.0.0'
 }
