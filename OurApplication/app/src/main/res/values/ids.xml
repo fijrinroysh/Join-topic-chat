@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <item  name="subscribe" type="id" />
+    <item  name="unsubscribe" type="id" />
+</resources>

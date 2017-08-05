@@ -11,7 +11,7 @@ import com.example.app.ourapplication.wss.WebSocketClient;
 
 public class OurApplication extends Application implements NetworkReceiver.NetworkIntf {
 
-    private String mToken;
+    private  static String mToken;
     private WebSocketClient mClient;
     private RestApi mRestApi;
     private NetworkReceiver mNetworkReceiver;
@@ -28,7 +28,7 @@ public class OurApplication extends Application implements NetworkReceiver.Netwo
         return mRestApi;
     }
 
-    public String getUserToken(){
+    public static String getUserToken(){
         return mToken;
     }
 

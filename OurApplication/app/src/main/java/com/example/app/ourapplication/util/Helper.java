@@ -185,11 +185,13 @@ public class Helper extends AppCompatActivity{
         return scaledBitmap;
     }
 
-    public static void PostSubscription(View view,String postid,String subscriptionflag){
+    public static void PostSubscription(View view,String userid,String postid,String subscriptionflag){
         final View v=view;
         final String successmessage;
         final String failuremessage;
-        final String userid =  PreferenceEditor.getInstance(v.getContext()).getLoggedInUserName();
+        //final String userid =  PreferenceEditor.getInstance(v.getContext()).getLoggedInUserName();
+        //String userid = ((OurApplication) v.getContext().getActivity().getApplicationContext()).getUserToken();
+     //   final String userid = ((OurApplication)getActivity().getApplicationContext()).getUserToken();
         SubscribeReqModel model = new SubscribeReqModel(postid,userid,subscriptionflag);
         Call<SuccessRespModel> postsubscription;
         if(subscriptionflag.equals("Y")) {

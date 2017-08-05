@@ -18,6 +18,8 @@ import com.example.app.ourapplication.rest.ApiUrls;
 import com.example.app.ourapplication.rest.model.request.ProfileFeedReqModel;
 import com.example.app.ourapplication.rest.model.request.SubscribeReqModel;
 import com.example.app.ourapplication.rest.model.response.Person;
+import com.example.app.ourapplication.rest.model.response.Subscriber;
+import com.example.app.ourapplication.rest.model.response.SubscriberDataRespModel;
 import com.example.app.ourapplication.rest.model.response.SuccessRespModel;
 import com.squareup.picasso.Picasso;
 import com.example.app.ourapplication.util.Helper;
@@ -43,6 +45,7 @@ public class ProfileActivity extends AppCompatActivity{
     private String mPostId;
     private FloatingActionButton fabsubscribe;
     private FloatingActionButton fabunsubscribe;
+    private String token;
    // private String token = ((OurApplication)getActivity().getApplicationContext()).getUserToken();
 
 
@@ -52,11 +55,22 @@ public class ProfileActivity extends AppCompatActivity{
         setContentView(R.layout.activity_profile_new);
         fabsubscribe= (FloatingActionButton) findViewById(R.id.fabsubscribe);
         fabunsubscribe= (FloatingActionButton) findViewById(R.id.fabunsubscribe);
-
+       /* mDBHelper.RefreshUserSubscription();
+        getSubscribers();*/
+        final String userid =  PreferenceEditor.getInstance(getApplicationContext()).getLoggedInUserName();
+         token = ((OurApplication)getApplicationContext()).getUserToken();
         mPostId = getIntent().getStringExtra(Keys.KEY_ID);
         Log.d(TAG, "Post ID : " + mPostId);
         mUserId = mDBHelper.getFeedDataColumn(mPostId,1);
         String ImageURL = ApiUrls.HTTP_URL +"/images/"+mUserId+".jpg";
+
+        String sid=mDBHelper.getUserSubscription(mUserId, userid);
+        Log.d(TAG, "S ID : " + sid);
+
+        if(sid!=null && sid.equals("nosubscription")) {fabsubscribe.setVisibility(View.VISIBLE);
+            fabunsubscribe.setVisibility(View.INVISIBLE);}
+        else {fabsubscribe.setVisibility(View.INVISIBLE);
+            fabunsubscribe.setVisibility(View.VISIBLE);}
 
         mFeedListAdapter = new FeedRVAdapter(getApplicationContext(),mFeeds);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv);
@@ -75,7 +89,15 @@ public class ProfileActivity extends AppCompatActivity{
 
         Picasso.with((getApplicationContext())).load(ImageURL).into(profileImgView);
         getUpdatedFeeds();
+        getSubscribers();
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mDBHelper.RefreshUserSubscription();
+        //getSubscribers();
     }
 
     private void getUpdatedFeeds(){
@@ -85,11 +107,11 @@ public class ProfileActivity extends AppCompatActivity{
                 .getRestApi().queryProfileFeed(reqModel);
         queryProfileFeeds.enqueue(new Callback<SuccessRespModel>() {
             @Override
-            public void onResponse(Call<SuccessRespModel> call,Response<SuccessRespModel> response) {
+            public void onResponse(Call<SuccessRespModel> call, Response<SuccessRespModel> response) {
                 if (response.body().isSuccess()) {
                     ArrayList<Person> data = response.body().getData();
 
-                    if(data.size() > 0) {
+                    if (data.size() > 0) {
                         for (int i = 0; i < data.size(); i++) {
 
                             mFeeds.add(0, data.get(i));
@@ -103,7 +125,7 @@ public class ProfileActivity extends AppCompatActivity{
                 fabsubscribe.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Helper.PostSubscription(v, mFeeds.get(0).getUserId(), "Y");
+                        Helper.PostSubscription(v,token, mFeeds.get(0).getUserId(), "Y");
                         fabsubscribe.setVisibility(View.INVISIBLE);
                         fabunsubscribe.setVisibility(View.VISIBLE);
                     }
@@ -113,20 +135,44 @@ public class ProfileActivity extends AppCompatActivity{
                 fabunsubscribe.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                    Helper.PostSubscription(v, mFeeds.get(0).getUserId(), "N");
-                    fabsubscribe.setVisibility(View.VISIBLE);
-                    fabunsubscribe.setVisibility(View.INVISIBLE);
+                        Helper.PostSubscription(v, token,mFeeds.get(0).getUserId(), "N");
+                        fabsubscribe.setVisibility(View.VISIBLE);
+                        fabunsubscribe.setVisibility(View.INVISIBLE);
                     }
                 });
             }
 
             @Override
-            public void onFailure(Call<SuccessRespModel> call,Throwable t) {
+            public void onFailure(Call<SuccessRespModel> call, Throwable t) {
                 Log.d(TAG, "Query failed for the reson: " + t);
                 Toast.makeText(getApplicationContext(), "Loading Feeds Failed", Toast.LENGTH_LONG).show();
             }
         });
     }
 
+    private void getSubscribers(){
+
+        Call<SubscriberDataRespModel> querySubscriberData = ((OurApplication) getApplicationContext())
+                .getRestApi().querySubscriberData();
+        querySubscriberData.enqueue(new Callback<SubscriberDataRespModel>() {
+            @Override
+            public void onResponse(Call<SubscriberDataRespModel> call, Response<SubscriberDataRespModel> response) {
+
+                ArrayList<Subscriber> data = response.body().getData();
+                if (data.size() > 0) {
+                    for (int i = 0; i < data.size(); i++) {
+                        mDBHelper.insertSubscriberData(data.get(i));
+                        Log.d(TAG, "insertSubscriberData :" + data.get(i));
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SubscriberDataRespModel> call, Throwable t) {
+                Log.d(TAG, "Query failed: " + t);
+                Toast.makeText(getApplicationContext(), "Getting Subscriber Data Failed", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
 
 }

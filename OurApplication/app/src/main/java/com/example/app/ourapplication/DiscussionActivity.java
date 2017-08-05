@@ -45,16 +45,18 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
     private WebSocketClient mWebSocketClient;
     private final String TAG = DiscussionActivity.class.getSimpleName();
     private String keyid;
-    private String token;
+   // private String token;
     private DBHelper mDBHelper = new DBHelper(this);
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private static View view;
+    private  String token;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.discussion);
         LayoutInflater inflater=getLayoutInflater();
         view=(View) inflater.inflate(R.layout.discussion,null);
+         token = ((OurApplication) getApplicationContext()).getUserToken();
         Button  mSendButton = (Button) findViewById(R.id.send_button);
         final EditText  mMessageBox = (EditText) findViewById(R.id.msg_box);
         mWebSocketClient = ((OurApplication)getApplicationContext()).getClient();
@@ -75,7 +77,7 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
             mCommentListAdapter = new FeedRVAdapter(DiscussionActivity.this,mComments);
             recyclerView.setAdapter(mCommentListAdapter);
             //PostSubscription(view,keyid, mComments.get(0).getUserId(),"Y");
-            Helper.PostSubscription(view, keyid, "Y");
+            Helper.PostSubscription(view,token, keyid, "Y");
         }
 
 
@@ -182,7 +184,7 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         //mWebSocketClient.sendMessage(Helper.formSubscribeMessage("U", keyid, token));
         mWebSocketClient.removeWebSocketListener(this);
         //PostSubscription(view,keyid, mComments.get(0).getUserId(),"N");
-        Helper.PostSubscription(view, keyid, "N");
+        Helper.PostSubscription(view, token,keyid, "N");
     }
 
     private void getUpdatedComments(){

@@ -30,7 +30,9 @@ import com.example.app.ourapplication.pref.PreferenceEditor;
 import com.example.app.ourapplication.rest.model.request.HomeFeedReqModel;
 import com.example.app.ourapplication.rest.model.request.LocationModel;
 import com.example.app.ourapplication.rest.model.response.Person;
+import com.example.app.ourapplication.rest.model.response.Subscriber;
 import com.example.app.ourapplication.rest.model.response.SuccessRespModel;
+import com.example.app.ourapplication.rest.model.response.SubscriberDataRespModel;
 import com.example.app.ourapplication.wss.WebSocketClient;
 import com.example.app.ourapplication.wss.WebSocketListener;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -89,6 +91,8 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
         mWebSocketClient.addWebSocketListener(this);
 
         mDBHelper = new DBHelper(getContext());
+
+
     }
 
     @Override
@@ -122,6 +126,8 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
         });
 
+
+
         /**
          * Showing Swipe Refresh animation on activity create
          * As animation won't start on onCreate, post runnable is used
@@ -137,12 +143,14 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
         });
 
         Log.d(TAG, "Length of Feed Array" + ": " + mFeeds.size());
+        getSubscribers();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         mWebSocketClient.removeWebSocketListener(this);
+
     }
 
     @Override
@@ -214,15 +222,18 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                     }
 
                     @Override
-                    public void onBitmapFailed(Drawable errorDrawable) {}
+                    public void onBitmapFailed(Drawable errorDrawable) {
+                    }
 
                     @Override
-                    public void onPrepareLoad(Drawable placeHolderDrawable) {}
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+                    }
                 });
     }
 
     @Override
-    public void onOpen() {}
+    public void onOpen() {
+       }
 
     @Override
     public void onClose() {}
@@ -262,5 +273,31 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
             }
         });
         mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+
+    private void getSubscribers(){
+
+        Call<SubscriberDataRespModel> querySubscriberData = ((OurApplication)getActivity().getApplicationContext())
+                .getRestApi().querySubscriberData();
+        querySubscriberData.enqueue(new Callback<SubscriberDataRespModel>() {
+            @Override
+            public void onResponse(Call<SubscriberDataRespModel> call, Response<SubscriberDataRespModel> response) {
+
+                ArrayList<Subscriber> data = response.body().getData();
+                if (data.size() > 0) {
+                    for (int i = 0; i < data.size(); i++) {
+                        mDBHelper.insertSubscriberData(data.get(i));
+                        Log.d(TAG, "insertSubscriberData :" + data.get(i));
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SubscriberDataRespModel> call, Throwable t) {
+                Log.d(TAG, "Query failed: " + t);
+                Toast.makeText(getActivity(), "Getting Subscriber Data Failed", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }

@@ -9,7 +9,7 @@ import android.util.Log;
 
 import com.example.app.ourapplication.Keys;
 import com.example.app.ourapplication.rest.model.response.Person;
-
+import com.example.app.ourapplication.rest.model.response.Subscriber;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,11 +33,13 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String PROFILE_ID_COLUMN = "PROFILEID";
     private static final String MESSAGE_PROTOCOL_COLUMN = "PROTOCOL";
     private static final String SUBSCRIPTION_FLAG_COLUMN = "SUBSCRIPTION_FLAG";
+    private static final String SUBSCRIBER_ID_COLUMN = "SUBSCRIBER_ID";
+    private static final String USER_ID_COLUMN = "USER_ID";
 
     private SQLiteDatabase mydatabase;
 
     public DBHelper(Context context) {
-        super(context, "FEED", null, 27); //24 is the database version
+        super(context, "FEED", null, 32); //24 is the database version
     }
 
     @Override
@@ -51,8 +53,8 @@ public class DBHelper extends SQLiteOpenHelper {
                         PROFILE_IMAGE_COLUMN +" VARCHAR,"+
                         MESSAGE_IMAGE_COLUMN+" VARCHAR,"+
                         MESSAGE_TIME_COLUMN+" VARCHAR,"+
-                        MESSAGE_PROTOCOL_COLUMN+" VARCHAR"+
-                        SUBSCRIPTION_FLAG_COLUMN+" VARCHAR)"
+                        SUBSCRIPTION_FLAG_COLUMN+" VARCHAR,"+
+                        MESSAGE_PROTOCOL_COLUMN+" VARCHAR)"
 
         );
 
@@ -72,6 +74,13 @@ public class DBHelper extends SQLiteOpenHelper {
                         PROFILE_IMAGE_COLUMN + " VARCHAR )"
                 //"CREATE TABLE IF NOT EXISTS DATA(FROM VARCHAR,TO VARCHAR,MESSAGE VARCHAR );"
         );
+
+        mydatabase.execSQL(
+                "create table SUBSCRIBER_DATA (" + USER_ID_COLUMN + " VARCHAR," +
+                        SUBSCRIBER_ID_COLUMN + " VARCHAR," +
+                        "PRIMARY KEY("+ USER_ID_COLUMN+","+SUBSCRIBER_ID_COLUMN+"))"
+                //"CREATE TABLE IF NOT EXISTS DATA(FROM VARCHAR,TO VARCHAR,MESSAGE VARCHAR );"
+        );
     }
 
     @Override
@@ -80,7 +89,18 @@ public class DBHelper extends SQLiteOpenHelper {
         mydatabase.execSQL("DROP TABLE IF EXISTS MESSAGE_DATA");
         mydatabase.execSQL("DROP TABLE IF EXISTS PROFILE_DATA");
         mydatabase.execSQL("DROP TABLE IF EXISTS COMMENT_DATA");
+        mydatabase.execSQL("DROP TABLE IF EXISTS SUBSCRIBER_DATA");
         onCreate(mydatabase);
+    }
+
+    public boolean insertSubscriberData (Subscriber subscriber) {
+
+        mydatabase = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(USER_ID_COLUMN, subscriber.getUserId());
+        contentValues.put(SUBSCRIBER_ID_COLUMN, subscriber.getSubscriberId());
+        mydatabase.insert("SUBSCRIBER_DATA", null, contentValues);
+        return true;
     }
 
     public boolean insertFeedData (Person  message , String protocol) {
@@ -100,8 +120,8 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(PROFILE_IMAGE_COLUMN, message.getPhotoId());
         contentValues.put(MESSAGE_IMAGE_COLUMN, message.getPhotoMsg());
         contentValues.put(MESSAGE_TIME_COLUMN, message.getTimeMsg());
+        contentValues.put(SUBSCRIPTION_FLAG_COLUMN, message.getSubscriptionFlag());
         contentValues.put(MESSAGE_PROTOCOL_COLUMN, protocol);
-        contentValues.put(MESSAGE_PROTOCOL_COLUMN, message.getSubscriptionFlag());
         mydatabase.insert("MESSAGE_DATA", null, contentValues);
         return true;
     }
@@ -113,13 +133,14 @@ public class DBHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getReadableDatabase();
         //Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " +MESSAGE_FROM_COLUMN+ " = \"" + id + "\" or " +MESSAGE_TO_COLUMN_NAME+ " = \""+id+"\" ORDER BY "+ MESSAGE_TIME_COLUMN_NAME+" DESC", null );
-        Cursor msg_res =  db.rawQuery("select * from MESSAGE_DATA where " + MESSAGE_PROTOCOL_COLUMN + " = \"HTTP\" ORDER BY " + MESSAGE_TIME_COLUMN + " DESC", null);
+        //Cursor msg_res =  db.rawQuery("select * from MESSAGE_DATA where " + MESSAGE_PROTOCOL_COLUMN + " = \"HTTP\" ORDER BY " + MESSAGE_TIME_COLUMN + " DESC", null);
+        Cursor msg_res =  db.rawQuery("select * from MESSAGE_DATA  ORDER BY " + MESSAGE_TIME_COLUMN + " DESC", null);
         msg_res.moveToFirst();
 
         while(msg_res.isAfterLast() == false){
             String column0 = msg_res.getString(0);
             String column1 = msg_res.getString(1);
-            String column2 = msg_res.getString(2);
+            String column2 = msg_res.getString(2);  
             String column3 = msg_res.getString(3);
             String column4 = msg_res.getString(4);
             String column5 = msg_res.getString(5);
@@ -154,6 +175,25 @@ public class DBHelper extends SQLiteOpenHelper {
 
         return item;
     }
+
+    public String getUserSubscription(String id,String sid ) {
+        String  columndata;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor msg_res =  db.rawQuery("select SUBSCRIBER_ID from SUBSCRIBER_DATA where " + USER_ID_COLUMN + " = \"" + id + "\"" + " and " + SUBSCRIBER_ID_COLUMN + " = \"" + sid + "\"", null);
+
+        msg_res.moveToFirst();
+
+        if (msg_res.getCount() != 0){
+            msg_res.moveToFirst();
+            columndata = msg_res.getString(0);
+            Log.d(TAG, "getFeedDataColumn: " + columndata);}
+        else{
+            columndata="nosubscription";
+        }
+
+        return columndata;
+    }
+
 
     public String getFeedDataColumn(String id, Integer columnnumber ) {
         String  columndata;
@@ -288,5 +328,10 @@ public class DBHelper extends SQLiteOpenHelper {
         mydatabase.update("PROFILE_DATA", contentValues, PROFILE_ID_COLUMN + "= \"" + msgObject.optString(Keys.KEY_USERID) + "\" ", null);
 
         return true;
+    }
+
+    public void RefreshUserSubscription() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("SUBSCRIBER_DATA",null,null);
     }
 }

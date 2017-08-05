@@ -28,21 +28,32 @@ import android.widget.Toast;
 import com.example.app.ourapplication.database.DBHelper;
 import com.example.app.ourapplication.pref.PreferenceEditor;
 import com.example.app.ourapplication.rest.ApiUrls;
+import com.example.app.ourapplication.rest.api.FileUploadApi;
 import com.example.app.ourapplication.rest.model.request.ProfileFeedReqModel;
 import com.example.app.ourapplication.rest.model.request.ProfileUpdateModel;
+import com.example.app.ourapplication.rest.model.response.CompleteFeedModel;
 import com.example.app.ourapplication.rest.model.response.Person;
 import com.example.app.ourapplication.rest.model.response.ProfileRespModel;
 import com.example.app.ourapplication.rest.model.response.SuccessRespModel;
 import com.example.app.ourapplication.util.Helper;
+import com.example.app.ourapplication.util.UI;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -277,4 +288,72 @@ public class ProfileFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+/*
+    private void fileupload(Uri uri,ProfileUpdateModel reqModel,String filepathtype,String AbsolutefilePath,String type) {
+        Log.d(TAG, "pathtype==" + filepathtype);
+        String DevicefilePath="";
+        if(filepathtype != null && !filepathtype.isEmpty() && filepathtype.equals("uri")) {
+            DevicefilePath= getFilePath(uri,type);
+        } else if(filepathtype != null && !filepathtype.isEmpty() && filepathtype.equals("path")) {
+            DevicefilePath=AbsolutefilePath;
+        }
+        Log.d(TAG, "filePath:" + DevicefilePath);
+
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+        RequestBody profilefeedmodel = RequestBody.create(MediaType.parse("text/plain"), reqModel.toString());
+        // Change base URL to your upload server URL.
+        FileUploadApi service = new Retrofit.Builder().baseUrl(ApiUrls.HTTP_URL).client(client).build().create(FileUploadApi.class);
+        String descriptionString = "Sample description";
+
+        if (DevicefilePath != null && !DevicefilePath.isEmpty()) {
+            File file = new File(DevicefilePath);
+            if (file.exists()) {
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl(ApiUrls.HTTP_URL)
+                        .build();
+
+                RequestBody fileBody = RequestBody.create(MediaType.parse("video/*"), file);
+                MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), fileBody);
+                RequestBody name = RequestBody.create(MediaType.parse("text/plain"), file.getName());
+
+                Log.d(TAG, "RequestBody is " + fileBody);
+
+                retrofit2.Call<okhttp3.ResponseBody> req = service.postImage(body, name,completefeedmodel);
+                req.enqueue(new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        UI.closeKeyboard(getActivity(), mMessageBox.getWindowToken());
+                        getActivity().onBackPressed(); // TODO hack
+                        filetype="";
+                        filePath=null;
+                        pathtype="";
+                        Toast.makeText(getContext(), "File Upload Success", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        t.printStackTrace();
+                        Toast.makeText(getContext(), "File Upload Failed", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        } else {
+            Call<okhttp3.ResponseBody> req = service.postImage(null,null ,completefeedmodel);
+            req.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    getActivity().onBackPressed(); // TODO hack
+                    UI.closeKeyboard(getActivity(), mMessageBox.getWindowToken());
+                    Toast.makeText(getContext(), "Message Sent", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    t.printStackTrace();
+                    Toast.makeText(getContext(), "Message Not Sent", Toast.LENGTH_SHORT).show();
+                }
+            });}
+    }*/
 }

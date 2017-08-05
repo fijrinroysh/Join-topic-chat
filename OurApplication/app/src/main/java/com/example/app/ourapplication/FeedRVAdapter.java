@@ -20,6 +20,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Gravity;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
@@ -28,6 +29,8 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ImageView;
+import android.util.TypedValue;
 
 import com.example.app.ourapplication.pref.PreferenceEditor;
 import com.example.app.ourapplication.rest.model.request.LocationModel;
@@ -73,16 +76,22 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private List<Person> mFeeds;
     private Context mContext;
     private String userid;
+    private RelativeLayout parent_rlyt;
+    private ImageView subscribe;
+    private String subscription="subscribe";
+    private  ImageView iv;
 
 
     FeedRVAdapter(Context context, List<Person> mFeeds) {
         this.mContext = context;
         this.mFeeds = mFeeds;
     }
-    String userId = PreferenceEditor.getInstance(mContext).getLoggedInUserName();
+   private final String userId = PreferenceEditor.getInstance(mContext).getLoggedInUserName();
+    private  String token ;
 
     public class PersonViewHolder1 extends RecyclerView.ViewHolder {
         CardView cv;
+        RelativeLayout parent_rlyt;
         TextView senderName;
         TextView senderMessage;
         ImageView senderPhoto;
@@ -93,12 +102,14 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         PersonViewHolder1(View itemView) {
             super(itemView);
             cv = (CardView) itemView.findViewById(R.id.cv);
+            parent_rlyt = (RelativeLayout) itemView.findViewById(R.id.card_view1);
             senderName = (TextView) itemView.findViewById(R.id.sender_name);
             senderMessage = (TextView) itemView.findViewById(R.id.sender_message);
             senderPhoto = (ImageView) itemView.findViewById(R.id.sender_photo);
             messageTime = (TextView) itemView.findViewById(R.id.message_time);
             subscribe = (ImageView) itemView.findViewById(R.id.subscribe);
             unsubscribe = (ImageView) itemView.findViewById(R.id.unsubscribe);
+         //   token=((OurApplication) itemView.getContext()).getUserToken();
         }
     }
 
@@ -122,6 +133,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             messagePhoto = (ImageView) itemView.findViewById(R.id.message_photo);
             subscribe = (ImageView) itemView.findViewById(R.id.subscribe);
             unsubscribe = (ImageView) itemView.findViewById(R.id.unsubscribe);
+       //     token=((OurApplication) itemView.getContext()).getUserToken();
         }
     }
 
@@ -156,6 +168,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             playIcon = (ImageView) itemView.findViewById(R.id.video_play_img_btn);
             subscribe = (ImageView) itemView.findViewById(R.id.subscribe);
             unsubscribe = (ImageView) itemView.findViewById(R.id.unsubscribe);
+            //token=((OurApplication) itemView.getContext()).getUserToken();
         }
     }
 
@@ -176,6 +189,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             messageTime = (TextView) itemView.findViewById(R.id.message_time);
             subscribe = (ImageView) itemView.findViewById(R.id.subscribe);
             unsubscribe = (ImageView) itemView.findViewById(R.id.unsubscribe);
+           // token=((OurApplication) itemView.getContext()).getUserToken();
         }
     }
 
@@ -212,6 +226,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         if (viewType == 1) {
             Log.d(TAG, "PersonViewHolder1 created");
             View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.card_item1, viewGroup, false);
+            mContext=viewGroup.getContext();
             return new PersonViewHolder1(v);
         } else if (viewType == 2) {
             Log.d(TAG, "PersonViewHolder2 created");
@@ -233,19 +248,32 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public void onBindViewHolder (RecyclerView.ViewHolder viewHolder,int i){
         final Person item = mFeeds.get(i);
+        final String postid;
         switch (viewHolder.getItemViewType()) {
             case 1:
                 final PersonViewHolder1 vh1 = (PersonViewHolder1) viewHolder;
-
+                postid=item.getPostId();
                 vh1.senderName.setText(item.getSenderName());
                 vh1.senderMessage.setText(item.getMessage());
                 vh1.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
                 // Picasso.with(mContext).load(item.getPhotoId()).resize(50, 50).into(vh1.senderPhoto);
                 Log.d(TAG, "SUBSCRIPTION :" + item.getSubscriptionFlag());
-                if(item.getSubscriptionFlag().equals("N")) {vh1.subscribe.setVisibility(View.VISIBLE);
-                    vh1.unsubscribe.setVisibility(View.INVISIBLE);}
-                else {vh1.unsubscribe.setVisibility(View.VISIBLE);
-                    vh1.subscribe.setVisibility(View.INVISIBLE);}
+                Log.d(TAG, "sender name :" + item.getUserId());
+                Log.d(TAG, "userid :" + userId);
+                token=OurApplication.getUserToken();
+
+                if(item.getSubscriptionFlag()!=null && item.getSubscriptionFlag().substring(1, 1).equals("0")) {
+                    Log.d(TAG, "I enter here:1" );
+                    vh1.subscribe.setImageResource(R.mipmap.subscribe_icon);
+                    subscription="subscribe";
+                }
+                else if(item.getSubscriptionFlag()!=null && item.getSubscriptionFlag().substring(1, 1).equals("1"))
+                {
+                    Log.d(TAG, "I enter here:2" );
+                    vh1.subscribe.setImageResource(R.mipmap.unsubscribe_icon);
+                    subscription="unsubscribe";
+
+                }
 
                 Picasso(item.getPhotoId(), vh1.senderPhoto);
 
@@ -258,22 +286,21 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 vh1.subscribe.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
-                        Helper.PostSubscription(v, item.getPostId(), "Y");
-                        vh1.subscribe.setVisibility(View.INVISIBLE);
-                        vh1.unsubscribe.setVisibility(View.VISIBLE);
+                        if (subscription.equals("subscribe")) {
+                            Log.d(TAG, "subscriprion:" + subscription);
+                            vh1.subscribe.setImageResource(R.mipmap.unsubscribe_icon);
+                            Helper.PostSubscription(v, token, item.getPostId(), "Y");
+                            subscription = "unsubscribe";
+
+                        } else {
+                            Log.d(TAG, "unsubscriprion:" + subscription);
+                            vh1.subscribe.setImageResource(R.mipmap.subscribe_icon);
+                            Helper.PostSubscription(v, token, item.getPostId(), "N");
+                            subscription = "subscribe";
+                        }
                     }
                 });
 
-                vh1.unsubscribe.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
-                        Helper.PostSubscription(v, item.getPostId(), "N");
-                        vh1.subscribe.setVisibility(View.VISIBLE);
-                        vh1.unsubscribe.setVisibility(View.INVISIBLE);
-                    }
-                });
                 break;
 
             case 2:
@@ -282,22 +309,26 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 vh2.senderName.setText(item.getSenderName());
                 vh2.senderMessage.setText(item.getMessage());
                 vh2.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
-                //vh2.messagePhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoMsg()));
-                //Picasso.with(mContext).load(item.getPhotoMsg()).into(vh2.messagePhoto);
                 Picasso(item.getPhotoMsg(), vh2.messagePhoto);
                 Log.d(TAG, "IMAGE URL :" + item.getPhotoMsg());
-                //vh2.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
-                // Picasso.with(mContext).load(item.getPhotoId()).resize(50, 50).into(vh2.senderPhoto);
                 Picasso(item.getPhotoId(), vh2.senderPhoto);
+                token=OurApplication.getUserToken();
 
                 Log.d(TAG, "SUBSCRIPTION :" + item.getSubscriptionFlag());
-                if(item.getSubscriptionFlag().equals("N")) {vh2.subscribe.setVisibility(View.VISIBLE);
-                    vh2.unsubscribe.setVisibility(View.INVISIBLE);}
-                else {vh2.unsubscribe.setVisibility(View.VISIBLE);
-                    vh2.subscribe.setVisibility(View.INVISIBLE);}
+                if(item.getSubscriptionFlag()!=null && item.getSubscriptionFlag().substring(1,1).equals("0")) {
+                    Log.d(TAG, "I enter here:1" );
+                    vh2.subscribe.setImageResource(R.mipmap.subscribe_icon);
+                    subscription="subscribe";
+                }
+                else if(item.getSubscriptionFlag()!=null && item.getSubscriptionFlag().substring(1,1).equals("1"))
+                {
+                    Log.d(TAG, "I enter here:2" );
+                    vh2.subscribe.setImageResource(R.mipmap.unsubscribe_icon);
+                    subscription="unsubscribe";
+
+                }
+
                 openProfile(item, vh2.senderPhoto);
-
-
                 openDiscussion(item, vh2.cv);
 
                 vh2.messagePhoto.setOnClickListener(new View.OnClickListener() {
@@ -328,20 +359,18 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 vh2.subscribe.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
-                        Helper.PostSubscription(v, item.getPostId(), "Y");
-                        vh2.subscribe.setVisibility(View.INVISIBLE);
-                        vh2.unsubscribe.setVisibility(View.VISIBLE);
-                    }
-                });
+                        if (subscription.equals("subscribe")) {
+                            Log.d(TAG, "subscriprion:" + subscription);
+                            vh2.subscribe.setImageResource(R.mipmap.unsubscribe_icon);
+                            Helper.PostSubscription(v, token, item.getPostId(), "Y");
+                            subscription = "unsubscribe";
 
-                vh2.unsubscribe.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
-                        Helper.PostSubscription(v, item.getPostId(), "N");
-                        vh2.subscribe.setVisibility(View.VISIBLE);
-                        vh2.unsubscribe.setVisibility(View.INVISIBLE);
+                        } else {
+                            Log.d(TAG, "unsubscriprion:" + subscription);
+                            vh2.subscribe.setImageResource(R.mipmap.subscribe_icon);
+                            Helper.PostSubscription(v, token, item.getPostId(), "N");
+                            subscription = "subscribe";
+                        }
                     }
                 });
                 break;
@@ -353,12 +382,20 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 vh3.senderName.setText(item.getSenderName());
                 vh3.senderMessage.setText(item.getMessage());
                 vh3.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
+                token=OurApplication.getUserToken();
                 Log.d(TAG, "SUBSCRIPTION :" + item.getSubscriptionFlag());
-                if(item.getSubscriptionFlag().equals("N")) {vh3.subscribe.setVisibility(View.VISIBLE);
-                    vh3.unsubscribe.setVisibility(View.INVISIBLE);}
-                else {vh3.unsubscribe.setVisibility(View.VISIBLE);
-                    vh3.subscribe.setVisibility(View.INVISIBLE);}
+                if(item.getSubscriptionFlag()!=null && item.getSubscriptionFlag().substring(1,1).equals("0")) {
+                    Log.d(TAG, "I enter here:1" );
+                    vh3.subscribe.setImageResource(R.mipmap.subscribe_icon);
+                    subscription="subscribe";
+                }
+                else if(item.getSubscriptionFlag()!=null && item.getSubscriptionFlag().substring(1,1).equals("1"))
+                {
+                    Log.d(TAG, "I enter here:2" );
+                    vh3.subscribe.setImageResource(R.mipmap.unsubscribe_icon);
+                    subscription="unsubscribe";
 
+                }
                 Log.d(TAG, "IMAGE URL :" + item.getPhotoMsg());
                 int index = item.getPhotoMsg().lastIndexOf('/');
                 String Thumbnail_URL = item.getPhotoMsg().substring(0, index);
@@ -506,8 +543,6 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     }
                 });
 
-                //vh3.senderPhoto.setImageBitmap(Helper.decodeImageString(item.getPhotoId()));
-                // Picasso.with(mContext).load(item.getPhotoId()).resize(50, 50).into(vh3.senderPhoto);
                 Picasso(item.getPhotoId(), vh3.senderPhoto);
                 openProfile(item, vh3.senderPhoto);
                 openDiscussion(item, vh3.cv);
@@ -515,23 +550,20 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 vh3.subscribe.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
-                        Helper.PostSubscription(v, item.getPostId(), "Y");
-                        vh3.subscribe.setVisibility(View.INVISIBLE);
-                        vh3.unsubscribe.setVisibility(View.VISIBLE);
+                        if (subscription.equals("subscribe")) {
+                            Log.d(TAG, "subscriprion:" + subscription);
+                            vh3.subscribe.setImageResource(R.mipmap.unsubscribe_icon);
+                            Helper.PostSubscription(v, token, item.getPostId(), "Y");
+                            subscription = "unsubscribe";
+
+                        } else {
+                            Log.d(TAG, "unsubscriprion:" + subscription);
+                            vh3.subscribe.setImageResource(R.mipmap.subscribe_icon);
+                            Helper.PostSubscription(v, token, item.getPostId(), "N");
+                            subscription = "subscribe";
+                        }
                     }
                 });
-
-                vh3.unsubscribe.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
-                        Helper.PostSubscription(v, item.getPostId(), "N");
-                        vh3.subscribe.setVisibility(View.VISIBLE);
-                        vh3.unsubscribe.setVisibility(View.INVISIBLE);
-                    }
-                });
-
                 break;
 
 
@@ -539,36 +571,40 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                final PersonViewHolder4 vh4 = (PersonViewHolder4) viewHolder;
                 vh4.senderName.setText(item.getSenderName());
                 vh4.senderMessage.setText(item.getMessage());
+                token=OurApplication.getUserToken();
                 vh4.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
                 Log.d(TAG, "SUBSCRIPTION :" + item.getSubscriptionFlag());
-                if(item.getSubscriptionFlag().equals("N")) {vh4.subscribe.setVisibility(View.VISIBLE);
-                    vh4.unsubscribe.setVisibility(View.INVISIBLE);}
-                else {vh4.unsubscribe.setVisibility(View.VISIBLE);
-                    vh4.subscribe.setVisibility(View.INVISIBLE);}
+                if(item.getSubscriptionFlag()!=null && item.getSubscriptionFlag().substring(1,1).equals("0")) {
+                    Log.d(TAG, "I enter here:1" );
+                    vh4.subscribe.setImageResource(R.mipmap.subscribe_icon);
+                    subscription="subscribe";
+                }
+                else if(item.getSubscriptionFlag()!=null && item.getSubscriptionFlag().substring(1,1).equals("1"))
+                {
+                    Log.d(TAG, "I enter here:2" );
+                    vh4.subscribe.setImageResource(R.mipmap.unsubscribe_icon);
+                    subscription="unsubscribe";
 
+                }
 
-                // Picasso.with(mContext).load(item.getPhotoId()).resize(50, 50).into(vh1.senderPhoto);
                 Picasso(item.getPhotoId(), vh4.senderPhoto);
                 vh4.subscribe.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
-                        Helper.PostSubscription(v, item.getPostId(), "Y");
-                        vh4.subscribe.setVisibility(View.INVISIBLE);
-                        vh4.unsubscribe.setVisibility(View.VISIBLE);
+                        if (subscription.equals("subscribe")) {
+                            Log.d(TAG, "subscriprion:" + subscription);
+                            vh4.subscribe.setImageResource(R.mipmap.unsubscribe_icon);
+                            Helper.PostSubscription(v, token, item.getPostId(), "Y");
+                            subscription = "unsubscribe";
+
+                        } else {
+                            Log.d(TAG, "unsubscriprion:" + subscription);
+                            vh4.subscribe.setImageResource(R.mipmap.subscribe_icon);
+                            Helper.PostSubscription(v, token, item.getPostId(), "N");
+                            subscription = "subscribe";
+                        }
                     }
                 });
-
-                vh4.unsubscribe.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //Toast.makeText(v.getContext(), "Post Subscription failed", Toast.LENGTH_SHORT).show();
-                        Helper.PostSubscription(v, item.getPostId(), "N");
-                        vh4.subscribe.setVisibility(View.VISIBLE);
-                        vh4.unsubscribe.setVisibility(View.INVISIBLE);
-                    }
-                });
-
                 break;
 
         }
