@@ -55,16 +55,20 @@ public class ProfileActivity extends AppCompatActivity{
         setContentView(R.layout.activity_profile_new);
         fabsubscribe= (FloatingActionButton) findViewById(R.id.fabsubscribe);
         fabunsubscribe= (FloatingActionButton) findViewById(R.id.fabunsubscribe);
+        Person person = (Person) getIntent().getSerializableExtra("person");
        /* mDBHelper.RefreshUserSubscription();
         getSubscribers();*/
         final String userid =  PreferenceEditor.getInstance(getApplicationContext()).getLoggedInUserName();
          token = ((OurApplication)getApplicationContext()).getUserToken();
-        mPostId = getIntent().getStringExtra(Keys.KEY_ID);
+        mPostId = person.getPostId();
         Log.d(TAG, "Post ID : " + mPostId);
-        mUserId = mDBHelper.getFeedDataColumn(mPostId,1);
-        String ImageURL = ApiUrls.HTTP_URL +"/images/"+mUserId+".jpg";
+        //mUserId = mDBHelper.getFeedDataColumn(mPostId,1);
+        mUserId = person.getUserId();
+        //String ImageURL = ApiUrls.HTTP_URL +"/images/"+mUserId+".jpg";
 
-        String sid=mDBHelper.getUserSubscription(mUserId, userid);
+
+                // String sid=mDBHelper.getUserSubscription(mUserId, userid);
+        String sid= person.getSubscriptionFlag();
         Log.d(TAG, "S ID : " + sid);
 
         if(sid!=null && sid.equals("nosubscription")) {fabsubscribe.setVisibility(View.VISIBLE);
@@ -81,13 +85,14 @@ public class ProfileActivity extends AppCompatActivity{
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_profile);
         setSupportActionBar(toolbar);
         CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.profile_collapse);
-        collapsingToolbar.setTitle(mDBHelper.getFeedDataColumn(mPostId, 2));
-        Log.d(TAG, "Title : " + mDBHelper.getFeedDataColumn(mPostId, 2));
+        //collapsingToolbar.setTitle(mDBHelper.getFeedDataColumn(mPostId, 2));
+        collapsingToolbar.setTitle(person.getSenderName());
+        //Log.d(TAG, "Title : " + mDBHelper.getFeedDataColumn(mPostId, 2));
         profileImgView = (ImageView) findViewById(R.id.image_profile);
-        Log.d(TAG, "Image data : " + mDBHelper.getFeedDataColumn(mPostId, 4));
+        //Log.d(TAG, "Image data : " + mDBHelper.getFeedDataColumn(mPostId, 4));
        // profileImgView.setImageBitmap(Helper.decodeImageString(mDBHelper.getFeedDataColumn(mPostId,4)));
-
-        Picasso.with((getApplicationContext())).load(ImageURL).into(profileImgView);
+        Log.d(TAG, "Image data : " + person.getPhotoId());
+        Picasso.with((getApplicationContext())).load(person.getPhotoId()).into(profileImgView);
         getUpdatedFeeds();
         getSubscribers();
 
@@ -96,7 +101,7 @@ public class ProfileActivity extends AppCompatActivity{
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mDBHelper.RefreshUserSubscription();
+       // mDBHelper.RefreshUserSubscription();
         //getSubscribers();
     }
 
@@ -161,7 +166,7 @@ public class ProfileActivity extends AppCompatActivity{
                 ArrayList<Subscriber> data = response.body().getData();
                 if (data.size() > 0) {
                     for (int i = 0; i < data.size(); i++) {
-                        mDBHelper.insertSubscriberData(data.get(i));
+                       // mDBHelper.insertSubscriberData(data.get(i));
                         Log.d(TAG, "insertSubscriberData :" + data.get(i));
                     }
                 }

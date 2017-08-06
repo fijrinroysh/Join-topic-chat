@@ -169,9 +169,9 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                             Person person = new ObjectMapper().readValue(message, Person.class);
                             //mFeeds.add(0, person);
                             mFeedListAdapter.notifyDataSetChanged();
-                            mDBHelper.insertFeedData(person, "WS");
-                            mDBHelper.insertCommentData(person);
-                            HomeFeedFragment.this.notify(person.getSenderName(), person.getMessage(), person.getPhotoId(), person.getPostId());
+                          //  mDBHelper.insertFeedData(person, "WS");
+                          //  mDBHelper.insertCommentData(person);
+                            HomeFeedFragment.this.notify(person);
 
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -184,12 +184,12 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
         });
     }
 
-    private void notify(String notificationTitle, String notificationMessage, String notificationIcon , String postid) {
+    private void notify(Person person) {
 
         final NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService
                 (Context.NOTIFICATION_SERVICE);
         Intent notificationIntent = new Intent(getContext(), DiscussionActivity.class);
-        notificationIntent.putExtra(Keys.KEY_ID, postid);
+        notificationIntent.putExtra("person", person);
         notificationIntent.setAction(Intent.ACTION_MAIN);
         notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), 0, notificationIntent, 0);
@@ -199,19 +199,19 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
         final Notification.Builder mBuilder = new Notification.Builder(getContext())
                 .setAutoCancel(true)
-                .setContentTitle(notificationTitle)
-                .setContentText(notificationMessage)
+                .setContentTitle(person.getSenderName())
+                .setContentText(person.getMessage())
                 .setSmallIcon(R.mipmap.app_icon)
 
                 .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
                 .setStyle(new Notification.BigTextStyle()
-                        .bigText(notificationMessage))
+                        .bigText(person.getMessage()))
                 // .setSmallIcon(setImageBitmap(Helper.decodeImageString(notificationIcon)))
                 .setContentIntent(pendingIntent);
         // hide the notification after its selected
         // notification.flags |= Notification.FLAG_AUTO_CANCEL;
         Picasso.with(getContext())
-                .load(notificationIcon)
+                .load(person.getPhotoId())
                 .placeholder(R.drawable.mickey)
                 .error(R.drawable.mickey)
                 .into(new Target() {
@@ -223,6 +223,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
                     @Override
                     public void onBitmapFailed(Drawable errorDrawable) {
+                        notificationManager.notify(0, mBuilder.build());
                     }
 
                     @Override
@@ -253,7 +254,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                 ArrayList<Person> data = response.body().getData();
                 if (data.size() > 0) {
                     for (int i = 0; i < data.size(); i++) {
-                        mDBHelper.insertFeedData(data.get(i), "HTTP");
+                       //mDBHelper.insertFeedData(data.get(i), "HTTP");
                        // mDBHelper.insertCommentData(data.get(i));
                         Log.d(TAG, "insertFeedData :" + data.get(i));
                         mFeeds.add(0, data.get(i));
@@ -287,7 +288,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                 ArrayList<Subscriber> data = response.body().getData();
                 if (data.size() > 0) {
                     for (int i = 0; i < data.size(); i++) {
-                        mDBHelper.insertSubscriberData(data.get(i));
+                        //mDBHelper.insertSubscriberData(data.get(i));
                         Log.d(TAG, "insertSubscriberData :" + data.get(i));
                     }
                 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -8,7 +8,8 @@
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swiperefresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_weight="6">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv"
@@ -20,35 +21,14 @@
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
-    <RelativeLayout
-        android:id="@+id/msg_send_lyt"
-        android:layout_width="wrap_content"
+    <include
+        layout="@layout/type_msg_lyt"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="@drawable/bg_msg_send_lyt"
-        android:layout_alignParentBottom="true"
-        android:layout_gravity="bottom"
-        >
+        android:layout_weight="1"
+        android:gravity="bottom" />
 
-        <EditText
-            android:id="@+id/msg_box"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:hint="Add a comment"
-            android:textStyle="italic"/>
-
-
-        <Button
-            android:id="@+id/send_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:text="@string/send"
-            />
-
-    </RelativeLayout>
-
-</RelativeLayout>
+</LinearLayout>
 
 
 

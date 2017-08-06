@@ -573,7 +573,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 vh4.senderMessage.setText(item.getMessage());
                 token=OurApplication.getUserToken();
                 vh4.messageTime.setText(Helper.getRelativeTime(item.getTimeMsg()));
-                Log.d(TAG, "SUBSCRIPTION :" + item.getSubscriptionFlag());
+/*                Log.d(TAG, "SUBSCRIPTION :" + item.getSubscriptionFlag());
                 if(item.getSubscriptionFlag()!=null && item.getSubscriptionFlag().substring(1,1).equals("0")) {
                     Log.d(TAG, "I enter here:1" );
                     vh4.subscribe.setImageResource(R.mipmap.subscribe_icon);
@@ -586,9 +586,9 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     subscription="unsubscribe";
 
                 }
-
+*/
                 Picasso(item.getPhotoId(), vh4.senderPhoto);
-                vh4.subscribe.setOnClickListener(new View.OnClickListener() {
+  /*             vh4.subscribe.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         if (subscription.equals("subscribe")) {
@@ -604,7 +604,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                             subscription = "subscribe";
                         }
                     }
-                });
+                });*/
                 break;
 
         }
@@ -672,7 +672,8 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
           /* Below code is to open the Profile of the sender  */
 
                 final Intent profileIntent = new Intent(v.getContext(), ProfileActivity.class);
-                profileIntent.putExtra(Keys.KEY_ID, person.getPostId());
+                //profileIntent.putExtra(Keys.KEY_ID, person.getPostId());
+                profileIntent.putExtra("person", person);
                 if (!person.getUserId().equals(userId)) {
                     v.getContext().startActivity(profileIntent);
                 }
@@ -689,6 +690,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             public void onClick(View v) {
                 final Intent discussionIntent = new Intent(v.getContext(), DiscussionActivity.class);
                 discussionIntent.putExtra(Keys.KEY_ID, person.getPostId());
+                discussionIntent.putExtra("person", person);
                 v.getContext().startActivity(discussionIntent);
             }
         });

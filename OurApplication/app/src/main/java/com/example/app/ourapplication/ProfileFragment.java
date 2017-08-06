@@ -135,7 +135,7 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        Log.d(TAG, "Image data : " + mDBHelper.getProfileInfo(mDBHelper.getProfileInfo(mUserId, 2), 2));
+        //Log.d(TAG, "Image data : " + mDBHelper.getProfileInfo(mDBHelper.getProfileInfo(mUserId, 2), 2));
 
 
 

@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 import android.view.LayoutInflater;
 import com.example.app.ourapplication.database.DBHelper;
@@ -35,6 +37,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.example.app.ourapplication.rest.ApiUrls.WS_URL;
+
 /**
  * Created by ROYSH on 8/3/2016.
  */
@@ -57,7 +61,7 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         LayoutInflater inflater=getLayoutInflater();
         view=(View) inflater.inflate(R.layout.discussion,null);
          token = ((OurApplication) getApplicationContext()).getUserToken();
-        Button  mSendButton = (Button) findViewById(R.id.send_button);
+        ImageView  mSendButton = (ImageView) findViewById(R.id.send_button);
         final EditText  mMessageBox = (EditText) findViewById(R.id.msg_box);
         mWebSocketClient = ((OurApplication)getApplicationContext()).getClient();
         mWebSocketClient.addWebSocketListener(this);
@@ -66,18 +70,21 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         LinearLayoutManager llm = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(llm);
         // mWebSocketClient.sendMessage(Helper.formSubscribeMessage("S", keyid, token));
-
-        keyid = getIntent().getStringExtra(Keys.KEY_ID);
+        Person person = (Person) getIntent().getSerializableExtra("person");
+        keyid = person.getPostId();
         Log.d(TAG, "keyid:" + keyid);
         if (keyid != null) {
 
             mComments.clear();
-            mComments.add(0, mDBHelper.getFeedData(keyid));
-            mComments.addAll(mDBHelper.getCommentData(keyid));
+
+          //  mComments.addAll(mDBHelper.getCommentData(keyid));
+
+            mComments.add(0, person);
             mCommentListAdapter = new FeedRVAdapter(DiscussionActivity.this,mComments);
             recyclerView.setAdapter(mCommentListAdapter);
+            Log.d(TAG, "This will be used to enable Type message layout:" + person.getSubscriptionFlag());
             //PostSubscription(view,keyid, mComments.get(0).getUserId(),"Y");
-            Helper.PostSubscription(view,token, keyid, "Y");
+           // Helper.PostSubscription(view,token, keyid, "Y");
         }
 
 
@@ -89,7 +96,7 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
 
                     Log.d(TAG, "Messaage:" + msg);
                     Log.d(TAG, "Token:" + token);
-
+                    mWebSocketClient.connectToWSS(WS_URL + "/" + ((OurApplication) getApplicationContext()).getUserToken());
                     msg = Helper.formCommentMessage("C", keyid, token, msg);
 
                     Log.d(TAG, "Formcommentmessage" + msg);
@@ -184,7 +191,7 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
         //mWebSocketClient.sendMessage(Helper.formSubscribeMessage("U", keyid, token));
         mWebSocketClient.removeWebSocketListener(this);
         //PostSubscription(view,keyid, mComments.get(0).getUserId(),"N");
-        Helper.PostSubscription(view, token,keyid, "N");
+       // Helper.PostSubscription(view, token,keyid, "N");
     }
 
     private void getUpdatedComments(){
