@@ -181,7 +181,7 @@ public class ProfileFragment extends Fragment {
                                 Log.d(TAG, "Image message value is : " + imageProfileString);
                                 ProfileUpdateModel model = new ProfileUpdateModel(mUserId, Keys.KEY_PROFIMG, imageProfileString);
                                 updateProfile(model);
-                                mDBHelper.updateProfile(model.toString());
+                             //   mDBHelper.updateProfile(model.toString());
                             }
                         }else{
                             Snackbar.make(profileImgView, "Bitmap is null", Snackbar.LENGTH_LONG).setAction("Action", null).show();

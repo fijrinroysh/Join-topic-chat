@@ -277,7 +277,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
                 Picasso(item.getPhotoId(), vh1.senderPhoto);
 
-                openProfile(item, vh1.senderPhoto);
+                openProfile(item,vh1.senderPhoto);
 
                 openDiscussion(item, vh1.cv);
 
@@ -328,7 +328,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
                 }
 
-                openProfile(item, vh2.senderPhoto);
+                openProfile(item,vh2.senderPhoto);
                 openDiscussion(item, vh2.cv);
 
                 vh2.messagePhoto.setOnClickListener(new View.OnClickListener() {
@@ -544,7 +544,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 });
 
                 Picasso(item.getPhotoId(), vh3.senderPhoto);
-                openProfile(item, vh3.senderPhoto);
+                openProfile(item,vh3.senderPhoto);
                 openDiscussion(item, vh3.cv);
                 setAnimation(vh3.cv, i);
                 vh3.subscribe.setOnClickListener(new View.OnClickListener() {
@@ -644,6 +644,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             case 3:
                 PersonViewHolder3 vh3 = (PersonViewHolder3) holder;
                 if (vh3.mPlayer != null) {
+                    vh3.mPlayer.stop();
                     vh3.mPlayer.release();
                     vh3.mPlayer = null;
                 }

@@ -103,7 +103,9 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mFeeds = mDBHelper.getFeedDataAll();
+       // mFeeds = mDBHelper.getFeedDataAll();
+        mFeeds.clear();
+        mDBHelper.deleteFeedData();
         mFeedListAdapter = new FeedRVAdapter(getContext(),mFeeds);
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar_homefeed);
         ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
@@ -143,7 +145,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
         });
 
         Log.d(TAG, "Length of Feed Array" + ": " + mFeeds.size());
-        getSubscribers();
+//        getSubscribers();
     }
 
     @Override
@@ -237,13 +239,15 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
        }
 
     @Override
-    public void onClose() {}
+    public void onClose() {
+
+    }
 
     private void getUpdatedFeeds(){
         HomeFeedReqModel reqModel = new HomeFeedReqModel("F","5",location.getLongitude(),
                 location.getLatitude(),mDBHelper.getFeedDataLatestTime(),PreferenceEditor.getInstance(getContext()).getLoggedInUserName());
-        // reqModel.setLatestDate(mDBHelper.getFeedDataLatestTime());
-        Log.d(TAG, "Latest date :" + mDBHelper.getFeedDataLatestTime());
+
+        //Log.d(TAG, "Latest date :" + mDBHelper.getFeedDataLatestTime());
 
         Call<SuccessRespModel> queryHomeFeeds = ((OurApplication)getActivity().getApplicationContext())
                 .getRestApi().queryHomeFeed(reqModel);
@@ -253,11 +257,10 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
                 ArrayList<Person> data = response.body().getData();
                 if (data.size() > 0) {
-                    for (int i = 0; i < data.size(); i++) {
-                       //mDBHelper.insertFeedData(data.get(i), "HTTP");
-                       // mDBHelper.insertCommentData(data.get(i));
+                    for (int i = 0; i < data.size()  ; i++) {
+                       mDBHelper.insertFeedData(data.get(i), "HTTP");
                         Log.d(TAG, "insertFeedData :" + data.get(i));
-                        mFeeds.add(0, data.get(i));
+                        mFeeds.add(0,data.get(i));
                         mFeedListAdapter.notifyItemInserted(0);
                     }
                     Toast.makeText(getActivity(), "New feeds", Toast.LENGTH_LONG).show();
@@ -277,7 +280,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
     }
 
 
-    private void getSubscribers(){
+/*    private void getSubscribers(){
 
         Call<SubscriberDataRespModel> querySubscriberData = ((OurApplication)getActivity().getApplicationContext())
                 .getRestApi().querySubscriberData();
@@ -300,5 +303,5 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
                 Toast.makeText(getActivity(), "Getting Subscriber Data Failed", Toast.LENGTH_LONG).show();
             }
         });
-    }
+    }*/
 }

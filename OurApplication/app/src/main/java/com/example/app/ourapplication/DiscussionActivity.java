@@ -102,13 +102,6 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
                     Log.d(TAG, "Formcommentmessage" + msg);
                     mWebSocketClient.sendMessage(msg);
                     UI.closeKeyboard(getApplicationContext(), mMessageBox.getWindowToken());
-                    mSwipeRefreshLayout.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mSwipeRefreshLayout.setRefreshing(true);
-                            getUpdatedComments();
-                        }
-                    });
                     mMessageBox.setText(null);
 
                 }
@@ -196,9 +189,8 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
 
     private void getUpdatedComments(){
         CommentFeedReqModel reqModel = new CommentFeedReqModel();
-        //reqModel.setLatestDate("2016-12-11 17:00:00");
-        reqModel.setLatestDate(mDBHelper.getCommentDataLatestTime(keyid));
-
+        reqModel.setLatestDate("2000-12-31 12:00:00");
+       // reqModel.setLatestDate(mDBHelper.getCommentDataLatestTime(keyid));
         reqModel.setPostId(keyid);
         reqModel.setType("C");
         Call<SuccessRespModel> queryComments = ((OurApplication)getApplicationContext())
@@ -210,7 +202,7 @@ public class DiscussionActivity extends AppCompatActivity implements WebSocketLi
                 ArrayList<Person> data = response.body().getData();
                 if (data.size() > 0) {
                     for (int i = 0; i < data.size(); i++) {
-                        //  mDBHelper.insertCommentData(data.get(i));
+                        mDBHelper.insertCommentData(data.get(i));
                         mComments.add(data.get(i));
                         //mComments.addAll(response.body().getData());
                         mCommentListAdapter.notifyDataSetChanged();

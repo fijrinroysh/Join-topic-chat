@@ -78,7 +78,7 @@ public class DBHelper extends SQLiteOpenHelper {
         mydatabase.execSQL(
                 "create table SUBSCRIBER_DATA (" + USER_ID_COLUMN + " VARCHAR," +
                         SUBSCRIBER_ID_COLUMN + " VARCHAR," +
-                        "PRIMARY KEY("+ USER_ID_COLUMN+","+SUBSCRIBER_ID_COLUMN+"))"
+                        "PRIMARY KEY(" + USER_ID_COLUMN + "," + SUBSCRIBER_ID_COLUMN + "))"
                 //"CREATE TABLE IF NOT EXISTS DATA(FROM VARCHAR,TO VARCHAR,MESSAGE VARCHAR );"
         );
     }
@@ -102,30 +102,6 @@ public class DBHelper extends SQLiteOpenHelper {
         mydatabase.insert("SUBSCRIBER_DATA", null, contentValues);
         return true;
     }
-
-    public boolean insertFeedData (Person  message , String protocol) {
-       /* JSONObject msgObject = null;
-        try {
-            msgObject = new JSONObject(message);
-            Log.d(TAG, "Inserted");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }*/
-        mydatabase = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MESSAGE_ID_COLUMN, message.getPostId());
-        contentValues.put(MESSAGE_USER_ID_COLUMN, message.getUserId());
-        contentValues.put(MESSAGE_USER_NAME_COLUMN, message.getSenderName());
-        contentValues.put(MESSAGE_COLUMN, message.getMessage());
-        contentValues.put(PROFILE_IMAGE_COLUMN, message.getPhotoId());
-        contentValues.put(MESSAGE_IMAGE_COLUMN, message.getPhotoMsg());
-        contentValues.put(MESSAGE_TIME_COLUMN, message.getTimeMsg());
-        contentValues.put(SUBSCRIPTION_FLAG_COLUMN, message.getSubscriptionFlag());
-        contentValues.put(MESSAGE_PROTOCOL_COLUMN, protocol);
-        mydatabase.insert("MESSAGE_DATA", null, contentValues);
-        return true;
-    }
-
 
 
     public ArrayList<Person> getFeedDataAll() {
@@ -213,61 +189,27 @@ public class DBHelper extends SQLiteOpenHelper {
         return columndata;
     }
 
-    public String getFeedDataLatestTime() {
-        String  columndata;
+
+    public String getProfileInfo(String id,Integer columnnumber) {
+        String columndata;
         SQLiteDatabase db = this.getReadableDatabase();
-       // Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " + MESSAGE_PROTOCOL_COLUMN + " = \"HTTP\"  ORDER BY "+ MESSAGE_TIME_COLUMN+" DESC" , null );
-        Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA   ORDER BY "+ MESSAGE_TIME_COLUMN+" DESC" , null );
 
-        msg_res.moveToFirst();
+        //String Query = "SELECT * FROM PROFILE_DATA WHERE PROFILE_USER = 'Fiji' ";
+        Cursor prof_res = db.rawQuery("SELECT * FROM PROFILE_DATA WHERE " + PROFILE_ID_COLUMN + " = \"" + id + "\"", null);
+        Log.d(TAG, "getProfileInfoCount: " + prof_res.getCount());
+        Log.d(TAG, "getProfileInfoID: " + id);
 
-        if (msg_res.getCount() != 0){
-            //msg_res.moveToFirst();
-            columndata = msg_res.getString(6);
+        if (prof_res.getCount() != 0){
+            prof_res.moveToFirst();
+            columndata = prof_res.getString(columnnumber);
+            //    Log.d(TAG, "getProfileInfo: " + columndata);
         }
         else{
-            columndata="2000-12-31 12:00:00";
+            columndata="noimage";
         }
-        Log.d(TAG, "getFeedDataLatestTime: " + columndata);
+
         return columndata;
     }
-
-
-    public boolean insertCommentData (Person message) {
-
-        mydatabase = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MESSAGE_ID_COLUMN, message.getPostId());
-        contentValues.put(MESSAGE_USER_ID_COLUMN, message.getUserId());
-        contentValues.put(MESSAGE_USER_NAME_COLUMN, message.getSenderName());
-        contentValues.put(MESSAGE_COLUMN, message.getMessage());
-        contentValues.put(PROFILE_IMAGE_COLUMN, message.getPhotoId());
-        //contentValues.put(MESSAGE_IMAGE_COLUMN_NAME, msgObject.optString(Keys.KEY_IMAGE));
-        //contentValues.put(MESSAGE_LIKES_COLUMN_NAME, msgObject.optString(Keys.KEY_LIKES));
-        contentValues.put(MESSAGE_TIME_COLUMN, message.getTimeMsg());
-        mydatabase.insert("COMMENT_DATA", null, contentValues);
-        return true;
-    }
-
-
-    public String getCommentDataLatestTime(String id) {
-        String  columndata;
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor msg_res =  db.rawQuery( "select * from COMMENT_DATA where " +MESSAGE_ID_COLUMN+ " = \"" + id +"\"  ORDER BY "+ MESSAGE_TIME_COLUMN+" DESC" , null );
-
-        msg_res.moveToFirst();
-
-        if (msg_res.getCount() != 0) {
-            //msg_res.moveToFirst();
-            columndata = msg_res.getString(5);
-        }
-        else{
-            columndata="2000-12-31 12:00:00";
-        }
-        Log.d(TAG, "getCommentDataColumn: " + columndata);
-        return columndata;
-    }
-
     public ArrayList<Person> getCommentData(String id) {
         ArrayList<Person> array_list = new ArrayList<Person>();
 
@@ -290,29 +232,6 @@ public class DBHelper extends SQLiteOpenHelper {
         return array_list;
     }
 
-    public String getProfileInfo(String id,Integer columnnumber) {
-        String columndata;
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        //String Query = "SELECT * FROM PROFILE_DATA WHERE PROFILE_USER = 'Fiji' ";
-        Cursor prof_res = db.rawQuery("SELECT * FROM PROFILE_DATA WHERE " + PROFILE_ID_COLUMN + " = \"" + id + "\"", null);
-        Log.d(TAG, "getProfileInfoCount: " + prof_res.getCount());
-        Log.d(TAG, "getProfileInfoID: " + id);
-
-        if (prof_res.getCount() != 0){
-            prof_res.moveToFirst();
-            columndata = prof_res.getString(columnnumber);
-            //    Log.d(TAG, "getProfileInfo: " + columndata);
-        }
-        else{
-            columndata="noimage";
-        }
-
-        return columndata;
-    }
-
-
-
 
     public boolean updateProfile (String profile) {
         JSONObject msgObject = null;
@@ -332,6 +251,94 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public void RefreshUserSubscription() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete("SUBSCRIBER_DATA",null,null);
+        db.delete("SUBSCRIBER_DATA", null, null);
     }
+
+
+
+
+
+    public boolean insertFeedData (Person  message , String protocol) {
+       /* JSONObject msgObject = null;
+        try {
+            msgObject = new JSONObject(message);
+            Log.d(TAG, "Inserted");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }*/
+        mydatabase = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MESSAGE_ID_COLUMN, message.getPostId());
+        contentValues.put(MESSAGE_USER_ID_COLUMN, message.getUserId());
+        contentValues.put(MESSAGE_USER_NAME_COLUMN, message.getSenderName());
+        contentValues.put(MESSAGE_COLUMN, message.getMessage());
+        contentValues.put(PROFILE_IMAGE_COLUMN, message.getPhotoId());
+        contentValues.put(MESSAGE_IMAGE_COLUMN, message.getPhotoMsg());
+        contentValues.put(MESSAGE_TIME_COLUMN, message.getTimeMsg());
+        contentValues.put(SUBSCRIPTION_FLAG_COLUMN, message.getSubscriptionFlag());
+        contentValues.put(MESSAGE_PROTOCOL_COLUMN, protocol);
+        mydatabase.insert("MESSAGE_DATA", null, contentValues);
+        return true;
+    }
+
+    public void deleteFeedData() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("MESSAGE_DATA", null, null);
+    }
+
+    public boolean insertCommentData (Person message) {
+
+        mydatabase = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MESSAGE_ID_COLUMN, message.getPostId());
+        contentValues.put(MESSAGE_USER_ID_COLUMN, message.getUserId());
+        contentValues.put(MESSAGE_USER_NAME_COLUMN, message.getSenderName());
+        contentValues.put(MESSAGE_COLUMN, message.getMessage());
+        contentValues.put(PROFILE_IMAGE_COLUMN, message.getPhotoId());
+        //contentValues.put(MESSAGE_IMAGE_COLUMN_NAME, msgObject.optString(Keys.KEY_IMAGE));
+        //contentValues.put(MESSAGE_LIKES_COLUMN_NAME, msgObject.optString(Keys.KEY_LIKES));
+        contentValues.put(MESSAGE_TIME_COLUMN, message.getTimeMsg());
+        mydatabase.insert("COMMENT_DATA", null, contentValues);
+        return true;
+    }
+
+    public String getFeedDataLatestTime() {
+        String  columndata;
+        SQLiteDatabase db = this.getReadableDatabase();
+        // Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA where " + MESSAGE_PROTOCOL_COLUMN + " = \"HTTP\"  ORDER BY "+ MESSAGE_TIME_COLUMN+" DESC" , null );
+        Cursor msg_res =  db.rawQuery( "select * from MESSAGE_DATA   ORDER BY "+ MESSAGE_TIME_COLUMN+" DESC" , null );
+
+        msg_res.moveToFirst();
+
+        if (msg_res.getCount() != 0){
+            //msg_res.moveToFirst();
+            columndata = msg_res.getString(6);
+        }
+        else{
+            columndata="2000-12-31 12:00:00";
+        }
+        Log.d(TAG, "getFeedDataLatestTime: " + columndata);
+        return columndata;
+    }
+
+    public String getCommentDataLatestTime(String id) {
+        String  columndata;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor msg_res =  db.rawQuery( "select * from COMMENT_DATA where " +MESSAGE_ID_COLUMN+ " = \"" + id +"\"  ORDER BY "+ MESSAGE_TIME_COLUMN+" DESC" , null );
+
+        msg_res.moveToFirst();
+
+        if (msg_res.getCount() != 0) {
+            //msg_res.moveToFirst();
+            columndata = msg_res.getString(5);
+        }
+        else{
+            columndata="2000-12-31 12:00:00";
+        }
+        Log.d(TAG, "getCommentDataColumn: " + columndata);
+        return columndata;
+    }
+
+
+
 }
