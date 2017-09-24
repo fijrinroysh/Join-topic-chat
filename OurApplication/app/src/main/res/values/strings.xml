@@ -42,4 +42,8 @@
     <string name="search">Search</string>
     <string name="city">City</string>
     <string name="location">Location</string>
+    <string name="enable">Enable</string>
+    <string name="cancel">Cancel</string>
+    <string name="gps_disabled">GPS Not enabled</string>
+    <string name="enable_gps">Do you want to enable it?</string>
 </resources>

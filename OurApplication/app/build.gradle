@@ -5,7 +5,7 @@ android {
         config {
             keyAlias 'siva'
             keyPassword '123456'
-            storeFile file('/Users/sarumugam/Storage/projects/KK/OurApplication/app/ourappkey.jks')
+            storeFile file('KK/OurApplication/app/ourappkey.jks')
             storePassword '123456'
         }
     }

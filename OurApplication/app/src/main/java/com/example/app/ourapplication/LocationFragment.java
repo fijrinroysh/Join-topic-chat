@@ -1,13 +1,19 @@
 package com.example.app.ourapplication;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -41,6 +47,7 @@ public class LocationFragment extends Fragment implements GoogleApiClient.Connec
         GoogleMap.OnMarkerDragListener, GoogleMap.OnMapClickListener, OnMapReadyCallback {
 
     private final String TAG = LocationFragment.class.getSimpleName();
+    private static final int PERM_LOCATION = 6;
     private static final int REQ_LOCATION = 7;
     private static final int DEF_RADIUS = 100;
 
@@ -78,49 +85,79 @@ public class LocationFragment extends Fragment implements GoogleApiClient.Connec
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        SupportMapFragment mapFragment = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map));
-        mapFragment.getMapAsync(this);
         SeekBar seekBar = (SeekBar) view.findViewById(R.id.seekBar);
         seekBar.setMax(100);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
                 mRadius = DEF_RADIUS + seekBar.getProgress();
                 LocationModel model = PreferenceEditor.getInstance(getContext()).getLocation();
 
                 drawCircle(new LatLng(model.getLatitude(),model.getLongitude()));
             }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
         });
+
+        if(isLocationEnabled()){
+            if(isLocationPermAvailable()){
+                setupMaps();
+            }else {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},PERM_LOCATION);
+            }
+        }else{
+            if(isLocationPermAvailable()){
+                showGPSAlert();
+            }else {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},PERM_LOCATION);
+            }
+        }
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case REQ_LOCATION:
-                if (isLocationEnabled()) {
-//                    checkInLocation();
-                } else {
-//                    Snackbar.make(mDrawer, "Location is not enabled", Snackbar.LENGTH_LONG).show();
-                }
+        if(requestCode == REQ_LOCATION && resultCode == Activity.RESULT_OK) {
+            if (isLocationEnabled()) {
+                setupMaps();
+                checkInLocation();
+            } else {
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(isLocationPermAvailable()){
+            if(isLocationEnabled()){
+                setupMaps();
+            }else{
+                showGPSAlert();
+            }
+        }else{
+            // What to do?
         }
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        if(mGoogleApiClient != null && !mGoogleApiClient.isConnected()){
-            mGoogleApiClient.connect();
+        if(mGoogleApiClient == null && isLocationPermAvailable() && isLocationEnabled()){
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    setupMaps();
+                }
+            },1000);
+        }else{
+            if(mGoogleApiClient != null && !mGoogleApiClient.isConnected() && isLocationPermAvailable() && isLocationEnabled()){
+                mGoogleApiClient.connect();
+            }
         }
     }
 
@@ -183,6 +220,10 @@ public class LocationFragment extends Fragment implements GoogleApiClient.Connec
                 mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
 
+    private boolean isLocationPermAvailable(){
+        return (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) || (ContextCompat.checkSelfPermission(getActivity(),Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
+    }
+
     private Location getCurrentLocation() {
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -219,7 +260,6 @@ public class LocationFragment extends Fragment implements GoogleApiClient.Connec
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
-
         mGoogleMap.setOnMarkerClickListener(this);
         mGoogleMap.setOnMarkerDragListener(this);
         mGoogleMap.setOnMapClickListener(this);
@@ -273,5 +313,32 @@ public class LocationFragment extends Fragment implements GoogleApiClient.Connec
         options.strokeColor(ContextCompat.getColor(getActivity(),R.color.map_highlight_border));
         options.strokeWidth(10);
         mCurrLocationMarker = mGoogleMap.addCircle(options);
+    }
+
+    private void showGPSAlert(){
+        AlertDialog.Builder alertDlgBuilder = new AlertDialog.Builder(getActivity());
+        alertDlgBuilder
+                .setTitle(getString(R.string.gps_disabled))
+                .setMessage(getString(R.string.enable_gps))
+                .setCancelable(false)
+                .setPositiveButton(getString(R.string.enable), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        getActivity().startActivityForResult(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), REQ_LOCATION);
+                    }
+                })
+                .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // What to be done?
+                    }
+                });
+        AlertDialog mAlertDialog = alertDlgBuilder.create();
+        mAlertDialog.show();
+    }
+
+    private void setupMaps(){
+        SupportMapFragment mapFragment = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map));
+        mapFragment.getMapAsync(this);
     }
 }
