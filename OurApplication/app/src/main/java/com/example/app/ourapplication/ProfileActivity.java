@@ -46,6 +46,7 @@ public class ProfileActivity extends AppCompatActivity{
     private FloatingActionButton fabsubscribe;
     private FloatingActionButton fabunsubscribe;
     private String token;
+    private RecyclerView recyclerView;
    // private String token = ((OurApplication)getActivity().getApplicationContext()).getUserToken();
 
 
@@ -77,7 +78,7 @@ public class ProfileActivity extends AppCompatActivity{
             fabunsubscribe.setVisibility(View.VISIBLE);}
 
         mFeedListAdapter = new FeedRVAdapter(getApplicationContext(),mFeeds);
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv);
+        recyclerView = (RecyclerView) findViewById(R.id.rv);
         LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext().getApplicationContext());
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(mFeedListAdapter);
@@ -96,6 +97,21 @@ public class ProfileActivity extends AppCompatActivity{
         getUpdatedFeeds();
         getSubscribers();
 
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        recyclerView.setAdapter(null);
+
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onPause();
+        recyclerView.setAdapter(mFeedListAdapter);
     }
 
     @Override

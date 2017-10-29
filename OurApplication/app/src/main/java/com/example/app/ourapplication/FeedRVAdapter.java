@@ -399,7 +399,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 Log.d(TAG, "IMAGE URL :" + item.getPhotoMsg());
                 int index = item.getPhotoMsg().lastIndexOf('/');
                 String Thumbnail_URL = item.getPhotoMsg().substring(0, index);
-                String Thumbnail_filename = item.getPhotoMsg().substring(index + 1);
+                 String Thumbnail_filename = item.getPhotoMsg().substring(index + 1);
                 Log.d(TAG, "Thumbnail_URL" + Thumbnail_URL);
                 Log.d(TAG, "Thumbnail_filename" + Thumbnail_filename.substring(0, Thumbnail_filename.indexOf('.')) + ".jpg");
                 String thumbnailfilename = Thumbnail_URL.concat("/video_thumbnail_").concat(Thumbnail_filename.substring(0, Thumbnail_filename.indexOf('.')) + ".jpg");
@@ -610,10 +610,6 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    @Override
-    public void onAttachedToRecyclerView (RecyclerView recyclerView){
-        super.onAttachedToRecyclerView(recyclerView);
-    }
 
     private void setAnimation(View viewToAnimate, int position) {
         // If the bound view wasn't previously displayed on screen, it's animated
@@ -633,6 +629,7 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 vh3.mPlayer.setPlayWhenReady(false);
                 break;
         }
+
     }
 
 
@@ -696,5 +693,10 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             }
         });
     }
+
+
+
+
+
 
 }

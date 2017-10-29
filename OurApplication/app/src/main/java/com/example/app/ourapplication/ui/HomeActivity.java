@@ -6,10 +6,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
 import com.example.app.ourapplication.ComposeFragment;
+import com.example.app.ourapplication.FeedRVAdapter;
 import com.example.app.ourapplication.HomeFeedFragment;
 import com.example.app.ourapplication.LocationFragment;
 import com.example.app.ourapplication.ProfileFragment;
@@ -46,6 +48,8 @@ public class HomeActivity extends AppCompatActivity implements OnTabSelectListen
         bottomBar.setOnTabSelectListener(this);
         bottomBar.setOnTabReselectListener(this);
     }
+
+
 
     @Override
     public void onTabSelected(@IdRes int tabId) {

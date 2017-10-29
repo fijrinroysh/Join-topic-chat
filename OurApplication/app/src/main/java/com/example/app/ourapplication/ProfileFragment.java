@@ -72,6 +72,7 @@ public class ProfileFragment extends Fragment {
     private ImageView profileImgView;
     public String mUserId;
     private static final int UPDATE_PIC = 1;
+    private RecyclerView recyclerView;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -110,7 +111,7 @@ public class ProfileFragment extends Fragment {
         //mFeeds = mDBHelper.getFeedDataAll();
 
         mFeedListAdapter = new FeedRVAdapter(getActivity(),mFeeds);
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv);
+        recyclerView = (RecyclerView) view.findViewById(R.id.rv);
         LinearLayoutManager llm = new LinearLayoutManager(getContext().getApplicationContext());
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(mFeedListAdapter);
@@ -143,6 +144,22 @@ public class ProfileFragment extends Fragment {
         getUpdatedFeeds();
     }
 
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        recyclerView.setAdapter(null);
+
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onPause();
+        recyclerView.setAdapter(mFeedListAdapter);
+    }
 
 
     private void showFileChooser() {

@@ -59,6 +59,7 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
 
     /*Views*/
     private List<Person> mFeeds = new ArrayList<>();
+    private RecyclerView recyclerView;
     private FeedRVAdapter mFeedListAdapter;
     private DBHelper mDBHelper;
 
@@ -109,8 +110,8 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
         mFeedListAdapter = new FeedRVAdapter(getContext(),mFeeds);
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar_homefeed);
         ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        recyclerView = (RecyclerView) view.findViewById(R.id.rv);
 
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv);
         LinearLayoutManager llm = new LinearLayoutManager(getContext().getApplicationContext());
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(mFeedListAdapter);
@@ -127,7 +128,6 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
             }
 
         });
-
 
 
         /**
@@ -147,6 +147,24 @@ public class HomeFeedFragment extends Fragment implements WebSocketListener{
         Log.d(TAG, "Length of Feed Array" + ": " + mFeeds.size());
 //        getSubscribers();
     }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        //mFeedListAdapter.onViewDetachedFromWindow(ViewHolder);
+        recyclerView.setAdapter(null);
+
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onPause();
+        //mFeedListAdapter.onViewDetachedFromWindow(ViewHolder);
+        recyclerView.setAdapter(mFeedListAdapter);
+    }
+
 
     @Override
     public void onDestroy() {
