@@ -183,11 +183,15 @@ public class ComposeFragment extends Fragment {
 
     private void showFileChooser() {
 
+
+
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*, video/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*"});
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+
+
 
        /* Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
@@ -322,8 +326,8 @@ public class ComposeFragment extends Fragment {
                             mBitmap.compress(Bitmap.CompressFormat.JPEG, 50, bytes);
                             //img.setImageBitmap(mBitmap);
                             iv.setImageBitmap(mBitmap);
-                            String imageMessage = Helper.getStringImage(mBitmap);
-                            iv.setVisibility(View.VISIBLE);
+                          //  String imageMessage = Helper.getStringImage(mBitmap);
+                            //iv.setVisibility(View.VISIBLE);
                             Display display = getActivity().getWindowManager().getDefaultDisplay();
                             int width = display.getWidth();
                             int height = ((display.getHeight()*40)/100);

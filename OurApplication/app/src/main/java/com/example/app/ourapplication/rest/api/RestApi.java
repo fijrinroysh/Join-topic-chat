@@ -31,24 +31,24 @@ public interface RestApi {
     @POST("/updateprofile")
     Call<ProfileRespModel> updateProfile(@Body ProfileUpdateModel profileReqModel);
 
-    @POST("/homefeedquery")
+    @POST("/feedquery/home")
     Call<SuccessRespModel> queryHomeFeed(@Body HomeFeedReqModel homeFeedReqModel);
 
     @POST("/postfeed")
     Call<ComposeRespModel> ComposeFeed(@Body CompleteFeedModel completeFeedModel);
 
-    @POST("/profilefeedquery")
+    @POST("/feedquery/profile")
     Call<SuccessRespModel> queryProfileFeed(@Body ProfileFeedReqModel profileFeedReqModel);
 
-    @POST("/commentfeedquery")
+    @POST("/feedquery/comment")
     Call<SuccessRespModel> queryCommentFeed(@Body CommentFeedReqModel commentFeedReqModel);
 
-    @POST("/subscribefeedquery")
+    @POST("/subscriber/subscribe")
     Call<SuccessRespModel> SubscribeFeed(@Body SubscribeReqModel subscribereqmodel);
 
-    @POST("/unsubscribefeedquery")
+    @POST("/subscriber/unsubscribe")
     Call<SuccessRespModel> UnSubscribeFeed(@Body SubscribeReqModel subscribereqmodel);
 
-    @POST("/subscriberdataquery")
+    @POST("/subscriber/dataquery")
     Call<SubscriberDataRespModel> querySubscriberData();
 }

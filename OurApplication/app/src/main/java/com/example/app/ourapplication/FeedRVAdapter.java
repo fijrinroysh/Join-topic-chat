@@ -203,11 +203,11 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public int getItemViewType(int i) {
         if (mFeeds.get(i).getType().equals("F")){
-            if(mFeeds.get(i).getPhotoMsg() != null && !mFeeds.get(i).getPhotoMsg().isEmpty() && mFeeds.get(i).getPhotoMsg().contains("/images/"))
+            if(mFeeds.get(i).getPhotoMsg() != null && !mFeeds.get(i).getPhotoMsg().isEmpty() && mFeeds.get(i).getPhotoMsg().contains("/file_download/Pictures/"))
             {
                 return 2;
             }
-            else if(mFeeds.get(i).getPhotoMsg() != null && !mFeeds.get(i).getPhotoMsg().isEmpty() && mFeeds.get(i).getPhotoMsg().contains("/videos/"))
+            else if(mFeeds.get(i).getPhotoMsg() != null && !mFeeds.get(i).getPhotoMsg().isEmpty() && mFeeds.get(i).getPhotoMsg().contains("/file_download/Videos/"))
             {
                 return 3;
             }
@@ -477,16 +477,15 @@ public class FeedRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     //ViewGroup.LayoutParams layPar= vh3.videoThumbnail.getLayoutParams();
 
                     vh3.videoLoaderProgressBar.setVisibility(View.INVISIBLE);
-                    vh3.videoThumbnail.setVisibility(View.INVISIBLE);
-                    vh3.playIcon.setVisibility(View.INVISIBLE);
-                    vh3.mPlaybackControlView.hide();
-                    vh3.mPlayer.setPlayWhenReady(true);
 
                     vh3.playIcon.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             try {
-
+                                vh3.mPlayer.setPlayWhenReady(true);
+                                vh3.videoThumbnail.setVisibility(View.INVISIBLE);
+                                vh3.playIcon.setVisibility(View.INVISIBLE);
+                                vh3.mPlaybackControlView.hide();
 
                             } catch (Exception e) {
                                 e.printStackTrace();

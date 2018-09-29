@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ import com.example.app.ourapplication.util.Helper;
 import com.example.app.ourapplication.util.UI;
 import com.squareup.picasso.Picasso;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -107,7 +109,7 @@ public class ProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         String userId = PreferenceEditor.getInstance(getContext().getApplicationContext()).getLoggedInUserName();
-        String ImageURL = ApiUrls.HTTP_URL +"/images/"+userId+".jpg";
+        String ImageURL = ApiUrls.HTTP_URL +"/file_download/Pictures/"+userId+".jpg";
         //mFeeds = mDBHelper.getFeedDataAll();
 
         mFeedListAdapter = new FeedRVAdapter(getActivity(),mFeeds);
@@ -127,7 +129,12 @@ public class ProfileFragment extends Fragment {
         CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) view.findViewById(R.id.profile_collapse);
         collapsingToolbar.setTitle(" ");
         profileImgView = (ImageView) view.findViewById(R.id.image_profile);
-        Picasso.with((getActivity().getApplicationContext())).load(ImageURL).into(profileImgView);
+//        Picasso.with((getActivity().getApplicationContext())).load(ImageURL).into(profileImgView);
+    
+        Picasso.with((getActivity().getApplicationContext())).load(ImageURL)
+                .placeholder(R.drawable.mickey)
+                .error(R.drawable.mickey)
+                .into(profileImgView);
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -192,10 +199,13 @@ public class ProfileFragment extends Fragment {
                             Bitmap bitmapRef = Helper.scaleBitmap(bitmap);
                             Log.d(TAG,"L : "+bitmapRef.getWidth()+ "  : "+bitmapRef.getScaledHeight(getResources().getDisplayMetrics()));
                             profileImgView.setImageBitmap(bitmapRef);
+                            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                            bitmapRef.compress(Bitmap.CompressFormat.JPEG, 50, bytes);
+
                             if(!TextUtils.isEmpty(mUserId)) {
-                                String imageProfileString = Helper.getStringImage(bitmapRef);
-                                Log.d(TAG, "Image message value length : " + imageProfileString.length());
-                                Log.d(TAG, "Image message value is : " + imageProfileString);
+                               // String imageProfileString = Helper.getStringImage(bitmapRef);
+                               // Log.d(TAG, "Image message value length : " + imageProfileString.length());
+                               // Log.d(TAG, "Image message value is : " + imageProfileString);
                                 ProfileUpdateModel model = new ProfileUpdateModel(mUserId, Keys.KEY_PROFIMG, imageProfileString);
                                 updateProfile(model);
                              //   mDBHelper.updateProfile(model.toString());
@@ -208,6 +218,80 @@ public class ProfileFragment extends Fragment {
                     }
                 }
                 break;
+        }
+    }
+
+
+    public String getFilePath(Uri uri,String type) {
+        Cursor cursor = getContext().getContentResolver().query(uri, null, null, null, null);
+        cursor.moveToFirst();
+        String document_id = cursor.getString(0);
+        String path="";
+        document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
+        cursor.close();
+        if(type.equals("image")) {
+            cursor = getContext().getContentResolver().query(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null,
+                    MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
+            cursor.moveToFirst();
+            path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            cursor.close();
+        }
+        else if(type.equals("video")) {
+            cursor = getContext().getContentResolver().query(android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI, null,
+                    MediaStore.Video.Media._ID + " = ? ", new String[]{document_id}, null);
+            cursor.moveToFirst();
+            path = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
+            cursor.close();
+        }
+        return path;
+    }
+
+    private void fileupload(Uri uri,CompleteFeedModel completeFeedModel,String filepathtype,String AbsolutefilePath,String type) {
+        Log.d(TAG, "pathtype==" + filepathtype);
+        String DevicefilePath="";
+        if(filepathtype != null && !filepathtype.isEmpty() && filepathtype.equals("uri")) {
+            DevicefilePath= getFilePath(uri,type);
+        } else if(filepathtype != null && !filepathtype.isEmpty() && filepathtype.equals("path")) {
+            DevicefilePath=AbsolutefilePath;
+        }
+        Log.d(TAG, "filePath:" + DevicefilePath);
+
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+        RequestBody completefeedmodel = RequestBody.create(MediaType.parse("text/plain"), completeFeedModel.toString());
+        // Change base URL to your upload server URL.
+        FileUploadApi service = new Retrofit.Builder().baseUrl(ApiUrls.HTTP_URL).client(client).build().create(FileUploadApi.class);
+        String descriptionString = "Sample description";
+
+        if (DevicefilePath != null && !DevicefilePath.isEmpty()) {
+            File file = new File(DevicefilePath);
+            if (file.exists()) {
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl(ApiUrls.HTTP_URL)
+                        .build();
+
+                RequestBody fileBody = RequestBody.create(MediaType.parse("video/*"), file);
+                MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), fileBody);
+                RequestBody name = RequestBody.create(MediaType.parse("text/plain"), file.getName());
+
+                Log.d(TAG, "RequestBody is " + fileBody);
+
+                retrofit2.Call<okhttp3.ResponseBody> req = service.postImage(body, name,completefeedmodel);
+                req.enqueue(new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                        Toast.makeText(getContext(), "File Upload Success", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        t.printStackTrace();
+                        Toast.makeText(getContext(), "File Upload Failed", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         }
     }
 
@@ -305,72 +389,4 @@ public class ProfileFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
-/*
-    private void fileupload(Uri uri,ProfileUpdateModel reqModel,String filepathtype,String AbsolutefilePath,String type) {
-        Log.d(TAG, "pathtype==" + filepathtype);
-        String DevicefilePath="";
-        if(filepathtype != null && !filepathtype.isEmpty() && filepathtype.equals("uri")) {
-            DevicefilePath= getFilePath(uri,type);
-        } else if(filepathtype != null && !filepathtype.isEmpty() && filepathtype.equals("path")) {
-            DevicefilePath=AbsolutefilePath;
-        }
-        Log.d(TAG, "filePath:" + DevicefilePath);
-
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
-        RequestBody profilefeedmodel = RequestBody.create(MediaType.parse("text/plain"), reqModel.toString());
-        // Change base URL to your upload server URL.
-        FileUploadApi service = new Retrofit.Builder().baseUrl(ApiUrls.HTTP_URL).client(client).build().create(FileUploadApi.class);
-        String descriptionString = "Sample description";
-
-        if (DevicefilePath != null && !DevicefilePath.isEmpty()) {
-            File file = new File(DevicefilePath);
-            if (file.exists()) {
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(ApiUrls.HTTP_URL)
-                        .build();
-
-                RequestBody fileBody = RequestBody.create(MediaType.parse("video/*"), file);
-                MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), fileBody);
-                RequestBody name = RequestBody.create(MediaType.parse("text/plain"), file.getName());
-
-                Log.d(TAG, "RequestBody is " + fileBody);
-
-                retrofit2.Call<okhttp3.ResponseBody> req = service.postImage(body, name,completefeedmodel);
-                req.enqueue(new Callback<ResponseBody>() {
-                    @Override
-                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                        UI.closeKeyboard(getActivity(), mMessageBox.getWindowToken());
-                        getActivity().onBackPressed(); // TODO hack
-                        filetype="";
-                        filePath=null;
-                        pathtype="";
-                        Toast.makeText(getContext(), "File Upload Success", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onFailure(Call<ResponseBody> call, Throwable t) {
-                        t.printStackTrace();
-                        Toast.makeText(getContext(), "File Upload Failed", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        } else {
-            Call<okhttp3.ResponseBody> req = service.postImage(null,null ,completefeedmodel);
-            req.enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    getActivity().onBackPressed(); // TODO hack
-                    UI.closeKeyboard(getActivity(), mMessageBox.getWindowToken());
-                    Toast.makeText(getContext(), "Message Sent", Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    t.printStackTrace();
-                    Toast.makeText(getContext(), "Message Not Sent", Toast.LENGTH_SHORT).show();
-                }
-            });}
-    }*/
 }
